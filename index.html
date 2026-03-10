@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capacity Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:      #f5f4f1;
+    --surface: #ffffff;
+    --border:  #e2e0db;
+    --border2: #cccac4;
+    --text:    #1c1b19;
+    --muted:   #8a8880;
+    --subtle:  #f0ede8;
+    --cell:    44px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.5; min-height: 100vh; }
+
+  /* ── TOP BAR ── */
+  .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 1.5rem; height: 52px; display: flex; align-items: center; justify-content: space-between; gap: 1rem; position: sticky; top: 0; z-index: 30; }
+  .topbar-left  { display: flex; align-items: center; gap: 0.75rem; }
+  .topbar-title { font-size: 15px; font-weight: 600; white-space: nowrap; }
+  .topbar-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .btn-sm { display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); font-family: inherit; font-size: 12px; font-weight: 500; color: var(--text); cursor: pointer; transition: background 0.12s, border-color 0.12s; white-space: nowrap; }
+  .btn-sm:hover { background: var(--subtle); border-color: var(--border2); }
+  .btn-sm.danger { color: #b52020; }
+  .btn-sm.danger:hover { background: #fceaea; border-color: #e89090; }
+  .btn-sm svg { flex-shrink: 0; }
+
+  /* ── TAB BAR ── */
+  .tabbar { background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: stretch; padding: 0 1.5rem; overflow-x: auto; min-height: 40px; position: sticky; top: 52px; z-index: 29; }
+  .tabbar::-webkit-scrollbar { height: 0; }
+  .tab-item { display: flex; align-items: center; gap: 6px; padding: 0 14px; border-bottom: 2px solid transparent; font-size: 13px; font-weight: 500; color: var(--muted); cursor: pointer; white-space: nowrap; transition: color 0.12s, border-color 0.12s; user-select: none; min-height: 40px; }
+  .tab-item:hover { color: var(--text); }
+  .tab-item.active { color: var(--text); border-bottom-color: var(--text); }
+  .tab-item .tab-name-input { background: none; border: none; outline: none; font: inherit; color: inherit; cursor: text; width: 100px; padding: 0; }
+  .tab-item .tab-name-input:focus { background: var(--bg); border-radius: 3px; padding: 0 4px; margin: 0 -4px; }
+  .tab-del { background: none; border: none; cursor: pointer; color: var(--border2); font-size: 13px; line-height: 1; padding: 1px 3px; border-radius: 3px; opacity: 0; transition: opacity 0.12s, color 0.12s; }
+  .tab-item:hover .tab-del { opacity: 1; }
+  .tab-item.active .tab-del { opacity: 0.6; }
+  .tab-del:hover { color: #b52020; opacity: 1 !important; }
+  .tab-add { display: flex; align-items: center; justify-content: center; padding: 0 12px; cursor: pointer; color: var(--muted); font-size: 18px; font-weight: 300; transition: color 0.12s; border-bottom: 2px solid transparent; min-height: 40px; }
+  .tab-add:hover { color: var(--text); }
+
+  /* ── LAYOUT ── */
+  .app-body { display: grid; grid-template-columns: 300px 1fr; min-height: calc(100vh - 92px); }
+
+  /* ── SIDEBAR ── */
+  .sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; overflow-y: auto; max-height: calc(100vh - 92px); }
+  .field-label   { display: block; font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; }
+  .section-title { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+  input[type="text"], input[type="number"] { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 7px 10px; font-family: inherit; font-size: 13px; color: var(--text); outline: none; transition: border-color 0.15s, box-shadow 0.15s; }
+  input:focus { border-color: #6a9fd8; box-shadow: 0 0 0 3px rgba(106,159,216,0.15); }
+  .field { margin-bottom: 10px; }
+  .btn { width: 100%; padding: 8px 14px; border-radius: 6px; border: none; font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.15s; }
+  .btn-primary   { background: #1c1b19; color: #fff; }
+  .btn-primary:hover { background: #333; }
+  .btn-secondary { background: var(--subtle); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: var(--border); }
+
+  .size-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
+  .size-radio { display: none; }
+  .size-btn { display: flex; flex-direction: column; align-items: center; padding: 7px 4px; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--muted); background: var(--bg); transition: all 0.12s; gap: 2px; }
+  .size-btn:hover { border-color: var(--border2); color: var(--text); }
+  .size-radio:checked + .size-btn { background: var(--text); color: #fff; border-color: var(--text); }
+  .size-sub { font-size: 10px; font-weight: 400; opacity: 0.65; }
+
+  .backlog-list { display: flex; flex-direction: column; gap: 5px; min-height: 40px; }
+  .feature-card { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 7px; cursor: grab; user-select: none; transition: border-color 0.12s, box-shadow 0.12s; }
+  .feature-card:hover { border-color: var(--border2); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .feature-card.is-dragging { opacity: 0.35; }
+  .card-dot  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .card-info { flex: 1; min-width: 0; }
+  .card-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card-meta { font-size: 11px; color: var(--muted); margin-top: 1px; font-family: 'DM Mono', monospace; }
+  .card-del  { background: none; border: none; cursor: pointer; color: var(--border2); font-size: 14px; padding: 2px 4px; border-radius: 4px; opacity: 0; transition: opacity 0.12s, color 0.12s; line-height: 1; }
+  .feature-card:hover .card-del { opacity: 1; }
+  .card-del:hover { color: #c0392b; }
+  .empty-state { font-size: 12px; color: var(--muted); text-align: center; padding: 12px 0; }
+  .count-badge { display: inline-flex; align-items: center; justify-content: center; background: var(--subtle); border: 1px solid var(--border); border-radius: 10px; padding: 0 6px; height: 18px; font-size: 10px; font-weight: 600; color: var(--muted); font-family: 'DM Mono', monospace; }
+
+  /* ── WORKSPACE ── */
+  .workspace { padding: 2rem; display: flex; flex-direction: column; gap: 1.25rem; overflow-y: auto; max-height: calc(100vh - 92px); }
+  .ws-header { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+  .ws-title  { font-size: 16px; font-weight: 600; }
+  .ws-sub    { font-size: 12px; color: var(--muted); margin-top: 2px; font-family: 'DM Mono', monospace; }
+  .ws-stats  { display: flex; align-items: center; gap: 1.5rem; }
+  .stat-item { text-align: right; }
+  .stat-num  { font-size: 20px; font-weight: 600; font-family: 'DM Mono', monospace; }
+  .stat-lbl  { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .status-pill { font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 20px; border: 1px solid transparent; }
+  .pill-ok   { background: #eaf5ef; color: #2d7d4e; border-color: #a8d9bc; }
+  .pill-near { background: #fdf5e0; color: #8a6200; border-color: #e0c97a; }
+  .pill-over { background: #fceaea; color: #b52020; border-color: #e89090; }
+  .progress-wrap { background: var(--border); border-radius: 3px; height: 4px; overflow: hidden; }
+  .progress-bar  { height: 100%; border-radius: 3px; transition: width 0.35s ease, background 0.3s; }
+
+  /* ── TETRIS BOX ── */
+  .box-label { font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .tetris-outer {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 0;
+    transition: border-color 0.15s;
+    position: relative;
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  /* The playfield: a CSS grid of cells, pieces positioned absolutely on top */
+  .tetris-grid {
+    display: grid;
+    position: relative;
+    cursor: crosshair;
+    /* grid-template-columns / rows / width set by JS */
+  }
+
+  /* Background grid cells */
+  .t-cell {
+    width: var(--cell); height: var(--cell);
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+  }
+  /* Dim the top rows that are "above capacity" visually */
+  .t-cell.overflow-zone { background: #faf9f6; }
+
+  /* Column highlight on hover */
+  .col-highlight {
+    position: absolute;
+    top: 0; bottom: 0;
+    pointer-events: none;
+    transition: left 0.05s, width 0.05s, background 0.1s;
+    border-radius: 4px;
+    z-index: 1;
+    display: none;
+  }
+
+  /* Placed feature tiles */
+  .feat-tile {
+    position: absolute;
+    border-radius: 6px;
+    border: 1.5px solid;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 5px 7px;
+    user-select: none;
+    overflow: hidden;
+    z-index: 2;
+    transition: top 0.18s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.12s;
+  }
+  .feat-tile:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.13); z-index: 10; }
+  .tile-name { font-size: 10px; font-weight: 600; line-height: 1.3; word-break: break-word; cursor: default; }
+  .tile-name[contenteditable="true"] {
+    outline: none;
+    background: rgba(255,255,255,0.55);
+    border-radius: 3px;
+    padding: 1px 3px;
+    margin: -1px -3px;
+    cursor: text;
+    caret-color: currentColor;
+  }
+  .tile-meta { font-size: 9px; opacity: 0.65; margin-top: 1px; font-family: 'DM Mono', monospace; }
+  .tile-rm   { position: absolute; top: 3px; right: 3px; width: 15px; height: 15px; border-radius: 3px; background: rgba(0,0,0,0.12); border: none; cursor: pointer; font-size: 9px; color: inherit; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.12s; }
+  .feat-tile:hover .tile-rm { opacity: 1; }
+  .tile-rm:hover { background: rgba(0,0,0,0.22); }
+
+  /* Ghost preview (falling piece shadow) */
+  .drop-ghost {
+    position: absolute;
+    border-radius: 6px;
+    border: 2px dashed;
+    pointer-events: none;
+    z-index: 5;
+    display: none;
+    opacity: 0.6;
+  }
+
+  /* Fill level line */
+  .fill-line {
+    position: absolute;
+    left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #6a9fd8, #9dc0e8);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 3;
+    transition: top 0.35s ease, opacity 0.2s;
+  }
+
+  /* Parked */
+  .parked-outer { background: var(--surface); border: 1.5px dashed var(--border2); border-radius: 10px; padding: 12px; min-height: 60px; transition: border-color 0.15s, background 0.15s; }
+  .parked-outer.drag-over { border-color: #c89ee0; background: #f9f4fe; }
+  .parked-chips { display: flex; flex-wrap: wrap; gap: 6px; min-height: 28px; align-content: flex-start; }
+  .parked-chip { display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 5px; border: 1px solid; font-size: 12px; font-weight: 500; cursor: grab; user-select: none; transition: box-shadow 0.12s; }
+  .parked-chip:hover { box-shadow: 0 1px 6px rgba(0,0,0,0.1); }
+  .parked-chip.is-dragging { opacity: 0.3; }
+  .chip-sz { font-family: 'DM Mono', monospace; font-size: 10px; opacity: 0.7; }
+  .parked-empty { font-size: 12px; color: var(--muted); }
+
+  .ws-placeholder { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--muted); text-align: center; min-height: 300px; }
+
+  /* ── CAPACITY CALCULATOR ── */
+  .calc-toggle { display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; padding: 8px 10px; border-radius: 7px; border: 1px solid var(--border); background: var(--bg); transition: background 0.12s, border-color 0.12s; }
+  .calc-toggle:hover { background: var(--subtle); border-color: var(--border2); }
+  .calc-toggle-left { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 500; color: var(--muted); }
+  .calc-chevron { transition: transform 0.2s; color: var(--muted); }
+  .calc-chevron.open { transform: rotate(180deg); }
+  .calc-body { overflow: hidden; max-height: 0; transition: max-height 0.25s ease, opacity 0.2s; opacity: 0; }
+  .calc-body.open { max-height: 600px; opacity: 1; }
+  .calc-inner { border: 1px solid var(--border); border-top: none; border-radius: 0 0 7px 7px; background: var(--surface); padding: 12px 10px 10px; }
+  .calc-row { display: grid; grid-template-columns: 1fr 80px; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .calc-row label { font-size: 12px; color: var(--text); line-height: 1.3; }
+  .calc-row input { text-align: right; padding: 5px 8px; font-size: 13px; }
+  .calc-divider { height: 1px; background: var(--border); margin: 10px 0; }
+  .calc-result { display: flex; align-items: center; justify-content: space-between; padding: 8px 0 4px; }
+  .calc-result-label { font-size: 12px; color: var(--muted); }
+  .calc-result-value { font-size: 20px; font-weight: 600; font-family: 'DM Mono', monospace; color: var(--text); }
+  .calc-result-value.has-value { color: #1a5fa8; }
+  .calc-formula { font-size: 10px; color: var(--muted); font-family: 'DM Mono', monospace; margin-top: 2px; line-height: 1.5; }
+  .calc-apply { width: 100%; margin-top: 10px; padding: 7px 14px; border-radius: 6px; border: 1px solid var(--border); background: var(--subtle); font-family: inherit; font-size: 12px; font-weight: 500; color: var(--text); cursor: pointer; transition: background 0.12s; }
+  .calc-apply:hover { background: var(--border); }
+  .calc-apply:disabled { opacity: 0.4; cursor: default; }
+
+  /* ── DROPDOWN ── */
+  .dropdown-wrap { position: relative; display: inline-flex; }
+  .dropdown-menu { display: none; position: absolute; top: calc(100% + 4px); right: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); min-width: 180px; z-index: 100; overflow: hidden; }
+  .dropdown-menu.open { display: block; }
+  .dropdown-item { display: flex; align-items: center; gap: 8px; padding: 8px 14px; font-size: 13px; cursor: pointer; transition: background 0.1s; white-space: nowrap; border: none; background: none; width: 100%; text-align: left; font-family: inherit; color: var(--text); }
+  .dropdown-item:hover { background: var(--subtle); }
+  .dropdown-divider { height: 1px; background: var(--border); margin: 4px 0; }
+
+  /* ── MODAL ── */
+  .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; align-items: center; justify-content: center; }
+  .modal-backdrop.open { display: flex; }
+  .modal { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); padding: 1.5rem; width: 500px; max-width: 95vw; box-shadow: 0 8px 40px rgba(0,0,0,0.15); }
+  .modal-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .modal-sub   { font-size: 12px; color: var(--muted); margin-bottom: 1rem; }
+  textarea { width: 100%; height: 200px; font-family: 'DM Mono', monospace; font-size: 11px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px; color: var(--text); outline: none; resize: vertical; transition: border-color 0.15s; }
+  textarea:focus { border-color: #6a9fd8; }
+  .modal-error   { font-size: 12px; color: #b52020; margin-top: 6px; min-height: 16px; }
+  .modal-actions { display: flex; gap: 8px; margin-top: 1rem; justify-content: flex-end; }
+  .modal-actions .btn { width: auto; padding: 7px 16px; }
+
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left"><span class="topbar-title">Capacity Planner</span></div>
+  <div class="topbar-actions">
+    <div class="dropdown-wrap" id="exportDropWrap">
+      <button class="btn-sm" onclick="toggleExportDropdown()">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1v9M4 7l4 4 4-4"/><path d="M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1"/></svg>
+        Export
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 3.5l3 3 3-3"/></svg>
+      </button>
+      <div class="dropdown-menu" id="exportDropdown">
+        <button class="dropdown-item" onclick="exportCurrentTab()">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="2" width="10" height="12" rx="1"/><path d="M6 6h4M6 9h4M6 12h2"/></svg>
+          Export current team
+        </button>
+        <div class="dropdown-divider"></div>
+        <button class="dropdown-item" onclick="exportAllTabs()">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="10" height="10" rx="1"/><path d="M5 4V3a1 1 0 011-1h8a1 1 0 011 1v10a1 1 0 01-1 1h-1"/></svg>
+          Export all teams
+        </button>
+      </div>
+    </div>
+    <button class="btn-sm" onclick="openImport()">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 11V2M4 5l4-4 4 4"/><path d="M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1"/></svg>
+      Import
+    </button>
+    <button class="btn-sm danger" onclick="clearAll()">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h12M5 4V2h6v2M6 7v5M10 7v5M3 4l1 9a1 1 0 001 1h6a1 1 0 001-1l1-9"/></svg>
+      Clear all
+    </button>
+  </div>
+</div>
+
+<!-- TAB BAR -->
+<div class="tabbar" id="tabbar"></div>
+
+<!-- BODY -->
+<div class="app-body">
+  <aside class="sidebar">
+    <!-- Quarter setup -->
+    <div>
+      <div class="section-title">Quarter setup</div>
+      <div class="field"><label class="field-label">Quarter name</label><input type="text" id="quarterName" value="Q3 2025" oninput="onQuarterNameInput()"></div>
+      <div class="field"><label class="field-label">Story point capacity</label><input type="number" id="capacityInput" placeholder="e.g. 80" min="1"></div>
+      <button class="btn btn-primary" onclick="setCapacity()">Set capacity</button>
+    </div>
+
+    <!-- Calculator -->
+    <div>
+      <div class="calc-toggle" onclick="toggleCalc()" id="calcToggle">
+        <div class="calc-toggle-left">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="12" height="12" rx="1.5"/><path d="M5 5h2M9 5h2M5 8h2M9 8h2M5 11h2M9 11h2"/></svg>
+          Capacity calculator
+        </div>
+        <svg class="calc-chevron" id="calcChevron" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 4l4 4 4-4"/></svg>
+      </div>
+      <div class="calc-body" id="calcBody">
+        <div class="calc-inner">
+          <div class="calc-row"><label>Developers available</label><input type="number" id="calcDevs" min="1" placeholder="4" oninput="calcUpdate()"></div>
+          <div class="calc-row"><label>Total team holiday days</label><input type="number" id="calcHolidays" min="0" placeholder="20" oninput="calcUpdate()"></div>
+          <div class="calc-row"><label>Avg. pts per dev per week</label><input type="number" id="calcVelocity" min="1" placeholder="8" oninput="calcUpdate()"></div>
+          <div class="calc-row"><label>Quarter length in weeks</label><input type="number" id="calcWeeks" min="1" placeholder="13" oninput="calcUpdate()"></div>
+          <div class="calc-divider"></div>
+          <div class="calc-result">
+            <div><div class="calc-result-label">Estimated capacity</div><div class="calc-formula" id="calcFormula">Fill in the fields above</div></div>
+            <div class="calc-result-value" id="calcResult">—</div>
+          </div>
+          <button class="calc-apply" id="calcApply" onclick="applyCalc()" disabled>Use this capacity</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add feature -->
+    <div>
+      <div class="section-title">Add feature</div>
+      <div class="field"><label class="field-label">Feature name</label><input type="text" id="featureName" placeholder="e.g. User authentication"></div>
+      <div class="field">
+        <label class="field-label">T-shirt size</label>
+        <div class="size-grid">
+          <div><input type="radio" name="sz" id="sz-s"  class="size-radio" value="S" checked><label for="sz-s"  class="size-btn">S<span class="size-sub">10 pts</span></label></div>
+          <div><input type="radio" name="sz" id="sz-m"  class="size-radio" value="M"><label for="sz-m"  class="size-btn">M<span class="size-sub">20 pts</span></label></div>
+          <div><input type="radio" name="sz" id="sz-l"  class="size-radio" value="L"><label for="sz-l"  class="size-btn">L<span class="size-sub">40 pts</span></label></div>
+          <div><input type="radio" name="sz" id="sz-xl" class="size-radio" value="XL"><label for="sz-xl" class="size-btn">XL<span class="size-sub">80 pts</span></label></div>
+        </div>
+      </div>
+      <button class="btn btn-secondary" onclick="addFeature()">Add to backlog</button>
+    </div>
+
+    <!-- Backlog -->
+    <div>
+      <div class="section-title" style="display:flex;align-items:center;gap:6px;">Backlog <span class="count-badge" id="backlogCount">0</span></div>
+      <div class="backlog-list" id="backlogList"></div>
+    </div>
+  </aside>
+
+  <main class="workspace" id="workspace"></main>
+</div>
+
+<!-- Import modal -->
+<div class="modal-backdrop" id="importModal">
+  <div class="modal">
+    <div class="modal-title">Import</div>
+    <div class="modal-sub">Paste exported JSON. A single-team export updates the matching tab (or creates a new one). An all-teams export merges all teams.</div>
+    <textarea id="importText" placeholder='Paste exported JSON here…'></textarea>
+    <div class="modal-error" id="importError"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" style="width:auto" onclick="closeImport()">Cancel</button>
+      <button class="btn btn-primary"   style="width:auto" onclick="doImport()">Import</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════════
+const STORAGE_KEY = 'capacityPlanner_v2';
+const CELL = 44; // px per grid cell
+
+// Sizes: pts = story points, cols/rows = tile footprint in cells
+const SIZES = {
+  S:  { pts:10, cols:2, rows:1, color:'#1a5fa8', bg:'#e8f1fb', border:'#9dc0e8' },  // 2×1 = 2 cells × 5 = 10pts ✓
+  M:  { pts:20, cols:2, rows:2, color:'#8a6200', bg:'#fdf5e0', border:'#e0c97a' },  // 2×2 = 4 cells × 5 = 20pts ✓
+  L:  { pts:40, cols:4, rows:2, color:'#b54a00', bg:'#fdf0e8', border:'#e8b48a' },  // 4×2 = 8 cells × 5 = 40pts ✓
+  XL: { pts:80, cols:4, rows:4, color:'#b52020', bg:'#fceaea', border:'#e89090' },  // 4×4 = 16 cells × 5 = 80pts ✓
+};
+
+// Each grid cell = 5 story points (S=10pts fills 2×1=2 cells → 5pts/cell).
+// Total grid cells = capacity / PTS_PER_CELL.  rows = ceil(totalCells / cols)
+const PTS_PER_CELL = 5;
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+// Each tab: { id, name, quarterName, capacity, features, idCounter, placed, parked }
+// placed[id] = { col, row }  — top-left cell of the tile
+let tabs = [], activeTabId = null, tabIdSeq = 0;
+let dragId = null, dragFrom = null;
+
+function tab() { return tabs.find(t => t.id === activeTabId); }
+
+// Grid cols: use tab's stored value (default 20)
+function getGridCols() {
+  const t = tab();
+  return (t && t.gridCols) ? t.gridCols : 20;
+}
+
+// Actual rendered pixel width of one cell (may differ from CELL when grid < viewport)
+function cellW() {
+  const grid = document.getElementById('tetrisGrid');
+  if (!grid) return CELL;
+  // Grid may be wider than viewport (horizontal scroll), so use scrollWidth-based col width
+  return CELL; // cells are always CELL px wide; grid stretches via min-width
+}
+
+function gridRows() {
+  const t = tab();
+  if (!t || !t.capacity) return 0;
+  const totalCells = Math.ceil(t.capacity / PTS_PER_CELL);
+  const natural = Math.ceil(totalCells / getGridCols());
+  // Minimum 4 rows so XL tiles (4 rows tall) always fit
+  return Math.max(4, natural);
+}
+
+// Called from pencil-edit inline widget
+function setGridCols(val) {
+  const n = parseInt(val);
+  if (!n || n < 1) return;
+  const t = tab(); if (!t) return;
+  t.gridCols = Math.max(1, n);
+  const totalCells2 = Math.ceil((t.capacity || 0) / PTS_PER_CELL);
+  const newRows = Math.max(1, Math.ceil(totalCells2 / t.gridCols));
+  // Evict tiles that no longer fit
+  for (const id in t.placed) {
+    const f = t.features.find(f => f.id === +id); if (!f) { delete t.placed[id]; continue; }
+    const s = SIZES[f.size], p = t.placed[id];
+    if (p.col + s.cols > t.gridCols || p.row + s.rows > newRows) delete t.placed[id];
+  }
+  saveState(); renderWorkspace(); updateStats(); updateParked(); renderTiles(); renderBacklog();
+}
+
+// ═══════════════════════════════════════════════════════════
+// PERSISTENCE
+// ═══════════════════════════════════════════════════════════
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ version:2, tabs, activeTabId, tabIdSeq })); } catch(e) {}
+}
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (!s || s.version !== 2 || !Array.isArray(s.tabs) || !s.tabs.length) return false;
+    tabs = s.tabs; activeTabId = s.activeTabId; tabIdSeq = s.tabIdSeq || s.tabs.length;
+    if (!tabs.find(t => t.id === activeTabId)) activeTabId = tabs[0].id;
+    return true;
+  } catch(e) { return false; }
+}
+
+// ═══════════════════════════════════════════════════════════
+// TAB MANAGEMENT
+// ═══════════════════════════════════════════════════════════
+function newTab(name) {
+  const id = ++tabIdSeq;
+  const t = { id, name: name || `Team ${id}`, quarterName:'Q3 2025', capacity:0, gridCols:20, features:[], idCounter:0, placed:{}, parked:[] };
+  tabs.push(t); return t;
+}
+function addTab() {
+  const t = newTab(); activeTabId = t.id;
+  saveState(); renderTabBar(); loadTabIntoSidebar(); renderWorkspace();
+}
+function deleteTab(id) {
+  if (tabs.length === 1) { alert('You need at least one team tab.'); return; }
+  if (!confirm(`Delete team "${tabs.find(t=>t.id===id)?.name}"?`)) return;
+  tabs = tabs.filter(t => t.id !== id);
+  if (activeTabId === id) activeTabId = tabs[0].id;
+  saveState(); renderTabBar(); loadTabIntoSidebar(); renderWorkspace();
+}
+function switchTab(id) {
+  if (id === activeTabId) return;
+  activeTabId = id; saveState(); renderTabBar(); loadTabIntoSidebar(); renderWorkspace();
+}
+function renameTab(id, name) {
+  const t = tabs.find(t => t.id === id); if (t) { t.name = name || t.name; saveState(); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// SIDEBAR ↔ TAB
+// ═══════════════════════════════════════════════════════════
+function loadTabIntoSidebar() {
+  const t = tab(); if (!t) return;
+  document.getElementById('quarterName').value   = t.quarterName || 'Q3 2025';
+  document.getElementById('capacityInput').value = t.capacity    || '';
+  renderBacklog();
+}
+function onQuarterNameInput() {
+  const t = tab(); if (!t) return;
+  t.quarterName = document.getElementById('quarterName').value; saveState();
+  const el = document.getElementById('wsTitle'); if (el) el.textContent = t.quarterName || 'Quarter';
+}
+
+// ═══════════════════════════════════════════════════════════
+// TAB BAR
+// ═══════════════════════════════════════════════════════════
+function renderTabBar() {
+  const bar = document.getElementById('tabbar'); bar.innerHTML = '';
+  tabs.forEach(t => {
+    const el  = document.createElement('div');
+    el.className = 'tab-item' + (t.id === activeTabId ? ' active' : '');
+    const inp = document.createElement('input');
+    inp.className = 'tab-name-input'; inp.value = t.name; inp.readOnly = true;
+    inp.addEventListener('dblclick', () => { inp.readOnly = false; inp.focus(); inp.select(); });
+    inp.addEventListener('blur', () => { inp.readOnly = true; renameTab(t.id, inp.value.trim() || t.name); inp.value = t.name; });
+    inp.addEventListener('keydown', e => { if (e.key==='Enter') inp.blur(); if (e.key==='Escape') { inp.value=t.name; inp.blur(); } });
+    inp.addEventListener('mousedown', e => { if (inp.readOnly) { e.preventDefault(); switchTab(t.id); } });
+    const del = document.createElement('button');
+    del.className = 'tab-del'; del.title = 'Delete team'; del.textContent = '×';
+    del.addEventListener('click', e => { e.stopPropagation(); deleteTab(t.id); });
+    el.append(inp, del); bar.appendChild(el);
+  });
+  const add = document.createElement('div');
+  add.className = 'tab-add'; add.title = 'Add team'; add.textContent = '+';
+  add.addEventListener('click', addTab); bar.appendChild(add);
+}
+
+// ═══════════════════════════════════════════════════════════
+// SET CAPACITY
+// ═══════════════════════════════════════════════════════════
+function setCapacity() {
+  const v = parseInt(document.getElementById('capacityInput').value);
+  if (!v || v < 1) { alert('Enter a valid capacity.'); return; }
+  const t = tab(); if (!t) return;
+  t.capacity = v;
+  // Evict tiles that no longer fit (use current cols, re-evaluated after capacity set)
+  const cols = t.gridCols || 20;
+  const totalCells = Math.ceil(v / PTS_PER_CELL);
+  const rows = Math.max(1, Math.ceil(totalCells / cols));
+  for (const id in t.placed) {
+    const f = t.features.find(f => f.id === +id); if (!f) { delete t.placed[id]; continue; }
+    const s = SIZES[f.size], p = t.placed[id];
+    if (p.col + s.cols > cols || p.row + s.rows > rows) delete t.placed[id];
+  }
+  saveState(); renderWorkspace();
+}
+
+// ═══════════════════════════════════════════════════════════
+// TETRIS LOGIC
+// ═══════════════════════════════════════════════════════════
+
+// Build a rows×cols occupancy matrix from placed tiles (excluding one id)
+function buildMatrix(excludeId = -1) {
+  const t = tab(); if (!t) return [];
+  const cols = getGridCols();
+  const rows = gridRows();
+  const mat  = Array.from({length: rows}, () => new Array(cols).fill(false));
+  for (const [id, pos] of Object.entries(t.placed)) {
+    if (+id === excludeId) continue;
+    const f = t.features.find(f => f.id === +id); if (!f) continue;
+    const s = SIZES[f.size];
+    for (let r = pos.row; r < pos.row + s.rows; r++)
+      for (let c = pos.col; c < pos.col + s.cols; c++)
+        if (r >= 0 && r < rows && c >= 0 && c < cols) mat[r][c] = true;
+  }
+  return mat;
+}
+
+// Find the lowest row where a tile of (cols×rows) fits starting at column `col`
+// Returns the row index (0 = top) where the top of the tile sits, or -1 if no fit
+function findDropRow(col, tileCols, tileRows, excludeId = -1) {
+  const t = tab(); if (!t) return -1;
+  const cols = getGridCols();
+  const rows = gridRows();
+  if (col < 0 || col + tileCols > cols) return -1;
+  const mat  = buildMatrix(excludeId);
+
+  // Scan from bottom up: find lowest valid position
+  for (let row = rows - tileRows; row >= 0; row--) {
+    let fits = true;
+    for (let dr = 0; dr < tileRows && fits; dr++)
+      for (let dc = 0; dc < tileCols && fits; dc++)
+        if (mat[row + dr][col + dc]) fits = false;
+    if (fits) return row;
+  }
+  return -1; // no room
+}
+
+// Given mouse X over the grid, snap to the best column for a tile of `tileCols` width
+function snapCol(mouseX, tileCols, gridRect) {
+  const cols = getGridCols();
+  const cw   = cellW();
+  const rawCol = Math.floor((mouseX - gridRect.left) / cw);
+  const centred = rawCol - Math.floor(tileCols / 2);
+  return Math.max(0, Math.min(centred, cols - tileCols));
+}
+
+// ═══════════════════════════════════════════════════════════
+// WORKSPACE RENDER
+// ═══════════════════════════════════════════════════════════
+function renderWorkspace() {
+  const ws = document.getElementById('workspace');
+  const t  = tab();
+  if (!t || !t.capacity) {
+    ws.innerHTML = `<div class="ws-placeholder"><p>Set a story point capacity to start planning.</p></div>`;
+    return;
+  }
+
+  const cols = getGridCols();
+  const totalCells = Math.ceil(t.capacity / PTS_PER_CELL);
+  const rows = Math.max(1, Math.ceil(totalCells / cols));
+
+  // Build background cell HTML
+  let cellsHtml = '';
+  for (let r = 0; r < rows; r++)
+    for (let c = 0; c < cols; c++)
+      cellsHtml += `<div class="t-cell"></div>`;
+
+  ws.innerHTML = `
+    <div class="ws-header">
+      <div>
+        <div class="ws-title" id="wsTitle">${esc(t.quarterName||'Quarter')}</div>
+        <div class="ws-sub" id="wsSub" style="display:flex;align-items:center;gap:6px;">
+          <span>${t.capacity} pts · ${totalCells} cells · ${PTS_PER_CELL} pts/cell ·</span>
+          <span id="gridColsDisplay" style="display:inline-flex;align-items:center;gap:3px;cursor:pointer;" onclick="startEditGridCols()" title="Edit grid width">
+            <span id="gridColsVal">${cols}</span>×${rows} grid
+            <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.5;flex-shrink:0"><path d="M11.5 2.5a1.414 1.414 0 012 2L5 13H3v-2L11.5 2.5z"/></svg>
+          </span>
+          <span id="gridColsEdit" style="display:none;align-items:center;gap:4px;">
+            <input id="gridColsInput" type="number" min="1" max="100"
+              style="width:52px;padding:1px 5px;font-size:11px;font-family:'DM Mono',monospace;border:1px solid var(--border2);border-radius:4px;background:var(--bg);color:var(--text);outline:none;"
+              onkeydown="if(event.key==='Enter')commitEditGridCols();if(event.key==='Escape')cancelEditGridCols();"
+              onblur="commitEditGridCols()">
+            <span style="font-size:11px;color:var(--muted)">×${rows} grid</span>
+          </span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+        <span class="status-pill" id="statusPill"></span>
+        <div class="ws-stats">
+          <div class="stat-item"><div class="stat-num" id="statUsed" style="color:#1a5fa8">0</div><div class="stat-lbl">committed</div></div>
+          <div class="stat-item"><div class="stat-num">${t.capacity}</div><div class="stat-lbl">capacity</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+
+    <div>
+      <div class="box-label">Quarter box — drag features in to commit them, hover to preview</div>
+      <div class="tetris-outer" id="tetrisOuter">
+        <div class="tetris-grid" id="tetrisGrid"
+          style="
+            grid-template-columns: repeat(${cols}, ${CELL}px);
+            grid-template-rows:    repeat(${rows}, ${CELL}px);
+            width:  ${cols * CELL}px;
+            min-width: 100%;
+            height: ${rows * CELL}px;
+          ">
+          ${cellsHtml}
+          <div class="col-highlight" id="colHighlight"></div>
+          <div class="drop-ghost"    id="dropGhost"></div>
+          <div class="fill-line"     id="fillLine"></div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="box-label" style="margin-bottom:6px;">
+        Parked — won't fit this quarter
+        <span class="count-badge" id="parkedCount" style="display:none"></span>
+      </div>
+      <div class="parked-outer" id="parkedOuter">
+        <div class="parked-chips" id="parkedChips"></div>
+      </div>
+    </div>
+  `;
+
+  // Attach drag events
+  const outer = document.getElementById('tetrisOuter');
+  outer.addEventListener('dragover',  onTetrisDragOver);
+  outer.addEventListener('dragleave', onTetrisDragLeave);
+  outer.addEventListener('drop',      onTetrisDrop);
+
+  const parkedOuter = document.getElementById('parkedOuter');
+  parkedOuter.addEventListener('dragover',  e => { e.preventDefault(); parkedOuter.classList.add('drag-over'); });
+  parkedOuter.addEventListener('dragleave', ()  => parkedOuter.classList.remove('drag-over'));
+  parkedOuter.addEventListener('drop',      onParkedDrop);
+
+  updateStats();
+  updateParked();
+  renderTiles();
+  renderBacklog();
+}
+
+// ═══════════════════════════════════════════════════════════
+// DRAG OVER TETRIS GRID — show ghost
+// ═══════════════════════════════════════════════════════════
+function onTetrisDragOver(e) {
+  e.preventDefault();
+  if (dragId == null) return;
+  const t = tab(); if (!t) return;
+  const f = t.features.find(f => f.id === dragId); if (!f) return;
+  const s = SIZES[f.size];
+  const grid = document.getElementById('tetrisGrid'); if (!grid) return;
+  const rect = grid.getBoundingClientRect();
+
+  const cw      = cellW();
+  const col     = snapCol(e.clientX, s.cols, rect);
+  const row     = findDropRow(col, s.cols, s.rows, dragFrom === 'box' ? dragId : -1);
+  const canDrop = row >= 0;
+
+  // Column highlight
+  const hi = document.getElementById('colHighlight');
+  if (hi) {
+    hi.style.display    = 'block';
+    hi.style.left       = `${col * cw}px`;
+    hi.style.width      = `${s.cols * cw}px`;
+    hi.style.background = canDrop ? `${s.color}18` : 'rgba(181,32,32,0.08)';
+  }
+
+  // Ghost
+  const ghost = document.getElementById('dropGhost');
+  if (ghost) {
+    if (canDrop) {
+      ghost.style.display     = 'block';
+      ghost.style.left        = `${col * cw + 1}px`;
+      ghost.style.top         = `${row * CELL + 1}px`;
+      ghost.style.width       = `${s.cols * cw - 2}px`;
+      ghost.style.height      = `${s.rows * CELL - 2}px`;
+      ghost.style.borderColor = s.border;
+      ghost.style.background  = `${s.color}22`;
+    } else {
+      ghost.style.display = 'none';
+    }
+  }
+
+  e.dataTransfer.dropEffect = canDrop ? 'move' : 'none';
+}
+
+function onTetrisDragLeave(e) {
+  const outer = document.getElementById('tetrisOuter');
+  if (outer && !outer.contains(e.relatedTarget)) {
+    hideGhosts();
+  }
+}
+
+function onTetrisDrop(e) {
+  e.preventDefault();
+  hideGhosts();
+  if (dragId == null) return;
+  const t = tab(); if (!t) return;
+  const f = t.features.find(f => f.id === dragId); if (!f) { resetDrag(); return; }
+  const s = SIZES[f.size];
+  const grid = document.getElementById('tetrisGrid'); if (!grid) return;
+  const rect = grid.getBoundingClientRect();
+
+  const col = snapCol(e.clientX, s.cols, rect);
+  const row = findDropRow(col, s.cols, s.rows, dragFrom === 'box' ? dragId : -1);
+
+  if (row >= 0) {
+    t.parked = t.parked.filter(i => i !== dragId);
+    t.placed[dragId] = { col, row };
+    resetDrag(); saveState(); renderBacklog(); updateStats(); renderTiles(); updateParked();
+  } else {
+    resetDrag();
+  }
+}
+
+function onParkedDrop(e) {
+  e.preventDefault();
+  document.getElementById('parkedOuter')?.classList.remove('drag-over');
+  if (dragId == null) return;
+  const t = tab(); if (!t) return;
+  delete t.placed[dragId];
+  if (!t.parked.includes(dragId)) t.parked.push(dragId);
+  resetDrag(); saveState(); renderBacklog(); updateStats(); renderTiles(); updateParked();
+}
+
+function hideGhosts() {
+  const hi    = document.getElementById('colHighlight'); if (hi) hi.style.display = 'none';
+  const ghost = document.getElementById('dropGhost');    if (ghost) ghost.style.display = 'none';
+}
+function resetDrag() { dragId = null; dragFrom = null; }
+
+// ═══════════════════════════════════════════════════════════
+// RENDER TILES
+// ═══════════════════════════════════════════════════════════
+function renderTiles() {
+  const grid = document.getElementById('tetrisGrid'); if (!grid) return;
+  grid.querySelectorAll('.feat-tile').forEach(el => el.remove());
+  const t = tab(); if (!t) return;
+
+  for (const [id, pos] of Object.entries(t.placed)) {
+    const f = t.features.find(f => f.id === +id); if (!f) continue;
+    const s = SIZES[f.size];
+    const tile = document.createElement('div');
+    tile.className = 'feat-tile'; tile.dataset.id = id; tile.draggable = true;
+    const cw = cellW();
+    tile.style.cssText = `
+      left:   ${pos.col * cw + 1}px;
+      top:    ${pos.row * CELL + 1}px;
+      width:  ${s.cols * cw - 2}px;
+      height: ${s.rows * CELL - 2}px;
+      background:  ${s.bg};
+      color:       ${s.color};
+      border-color:${s.border};
+    `;
+    tile.innerHTML = `
+      <button class="tile-rm" onclick="tileRemove(${id})" title="Return to backlog">✕</button>
+      <div class="tile-name" id="tileName-${id}" ondblclick="startTileEdit(${id})" title="Double-click to rename">${esc(f.name)}</div>
+      <div class="tile-meta">${f.size} · ${s.pts}pt${s.pts>1?'s':''}</div>
+    `;
+    tile.addEventListener('dragstart', e => {
+      // Don't drag if user is editing the name
+      if (document.getElementById('tileName-'+id)?.isContentEditable === true &&
+          document.getElementById('tileName-'+id)?.getAttribute('contenteditable') === 'true') {
+        e.preventDefault(); return;
+      }
+      dragId = +id; dragFrom = 'box';
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', String(id));
+      setTimeout(() => tile.classList.add('is-dragging'), 0);
+    });
+    tile.addEventListener('dragend', () => { tile.classList.remove('is-dragging'); hideGhosts(); });
+    grid.appendChild(tile);
+  }
+
+  updateFillLine();
+}
+
+function tileRemove(id) {
+  const t = tab(); if (!t) return;
+  delete t.placed[id];
+  saveState(); renderBacklog(); updateStats(); renderTiles(); updateParked();
+}
+
+// Show a subtle fill-level line
+function updateFillLine() {
+  const t = tab(); if (!t || !t.capacity) return;
+  const rows  = gridRows();
+  const usedPts = Object.keys(t.placed).reduce((s, id) => {
+    const f = t.features.find(f => f.id === +id); return s + (f ? SIZES[f.size].pts : 0);
+  }, 0);
+  // Calculate the approximate fill row (from bottom)
+  const fillRatio  = Math.min(1, usedPts / t.capacity);
+  const fillFromTop = (1 - fillRatio) * rows;
+  const line = document.getElementById('fillLine'); if (!line) return;
+  if (usedPts > 0) {
+    line.style.opacity = '0.7';
+    line.style.top     = `${fillFromTop * CELL}px`;
+  } else {
+    line.style.opacity = '0';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// STATS
+// ═══════════════════════════════════════════════════════════
+function updateStats() {
+  const t = tab(); if (!t || !t.capacity) return;
+  const usedPts   = Object.keys(t.placed).reduce((s, id) => { const f = t.features.find(f=>f.id===+id); return s+(f?SIZES[f.size].pts:0); }, 0);
+  const pct       = Math.min(100, Math.round(usedPts / t.capacity * 100));
+  const remaining = t.capacity - usedPts;
+  const statUsed  = document.getElementById('statUsed');     if (statUsed) statUsed.textContent = usedPts;
+  const bar       = document.getElementById('progressBar');
+  if (bar) { bar.style.width = pct+'%'; bar.style.background = pct<70?'#2d7d4e':pct<95?'#8a6200':'#b52020'; }
+  const pill = document.getElementById('statusPill');
+  if (pill) {
+    if (pct<70)       { pill.className='status-pill pill-ok';   pill.textContent=`${remaining} pts remaining`; }
+    else if (pct<100) { pill.className='status-pill pill-near'; pill.textContent=`⚠ ${remaining} pts left`; }
+    else              { pill.className='status-pill pill-over'; pill.textContent='At capacity'; }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// PARKED
+// ═══════════════════════════════════════════════════════════
+function updateParked() {
+  const t = tab(); if (!t) return;
+  const chips = document.getElementById('parkedChips');
+  const badge = document.getElementById('parkedCount');
+  if (!chips) return;
+  chips.innerHTML = '';
+  if (!t.parked.length) {
+    chips.innerHTML = '<span class="parked-empty">Drag features here to park them for a later quarter</span>';
+    if (badge) badge.style.display = 'none'; return;
+  }
+  const totalPts = t.parked.reduce((s, id) => { const f = t.features.find(f=>f.id===id); return s+(f?SIZES[f.size].pts:0); }, 0);
+  if (badge) { badge.textContent = totalPts+' pts'; badge.style.display = 'inline-flex'; }
+  t.parked.forEach(id => {
+    const f = t.features.find(x=>x.id===id); if (!f) return;
+    const s = SIZES[f.size];
+    const chip = document.createElement('div');
+    chip.className = 'parked-chip'; chip.draggable = true; chip.dataset.id = id;
+    chip.style.cssText = `background:${s.bg};color:${s.color};border-color:${s.border}`;
+    chip.innerHTML = `${esc(f.name)} <span class="chip-sz">${f.size} · ${s.pts}pt</span>`;
+    chip.addEventListener('dragstart', e => {
+      dragId = +chip.dataset.id; dragFrom = 'parked';
+      e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', String(dragId));
+      setTimeout(() => chip.classList.add('is-dragging'), 0);
+    });
+    chip.addEventListener('dragend', () => chip.classList.remove('is-dragging'));
+    chips.appendChild(chip);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// BACKLOG
+// ═══════════════════════════════════════════════════════════
+function renderBacklog() {
+  const t    = tab();
+  const list = document.getElementById('backlogList');
+  if (!t) { list.innerHTML = '<div class="empty-state">No team selected</div>'; return; }
+  const ids  = t.features.filter(f => !t.placed[f.id] && !t.parked.includes(f.id)).map(f => f.id);
+  document.getElementById('backlogCount').textContent = ids.length;
+  list.innerHTML = '';
+  if (!ids.length) { list.innerHTML = '<div class="empty-state">No features in backlog</div>'; return; }
+  ids.forEach(id => {
+    const f = t.features.find(x=>x.id===id), s = SIZES[f.size];
+    const card = document.createElement('div');
+    card.className = 'feature-card'; card.draggable = true; card.dataset.id = id;
+    card.innerHTML = `<div class="card-dot" style="background:${s.color}"></div><div class="card-info"><div class="card-name">${esc(f.name)}</div><div class="card-meta">${f.size} · ${s.pts} pt${s.pts>1?'s':''}</div></div><button class="card-del" onclick="removeFeature(${id})" title="Delete">✕</button>`;
+    card.addEventListener('dragstart', e => {
+      dragId = id; dragFrom = 'backlog';
+      e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', String(id));
+      setTimeout(() => card.classList.add('is-dragging'), 0);
+    });
+    card.addEventListener('dragend', () => card.classList.remove('is-dragging'));
+    list.appendChild(card);
+  });
+}
+
+function addFeature() {
+  const name = document.getElementById('featureName').value.trim();
+  const size = document.querySelector('input[name="sz"]:checked').value;
+  if (!name) { alert('Enter a feature name.'); return; }
+  const t = tab(); if (!t) { alert('Select a team tab first.'); return; }
+  t.features.push({ id: ++t.idCounter, name, size });
+  document.getElementById('featureName').value = '';
+  saveState(); renderBacklog();
+}
+
+function removeFeature(id) {
+  const t = tab(); if (!t) return;
+  t.features = t.features.filter(f => f.id !== id);
+  delete t.placed[id]; t.parked = t.parked.filter(i => i !== id);
+  saveState(); renderBacklog();
+  if (t.capacity) { updateStats(); renderTiles(); updateParked(); }
+}
+
+// Backlog also accepts returns
+document.getElementById('backlogList').addEventListener('dragover', e => e.preventDefault());
+document.getElementById('backlogList').addEventListener('drop', e => {
+  e.preventDefault();
+  if (dragId == null) return;
+  const t = tab(); if (!t) return;
+  delete t.placed[dragId]; t.parked = t.parked.filter(i => i !== dragId);
+  resetDrag(); saveState(); renderBacklog();
+  if (t.capacity) { updateStats(); renderTiles(); updateParked(); }
+});
+
+// ═══════════════════════════════════════════════════════════
+// EXPORT / IMPORT
+// ═══════════════════════════════════════════════════════════
+function toggleExportDropdown() { document.getElementById('exportDropdown').classList.toggle('open'); }
+document.addEventListener('click', e => { if (!document.getElementById('exportDropWrap').contains(e.target)) document.getElementById('exportDropdown').classList.remove('open'); });
+function downloadJSON(obj, fn) { const b=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}),u=URL.createObjectURL(b),a=Object.assign(document.createElement('a'),{href:u,download:fn}); a.click(); URL.revokeObjectURL(u); }
+function exportCurrentTab() { document.getElementById('exportDropdown').classList.remove('open'); const t=tab(); if(!t)return; downloadJSON({version:2,type:'single',tab:t},`capacity-${slug(t.name)}.json`); }
+function exportAllTabs()    { document.getElementById('exportDropdown').classList.remove('open'); downloadJSON({version:2,type:'all',tabs},`capacity-all-teams.json`); }
+function slug(s) { return s.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,''); }
+
+function openImport()  { document.getElementById('importText').value=''; document.getElementById('importError').textContent=''; document.getElementById('importModal').classList.add('open'); }
+function closeImport() { document.getElementById('importModal').classList.remove('open'); }
+function doImport() {
+  const errEl = document.getElementById('importError'); errEl.textContent = '';
+  try {
+    const s = JSON.parse(document.getElementById('importText').value.trim());
+    if (!s || s.version !== 2) throw new Error('Unrecognised format (expected version 2).');
+    if (s.type === 'single') {
+      if (!s.tab) throw new Error('Missing tab data.');
+      const ex = tabs.find(t=>t.name===s.tab.name);
+      if (ex) Object.assign(ex, s.tab, {id:ex.id});
+      else { const id=++tabIdSeq; tabs.push({...s.tab,id}); activeTabId=id; }
+    } else if (s.type === 'all') {
+      if (!Array.isArray(s.tabs)) throw new Error('Missing tabs array.');
+      s.tabs.forEach(inc => { const ex=tabs.find(t=>t.name===inc.name); if(ex) Object.assign(ex,inc,{id:ex.id}); else { const id=++tabIdSeq; tabs.push({...inc,id}); } });
+    } else throw new Error('Unknown export type.');
+    saveState(); closeImport(); renderTabBar(); loadTabIntoSidebar(); renderWorkspace();
+  } catch(e) { errEl.textContent = 'Error: ' + (e.message||'Invalid JSON.'); }
+}
+
+// ═══════════════════════════════════════════════════════════
+// CLEAR / UTILS
+// ═══════════════════════════════════════════════════════════
+function clearAll() {
+  if (!confirm('Clear all teams and start fresh?')) return;
+  tabs=[]; tabIdSeq=0; activeTabId=null;
+  localStorage.removeItem(STORAGE_KEY); init();
+}
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ═══════════════════════════════════════════════════════════
+// CALCULATOR
+// ═══════════════════════════════════════════════════════════
+function toggleCalc() {
+  const body=document.getElementById('calcBody'), chevron=document.getElementById('calcChevron'), toggle=document.getElementById('calcToggle');
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open',!isOpen); chevron.classList.toggle('open',!isOpen);
+  toggle.style.borderRadius      = isOpen ? '7px' : '7px 7px 0 0';
+  toggle.style.borderBottomColor = isOpen ? ''    : 'transparent';
+}
+function calcUpdate() {
+  const devs=parseFloat(document.getElementById('calcDevs').value), holidays=parseFloat(document.getElementById('calcHolidays').value)||0, velocity=parseFloat(document.getElementById('calcVelocity').value), weeks=parseFloat(document.getElementById('calcWeeks').value);
+  const rEl=document.getElementById('calcResult'), fEl=document.getElementById('calcFormula'), btn=document.getElementById('calcApply');
+  if (!devs||!velocity||!weeks) { rEl.textContent='—'; rEl.className='calc-result-value'; fEl.textContent='Fill in the fields above'; btn.disabled=true; return; }
+  const hWks=(holidays/5)/devs, effWks=Math.max(0,weeks-hWks), total=Math.round(devs*velocity*effWks);
+  rEl.textContent=total; rEl.className='calc-result-value has-value';
+  fEl.textContent=holidays>0?`${devs} × ${velocity} pts/wk × (${weeks}w − ${hWks.toFixed(1)}w off)`:`${devs} × ${velocity} pts/wk × ${weeks}w`;
+  btn.disabled=false; btn.dataset.value=total;
+}
+function applyCalc() {
+  const total=parseInt(document.getElementById('calcApply').dataset.value); if(!total)return;
+  document.getElementById('capacityInput').value=total; toggleCalc();
+  const inp=document.getElementById('capacityInput');
+  inp.style.borderColor='#6a9fd8'; inp.style.boxShadow='0 0 0 3px rgba(106,159,216,0.2)';
+  inp.scrollIntoView({behavior:'smooth',block:'nearest'});
+  setTimeout(()=>{inp.style.borderColor='';inp.style.boxShadow='';},1800);
+}
+
+// ═══════════════════════════════════════════════════════════
+// KEYBOARD
+// ═══════════════════════════════════════════════════════════
+function startTileEdit(id) {
+  const el = document.getElementById('tileName-' + id);
+  if (!el) return;
+  el.setAttribute('contenteditable', 'true');
+  el.focus();
+  // Move cursor to end
+  const range = document.createRange();
+  range.selectNodeContents(el);
+  range.collapse(false);
+  const sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+
+  function commit() {
+    el.removeAttribute('contenteditable');
+    const newName = el.textContent.trim();
+    if (!newName) { el.textContent = tab()?.features.find(f=>f.id===id)?.name || ''; return; }
+    const t = tab(); if (!t) return;
+    const f = t.features.find(f => f.id === id);
+    if (f) { f.name = newName; saveState(); renderBacklog(); }
+    // Also update parked chips if present
+    updateParked();
+  }
+
+  el.addEventListener('blur',    commit, { once: true });
+  el.addEventListener('keydown', e => {
+    if (e.key === 'Enter')  { e.preventDefault(); el.blur(); }
+    if (e.key === 'Escape') { el.textContent = tab()?.features.find(f=>f.id===id)?.name || ''; el.blur(); }
+  }, { once: false });
+}
+
+function startEditGridCols() {
+  const t = tab(); if (!t) return;
+  const display = document.getElementById('gridColsDisplay');
+  const editEl  = document.getElementById('gridColsEdit');
+  const inp     = document.getElementById('gridColsInput');
+  if (!display || !editEl || !inp) return;
+  inp.value = t.gridCols || 20;
+  display.style.display = 'none';
+  editEl.style.display  = 'inline-flex';
+  inp.focus(); inp.select();
+}
+
+function commitEditGridCols() {
+  const inp     = document.getElementById('gridColsInput'); if (!inp) return;
+  const n       = parseInt(inp.value);
+  const display = document.getElementById('gridColsDisplay');
+  const editEl  = document.getElementById('gridColsEdit');
+
+  // Always restore the display state first
+  if (display) display.style.display = 'inline-flex';
+  if (editEl)  editEl.style.display  = 'none';
+
+  if (!n || n < 1) return;
+
+  const t = tab(); if (!t) return;
+  // If nothing is placed yet, change silently
+  if (Object.keys(t.placed).length === 0) { setGridCols(n); return; }
+
+  // Features are placed — warn the user
+  const placedCount = Object.keys(t.placed).length;
+  const ok = confirm(
+    `Changing the grid width will return all ${placedCount} placed feature${placedCount > 1 ? 's' : ''} to the backlog.\n\nContinue?`
+  );
+  if (!ok) return;
+
+  // Reset all placed features back to backlog (remove from placed & parked)
+  t.placed = {};
+  t.parked = [];
+  setGridCols(n);
+}
+
+function cancelEditGridCols() {
+  const display = document.getElementById('gridColsDisplay');
+  const editEl  = document.getElementById('gridColsEdit');
+  if (display) display.style.display = 'inline-flex';
+  if (editEl)  editEl.style.display  = 'none';
+}
+
+document.getElementById('featureName').addEventListener('keydown',   e => { if(e.key==='Enter') addFeature(); });
+document.getElementById('capacityInput').addEventListener('keydown', e => { if(e.key==='Enter') setCapacity(); });
+document.getElementById('importModal').addEventListener('click', e => { if(e.target===document.getElementById('importModal')) closeImport(); });
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeImport(); });
+
+// ═══════════════════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════════════════
+function init() {
+  if (!tabs.length) {
+    const t = newTab('Team A'); activeTabId = t.id;
+    [
+      {name:'User authentication',   size:'M'  },
+      {name:'Dashboard redesign',    size:'L'  },
+      {name:'Email notifications',   size:'S'  },
+      {name:'Performance tuning',    size:'S'  },
+      {name:'Mobile app',            size:'XL' },
+      {name:'API v2 migration',      size:'XL' },
+      {name:'Dark mode',             size:'S'  },
+      {name:'Analytics integration', size:'M'  },
+    ].forEach(({name,size}) => t.features.push({id:++t.idCounter,name,size}));
+  }
+  renderTabBar(); loadTabIntoSidebar(); renderWorkspace();
+}
+loadState(); init();
+</script>
+</body>
+</html>
