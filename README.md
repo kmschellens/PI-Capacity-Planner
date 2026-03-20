@@ -1,4 +1,4 @@
-# Capacity Planner
+# PI Capacity Planner
 
 A small, **client-only** tool for visual quarterly capacity planning.
 
