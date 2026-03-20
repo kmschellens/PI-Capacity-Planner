@@ -381,7 +381,7 @@ let dragId = null, dragFrom = null;
 
 function tab() { return tabs.find(t => t.id === activeTabId); }
 
-function getGridCols() { const t = tab(); return t?.gridCols || 20; }
+function getGridCols() { const t = tab(); return t?.gridCols || 12; }
 function getGridRows() {
   const t = tab(); if (!t || !t.capacity) return 0;
   return Math.ceil(Math.ceil(t.capacity / PTS_PER_CELL) / getGridCols());
@@ -456,7 +456,7 @@ function loadSprintInputs() {
 // ══════════════════════════════════════════════════════════
 function newTab(name) {
   const id = ++tabIdSeq;
-  tabs.push({ id, name: name || `Team ${id}`, quarterName:'Q3 2025', capacity:0, gridCols:20,
+  tabs.push({ id, name: name || `Team ${id}`, quarterName:'Q3 2025', capacity:0, gridCols:12,
     sprintDevs:null, sprintCount:null, sprintWeeks:null, sprintPtsPerDev:null,
     features:[], idCounter:0, placed:{}, parked:[] });
   return tabs[tabs.length - 1];
@@ -961,7 +961,7 @@ function startTileEdit(id) {
 // ══════════════════════════════════════════════════════════
 function promptGridCols() {
   const t = tab(); if (!t) return;
-  const cur = t.gridCols || 20;
+  const cur = t.gridCols || 12;
   const val = prompt(`Grid width (current: ${cur} columns):`, cur);
   if (val === null) return;
   const n = parseInt(val);
@@ -1059,15 +1059,17 @@ function init() {
     const t = newTab('Team A'); activeTabId = t.id;
     t.sprintDevs = 4; t.sprintCount = 6; t.sprintWeeks = 2; t.sprintPtsPerDev = 10; t.capacity = 240;
     [
-      { name:'User authentication',   size:'M'  },
-      { name:'Dashboard redesign',    size:'L'  },
-      { name:'Email notifications',   size:'S'  },
-      { name:'Performance tuning',    size:'S'  },
-      { name:'Mobile app',            size:'XL' },
-      { name:'API v2 migration',      size:'XL' },
-      { name:'Dark mode',             size:'S'  },
-      { name:'Analytics integration', size:'M'  },
-    ].forEach(({ name, size }) => t.features.push({ id: ++t.idCounter, name, size }));
+      { name:'User authentication',   size:'M',  type:'feature' },
+      { name:'Dashboard redesign',    size:'L',  type:'feature' },
+      { name:'Email notifications',   size:'S',  type:'feature' },
+      { name:'Mobile app',            size:'XL', type:'feature' },
+      { name:'API v2 migration',      size:'XL', type:'feature' },
+      { name:'Dark mode',             size:'S',  type:'feature' },
+      { name:'Analytics integration', size:'M',  type:'feature' },
+      { name:'Fix login redirect',    size:'S',  type:'story'   },
+      { name:'Update password flow',  size:'M',  type:'story'   },
+      { name:'Profile page bug',      size:'L',  type:'story'   },
+    ].forEach(({ name, size, type }) => t.features.push({ id: ++t.idCounter, name, size, type }));
   }
   renderTabBar(); loadTabIntoSidebar(); renderWorkspace();
 }
