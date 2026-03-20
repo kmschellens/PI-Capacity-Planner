@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Capacity Planner</title>
+<title>PI Capacity Planner</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -108,28 +108,23 @@
     transition: border-color 0.15s;
     position: relative;
     width: 100%;
-    overflow-x: auto;
+    overflow: hidden;
   }
 
-  /* The playfield: a CSS grid of cells, pieces positioned absolutely on top */
   .tetris-grid {
     display: grid;
     position: relative;
     cursor: crosshair;
-    /* grid-template-columns / rows / width set by JS */
   }
 
-  /* Background grid cells */
   .t-cell {
     width: var(--cell); height: var(--cell);
     border-right: 1px solid var(--border);
     border-bottom: 1px solid var(--border);
     background: var(--bg);
   }
-  /* Dim the top rows that are "above capacity" visually */
   .t-cell.overflow-zone { background: #faf9f6; }
 
-  /* Column highlight on hover */
   .col-highlight {
     position: absolute;
     top: 0; bottom: 0;
@@ -140,7 +135,6 @@
     display: none;
   }
 
-  /* Placed feature tiles */
   .feat-tile {
     position: absolute;
     border-radius: 6px;
@@ -170,7 +164,6 @@
   .feat-tile:hover .tile-rm { opacity: 1; }
   .tile-rm:hover { background: rgba(0,0,0,0.22); }
 
-  /* Ghost preview (falling piece shadow) */
   .drop-ghost {
     position: absolute;
     border-radius: 6px;
@@ -181,7 +174,6 @@
     opacity: 0.6;
   }
 
-  /* Fill level line */
   .fill-line {
     position: absolute;
     left: 0; right: 0;
@@ -193,7 +185,6 @@
     transition: top 0.35s ease, opacity 0.2s;
   }
 
-  /* Parked */
   .parked-outer { background: var(--surface); border: 1.5px dashed var(--border2); border-radius: 10px; padding: 12px; min-height: 60px; transition: border-color 0.15s, background 0.15s; }
   .parked-outer.drag-over { border-color: #c89ee0; background: #f9f4fe; }
   .parked-chips { display: flex; flex-wrap: wrap; gap: 6px; min-height: 28px; align-content: flex-start; }
@@ -256,7 +247,7 @@
 
 <!-- TOP BAR -->
 <div class="topbar">
-  <div class="topbar-left"><span class="topbar-title">Capacity Planner</span></div>
+  <div class="topbar-left"><span class="topbar-title">PI Capacity Planner</span></div>
   <div class="topbar-actions">
     <div class="dropdown-wrap" id="exportDropWrap">
       <button class="btn-sm" onclick="toggleExportDropdown()">
@@ -297,7 +288,7 @@
     <div>
       <div class="section-title">Quarter setup</div>
       <div class="field"><label class="field-label">Quarter name</label><input type="text" id="quarterName" value="Q3 2025" oninput="onQuarterNameInput()"></div>
-      <div class="field"><label class="field-label">Story point capacity</label><input type="number" id="capacityInput" placeholder="e.g. 80" min="1"></div>
+      <div class="field"><label class="field-label">Story point capacity</label><input type="number" id="capacityInput" placeholder="e.g. 200" min="1"></div>
       <button class="btn btn-primary" onclick="setCapacity()">Set capacity</button>
     </div>
 
@@ -333,10 +324,10 @@
       <div class="field">
         <label class="field-label">T-shirt size</label>
         <div class="size-grid">
-          <div><input type="radio" name="sz" id="sz-s"  class="size-radio" value="S" checked><label for="sz-s"  class="size-btn">S<span class="size-sub">10 pts</span></label></div>
-          <div><input type="radio" name="sz" id="sz-m"  class="size-radio" value="M"><label for="sz-m"  class="size-btn">M<span class="size-sub">20 pts</span></label></div>
-          <div><input type="radio" name="sz" id="sz-l"  class="size-radio" value="L"><label for="sz-l"  class="size-btn">L<span class="size-sub">40 pts</span></label></div>
-          <div><input type="radio" name="sz" id="sz-xl" class="size-radio" value="XL"><label for="sz-xl" class="size-btn">XL<span class="size-sub">80 pts</span></label></div>
+          <div><input type="radio" name="sz" id="sz-s"  class="size-radio" value="S" checked><label for="sz-s"  class="size-btn">S<span class="size-sub">40 pts</span></label></div>
+          <div><input type="radio" name="sz" id="sz-m"  class="size-radio" value="M"><label for="sz-m"  class="size-btn">M<span class="size-sub">60 pts</span></label></div>
+          <div><input type="radio" name="sz" id="sz-l"  class="size-radio" value="L"><label for="sz-l"  class="size-btn">L<span class="size-sub">80 pts</span></label></div>
+          <div><input type="radio" name="sz" id="sz-xl" class="size-radio" value="XL"><label for="sz-xl" class="size-btn">XL<span class="size-sub">100 pts</span></label></div>
         </div>
       </div>
       <button class="btn btn-secondary" onclick="addFeature()">Add to backlog</button>
@@ -373,64 +364,68 @@
 const STORAGE_KEY = 'capacityPlanner_v2';
 const CELL = 44; // px per grid cell
 
-// Sizes: pts = story points, cols/rows = tile footprint in cells
+// ─── UPDATED T-SHIRT SIZES ───────────────────────────────
+// S  = 40 pts  → 4×2 = 8 cells  (8 × 5 = 40 ✓)
+// M  = 60 pts  → 4×3 = 12 cells (12 × 5 = 60 ✓)
+// L  = 80 pts  → 4×4 = 16 cells (16 × 5 = 80 ✓)
+// XL = 100 pts → 4×5 = 20 cells (20 × 5 = 100 ✓)
+// PTS_PER_CELL remains 5 throughout.
 const SIZES = {
-  S:  { pts:10, cols:2, rows:1, color:'#1a5fa8', bg:'#e8f1fb', border:'#9dc0e8' },  // 2×1 = 2 cells × 5 = 10pts ✓
-  M:  { pts:20, cols:2, rows:2, color:'#8a6200', bg:'#fdf5e0', border:'#e0c97a' },  // 2×2 = 4 cells × 5 = 20pts ✓
-  L:  { pts:40, cols:4, rows:2, color:'#b54a00', bg:'#fdf0e8', border:'#e8b48a' },  // 4×2 = 8 cells × 5 = 40pts ✓
-  XL: { pts:80, cols:4, rows:4, color:'#b52020', bg:'#fceaea', border:'#e89090' },  // 4×4 = 16 cells × 5 = 80pts ✓
+  S:  { pts:40,  cols:4, rows:2, color:'#1a5fa8', bg:'#e8f1fb', border:'#9dc0e8' },
+  M:  { pts:60,  cols:4, rows:3, color:'#2d7d4e', bg:'#eaf5ef', border:'#a8d9bc' },
+  L:  { pts:80,  cols:4, rows:4, color:'#b54a00', bg:'#fdf0e8', border:'#e8b48a' },
+  XL: { pts:100, cols:5, rows:4, color:'#b52020', bg:'#fceaea', border:'#e89090' },
 };
 
-// Each grid cell = 5 story points (S=10pts fills 2×1=2 cells → 5pts/cell).
-// Total grid cells = capacity / PTS_PER_CELL.  rows = ceil(totalCells / cols)
+// Each grid cell = 5 story points.
+// Total grid cells = capacity / PTS_PER_CELL. rows = ceil(totalCells / cols)
 const PTS_PER_CELL = 5;
 
 // ═══════════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════════
-// Each tab: { id, name, quarterName, capacity, features, idCounter, placed, parked }
-// placed[id] = { col, row }  — top-left cell of the tile
 let tabs = [], activeTabId = null, tabIdSeq = 0;
 let dragId = null, dragFrom = null;
 
 function tab() { return tabs.find(t => t.id === activeTabId); }
 
-// Grid cols: use tab's stored value (default 20)
 function getGridCols() {
   const t = tab();
   return (t && t.gridCols) ? t.gridCols : 20;
 }
 
-// Actual rendered pixel width of one cell (may differ from CELL when grid < viewport)
 function cellW() {
-  const grid = document.getElementById('tetrisGrid');
-  if (!grid) return CELL;
-  // Grid may be wider than viewport (horizontal scroll), so use scrollWidth-based col width
-  return CELL; // cells are always CELL px wide; grid stretches via min-width
+  return CELL;
 }
 
-function gridRows() {
+// Rows derived purely from capacity -- used for display and stats
+function capacityRows() {
   const t = tab();
   if (!t || !t.capacity) return 0;
   const totalCells = Math.ceil(t.capacity / PTS_PER_CELL);
-  const natural = Math.ceil(totalCells / getGridCols());
-  // Minimum 4 rows so XL tiles (4 rows tall) always fit
-  return Math.max(4, natural);
+  return Math.ceil(totalCells / getGridCols());
 }
 
-// Called from pencil-edit inline widget
+// Rendered/logic rows -- may exceed capacityRows only to ensure the tallest
+// tile (XL = 5 rows) always has room. Extra rows do NOT represent capacity.
+const MAX_TILE_ROWS = 5; // ensure grid is always at least 5 rows tall so largest tiles can always be placed
+function gridRows() {
+  const cr = capacityRows();
+  if (!cr) return 0;
+  return Math.max(MAX_TILE_ROWS, cr);
+}
+
 function setGridCols(val) {
   const n = parseInt(val);
   if (!n || n < 1) return;
   const t = tab(); if (!t) return;
   t.gridCols = Math.max(1, n);
   const totalCells2 = Math.ceil((t.capacity || 0) / PTS_PER_CELL);
-  const newRows = Math.max(1, Math.ceil(totalCells2 / t.gridCols));
-  // Evict tiles that no longer fit
+  const newCapRows = Math.ceil(totalCells2 / t.gridCols); // evict against true capacity rows
   for (const id in t.placed) {
     const f = t.features.find(f => f.id === +id); if (!f) { delete t.placed[id]; continue; }
     const s = SIZES[f.size], p = t.placed[id];
-    if (p.col + s.cols > t.gridCols || p.row + s.rows > newRows) delete t.placed[id];
+    if (p.col + s.cols > t.gridCols || p.row + s.rows > newCapRows) delete t.placed[id];
   }
   saveState(); renderWorkspace(); updateStats(); updateParked(); renderTiles(); renderBacklog();
 }
@@ -525,14 +520,13 @@ function setCapacity() {
   if (!v || v < 1) { alert('Enter a valid capacity.'); return; }
   const t = tab(); if (!t) return;
   t.capacity = v;
-  // Evict tiles that no longer fit (use current cols, re-evaluated after capacity set)
   const cols = t.gridCols || 20;
   const totalCells = Math.ceil(v / PTS_PER_CELL);
-  const rows = Math.max(1, Math.ceil(totalCells / cols));
+  const capRows = Math.ceil(totalCells / cols); // evict only against true capacity rows
   for (const id in t.placed) {
     const f = t.features.find(f => f.id === +id); if (!f) { delete t.placed[id]; continue; }
     const s = SIZES[f.size], p = t.placed[id];
-    if (p.col + s.cols > cols || p.row + s.rows > rows) delete t.placed[id];
+    if (p.col + s.cols > cols || p.row + s.rows > capRows) delete t.placed[id];
   }
   saveState(); renderWorkspace();
 }
@@ -540,8 +534,6 @@ function setCapacity() {
 // ═══════════════════════════════════════════════════════════
 // TETRIS LOGIC
 // ═══════════════════════════════════════════════════════════
-
-// Build a rows×cols occupancy matrix from placed tiles (excluding one id)
 function buildMatrix(excludeId = -1) {
   const t = tab(); if (!t) return [];
   const cols = getGridCols();
@@ -558,27 +550,26 @@ function buildMatrix(excludeId = -1) {
   return mat;
 }
 
-// Find the lowest row where a tile of (cols×rows) fits starting at column `col`
-// Returns the row index (0 = top) where the top of the tile sits, or -1 if no fit
 function findDropRow(col, tileCols, tileRows, excludeId = -1) {
   const t = tab(); if (!t) return -1;
   const cols = getGridCols();
   const rows = gridRows();
+  // Only allow placement within capacity rows (not the padding rows added for tile height)
+  const capRows = capacityRows();
   if (col < 0 || col + tileCols > cols) return -1;
   const mat  = buildMatrix(excludeId);
 
-  // Scan from bottom up: find lowest valid position
-  for (let row = rows - tileRows; row >= 0; row--) {
+  // Start search from the bottom of capacity rows (not the padding rows)
+  for (let row = capRows - tileRows; row >= 0; row--) {
     let fits = true;
     for (let dr = 0; dr < tileRows && fits; dr++)
       for (let dc = 0; dc < tileCols && fits; dc++)
         if (mat[row + dr][col + dc]) fits = false;
     if (fits) return row;
   }
-  return -1; // no room
+  return -1;
 }
 
-// Given mouse X over the grid, snap to the best column for a tile of `tileCols` width
 function snapCol(mouseX, tileCols, gridRect) {
   const cols = getGridCols();
   const cw   = cellW();
@@ -600,9 +591,9 @@ function renderWorkspace() {
 
   const cols = getGridCols();
   const totalCells = Math.ceil(t.capacity / PTS_PER_CELL);
-  const rows = Math.max(1, Math.ceil(totalCells / cols));
+  const capRows = capacityRows();  // true capacity rows (for display)
+  const rows = gridRows();         // rendered rows (>= capRows, ensures tiles always fit)
 
-  // Build background cell HTML
   let cellsHtml = '';
   for (let r = 0; r < rows; r++)
     for (let c = 0; c < cols; c++)
@@ -612,10 +603,10 @@ function renderWorkspace() {
     <div class="ws-header">
       <div>
         <div class="ws-title" id="wsTitle">${esc(t.quarterName||'Quarter')}</div>
-        <div class="ws-sub" id="wsSub" style="display:flex;align-items:center;gap:6px;">
-          <span>${t.capacity} pts · ${totalCells} cells · ${PTS_PER_CELL} pts/cell ·</span>
+        <div class="ws-sub" id="wsSub" style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;">
+          <span>Team capacity: ${t.capacity} pts &middot; ${totalCells} cells &middot; ${PTS_PER_CELL} pts/cell &middot;</span>
           <span id="gridColsDisplay" style="display:inline-flex;align-items:center;gap:3px;cursor:pointer;" onclick="startEditGridCols()" title="Edit grid width">
-            <span id="gridColsVal">${cols}</span>×${rows} grid
+            <span id="gridColsVal">${cols}</span>&times;${capRows} grid
             <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.5;flex-shrink:0"><path d="M11.5 2.5a1.414 1.414 0 012 2L5 13H3v-2L11.5 2.5z"/></svg>
           </span>
           <span id="gridColsEdit" style="display:none;align-items:center;gap:4px;">
@@ -623,8 +614,10 @@ function renderWorkspace() {
               style="width:52px;padding:1px 5px;font-size:11px;font-family:'DM Mono',monospace;border:1px solid var(--border2);border-radius:4px;background:var(--bg);color:var(--text);outline:none;"
               onkeydown="if(event.key==='Enter')commitEditGridCols();if(event.key==='Escape')cancelEditGridCols();"
               onblur="commitEditGridCols()">
-            <span style="font-size:11px;color:var(--muted)">×${rows} grid</span>
+            <span style="font-size:11px;color:var(--muted)">&times;${capRows} grid</span>
           </span>
+          <span style="color:var(--muted)">&middot;</span>
+          <span id="gridCapSpan" style="${rows > capRows ? 'color:#8a6200;font-weight:500;' : ''}">Grid capacity: ${cols * rows * PTS_PER_CELL} pts${rows > capRows ? ' \u25b2' : ''}</span>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
@@ -668,7 +661,6 @@ function renderWorkspace() {
     </div>
   `;
 
-  // Attach drag events
   const outer = document.getElementById('tetrisOuter');
   outer.addEventListener('dragover',  onTetrisDragOver);
   outer.addEventListener('dragleave', onTetrisDragLeave);
@@ -686,7 +678,7 @@ function renderWorkspace() {
 }
 
 // ═══════════════════════════════════════════════════════════
-// DRAG OVER TETRIS GRID — show ghost
+// DRAG OVER TETRIS GRID
 // ═══════════════════════════════════════════════════════════
 function onTetrisDragOver(e) {
   e.preventDefault();
@@ -702,7 +694,6 @@ function onTetrisDragOver(e) {
   const row     = findDropRow(col, s.cols, s.rows, dragFrom === 'box' ? dragId : -1);
   const canDrop = row >= 0;
 
-  // Column highlight
   const hi = document.getElementById('colHighlight');
   if (hi) {
     hi.style.display    = 'block';
@@ -711,7 +702,6 @@ function onTetrisDragOver(e) {
     hi.style.background = canDrop ? `${s.color}18` : 'rgba(181,32,32,0.08)';
   }
 
-  // Ghost
   const ghost = document.getElementById('dropGhost');
   if (ghost) {
     if (canDrop) {
@@ -804,7 +794,6 @@ function renderTiles() {
       <div class="tile-meta">${f.size} · ${s.pts}pt${s.pts>1?'s':''}</div>
     `;
     tile.addEventListener('dragstart', e => {
-      // Don't drag if user is editing the name
       if (document.getElementById('tileName-'+id)?.isContentEditable === true &&
           document.getElementById('tileName-'+id)?.getAttribute('contenteditable') === 'true') {
         e.preventDefault(); return;
@@ -827,14 +816,12 @@ function tileRemove(id) {
   saveState(); renderBacklog(); updateStats(); renderTiles(); updateParked();
 }
 
-// Show a subtle fill-level line
 function updateFillLine() {
   const t = tab(); if (!t || !t.capacity) return;
   const rows  = gridRows();
   const usedPts = Object.keys(t.placed).reduce((s, id) => {
     const f = t.features.find(f => f.id === +id); return s + (f ? SIZES[f.size].pts : 0);
   }, 0);
-  // Calculate the approximate fill row (from bottom)
   const fillRatio  = Math.min(1, usedPts / t.capacity);
   const fillFromTop = (1 - fillRatio) * rows;
   const line = document.getElementById('fillLine'); if (!line) return;
@@ -912,7 +899,7 @@ function renderBacklog() {
     const f = t.features.find(x=>x.id===id), s = SIZES[f.size];
     const card = document.createElement('div');
     card.className = 'feature-card'; card.draggable = true; card.dataset.id = id;
-    card.innerHTML = `<div class="card-dot" style="background:${s.color}"></div><div class="card-info"><div class="card-name">${esc(f.name)}</div><div class="card-meta">${f.size} · ${s.pts} pt${s.pts>1?'s':''}</div></div><button class="card-del" onclick="removeFeature(${id})" title="Delete">✕</button>`;
+    card.innerHTML = `<div class="card-dot" style="background:${s.color}"></div><div class="card-info"><div class="card-name">${esc(f.name)}</div><div class="card-meta">${f.size} · ${s.pts} pts</div></div><button class="card-del" onclick="removeFeature(${id})" title="Delete">✕</button>`;
     card.addEventListener('dragstart', e => {
       dragId = id; dragFrom = 'backlog';
       e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', String(id));
@@ -941,7 +928,6 @@ function removeFeature(id) {
   if (t.capacity) { updateStats(); renderTiles(); updateParked(); }
 }
 
-// Backlog also accepts returns
 document.getElementById('backlogList').addEventListener('dragover', e => e.preventDefault());
 document.getElementById('backlogList').addEventListener('drop', e => {
   e.preventDefault();
@@ -1013,7 +999,9 @@ function calcUpdate() {
 }
 function applyCalc() {
   const total=parseInt(document.getElementById('calcApply').dataset.value); if(!total)return;
-  document.getElementById('capacityInput').value=total; toggleCalc();
+  document.getElementById('capacityInput').value=total;
+  toggleCalc();
+  setCapacity(); // apply immediately, no need to click "Set capacity"
   const inp=document.getElementById('capacityInput');
   inp.style.borderColor='#6a9fd8'; inp.style.boxShadow='0 0 0 3px rgba(106,159,216,0.2)';
   inp.scrollIntoView({behavior:'smooth',block:'nearest'});
@@ -1021,14 +1009,13 @@ function applyCalc() {
 }
 
 // ═══════════════════════════════════════════════════════════
-// KEYBOARD
+// INLINE EDITING
 // ═══════════════════════════════════════════════════════════
 function startTileEdit(id) {
   const el = document.getElementById('tileName-' + id);
   if (!el) return;
   el.setAttribute('contenteditable', 'true');
   el.focus();
-  // Move cursor to end
   const range = document.createRange();
   range.selectNodeContents(el);
   range.collapse(false);
@@ -1043,7 +1030,6 @@ function startTileEdit(id) {
     const t = tab(); if (!t) return;
     const f = t.features.find(f => f.id === id);
     if (f) { f.name = newName; saveState(); renderBacklog(); }
-    // Also update parked chips if present
     updateParked();
   }
 
@@ -1072,24 +1058,20 @@ function commitEditGridCols() {
   const display = document.getElementById('gridColsDisplay');
   const editEl  = document.getElementById('gridColsEdit');
 
-  // Always restore the display state first
   if (display) display.style.display = 'inline-flex';
   if (editEl)  editEl.style.display  = 'none';
 
   if (!n || n < 1) return;
 
   const t = tab(); if (!t) return;
-  // If nothing is placed yet, change silently
   if (Object.keys(t.placed).length === 0) { setGridCols(n); return; }
 
-  // Features are placed — warn the user
   const placedCount = Object.keys(t.placed).length;
   const ok = confirm(
     `Changing the grid width will return all ${placedCount} placed feature${placedCount > 1 ? 's' : ''} to the backlog.\n\nContinue?`
   );
   if (!ok) return;
 
-  // Reset all placed features back to backlog (remove from placed & parked)
   t.placed = {};
   t.parked = [];
   setGridCols(n);
