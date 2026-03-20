@@ -4,6 +4,8 @@ A small, **client-only** tool for visual quarterly capacity planning.
 
 Set a story point capacity, add features, and drag them into a grid to see what actually fits in the quarter. If it doesn’t fit in the box, it doesn’t fit in the plan.
 
+<img width="1417" height="1124" alt="picp" src="https://github.com/user-attachments/assets/46b3cb1d-d389-4bb1-b5ea-ac638784dcad" />
+
 ## 🔒 Client-only
 
 **No data leaves your browser.**
