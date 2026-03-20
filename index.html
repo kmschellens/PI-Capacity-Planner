@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PI Capacity Planner</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg:      #f5f4f1;
@@ -17,7 +16,7 @@
     --cell:    44px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.5; min-height: 100vh; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 14px; line-height: 1.5; min-height: 100vh; }
 
   /* ── TOP BAR ── */
   .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 1.5rem; height: 52px; display: flex; align-items: center; justify-content: space-between; gap: 1rem; position: sticky; top: 0; z-index: 30; }
@@ -75,21 +74,21 @@
   .card-dot  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
   .card-info { flex: 1; min-width: 0; }
   .card-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .card-meta { font-size: 11px; color: var(--muted); margin-top: 1px; font-family: 'DM Mono', monospace; }
+  .card-meta { font-size: 11px; color: var(--muted); margin-top: 1px; font-family: ui-monospace, 'SF Mono', 'Cascadia Mono', 'Segoe UI Mono', Menlo, Consolas, monospace; }
   .card-del  { background: none; border: none; cursor: pointer; color: var(--border2); font-size: 14px; padding: 2px 4px; border-radius: 4px; opacity: 0; transition: opacity 0.12s, color 0.12s; line-height: 1; }
   .feature-card:hover .card-del { opacity: 1; }
   .card-del:hover { color: #c0392b; }
   .empty-state { font-size: 12px; color: var(--muted); text-align: center; padding: 12px 0; }
-  .count-badge { display: inline-flex; align-items: center; justify-content: center; background: var(--subtle); border: 1px solid var(--border); border-radius: 10px; padding: 0 6px; height: 18px; font-size: 10px; font-weight: 600; color: var(--muted); font-family: 'DM Mono', monospace; }
+  .count-badge { display: inline-flex; align-items: center; justify-content: center; background: var(--subtle); border: 1px solid var(--border); border-radius: 10px; padding: 0 6px; height: 18px; font-size: 10px; font-weight: 600; color: var(--muted); font-family: ui-monospace, 'SF Mono', 'Cascadia Mono', 'Segoe UI Mono', Menlo, Consolas, monospace; }
 
   /* ── WORKSPACE ── */
   .workspace { padding: 2rem; display: flex; flex-direction: column; gap: 1.25rem; overflow-y: auto; max-height: calc(100vh - 92px); }
   .ws-header { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
   .ws-title  { font-size: 16px; font-weight: 600; }
-  .ws-sub    { font-size: 12px; color: var(--muted); margin-top: 2px; font-family: 'DM Mono', monospace; }
+  .ws-sub    { font-size: 12px; color: var(--muted); margin-top: 2px; font-family: ui-monospace, 'SF Mono', 'Cascadia Mono', 'Segoe UI Mono', Menlo, Consolas, monospace; }
   .ws-stats  { display: flex; align-items: center; gap: 1.5rem; }
   .stat-item { text-align: right; }
-  .stat-num  { font-size: 20px; font-weight: 600; font-family: 'DM Mono', monospace; }
+  .stat-num  { font-size: 20px; font-weight: 600; font-family: ui-monospace, 'SF Mono', 'Cascadia Mono', 'Segoe UI Mono', Menlo, Consolas, monospace; }
   .stat-lbl  { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
   .status-pill { font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 20px; border: 1px solid transparent; }
   .pill-ok   { background: #eaf5ef; color: #2d7d4e; border-color: #a8d9bc; }
@@ -159,7 +158,7 @@
     cursor: text;
     caret-color: currentColor;
   }
-  .tile-meta { font-size: 9px; opacity: 0.65; margin-top: 1px; font-family: 'DM Mono', monospace; }
+  .tile-meta { font-size: 9px; opacity: 0.65; margin-top: 1px; font-family: ui-monospace, 'SF Mono', 'Cascadia Mono', 'Segoe UI Mono', Menlo, Consolas, monospace; }
   .tile-rm   { position: absolute; top: 3px; right: 3px; width: 15px; height: 15px; border-radius: 3px; background: rgba(0,0,0,0.12); border: none; cursor: pointer; font-size: 9px; color: inherit; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.12s; }
   .feat-tile:hover .tile-rm { opacity: 1; }
   .tile-rm:hover { background: rgba(0,0,0,0.22); }
@@ -191,7 +190,7 @@
   .parked-chip { display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 5px; border: 1px solid; font-size: 12px; font-weight: 500; cursor: grab; user-select: none; transition: box-shadow 0.12s; }
   .parked-chip:hover { box-shadow: 0 1px 6px rgba(0,0,0,0.1); }
   .parked-chip.is-dragging { opacity: 0.3; }
-  .chip-sz { font-family: 'DM Mono', monospace; font-size: 10px; opacity: 0.7; }
+  .chip-sz { font-family: ui-monospace, 'SF Mono', 'Cascadia Mono', 'Segoe UI Mono', Menlo, Consolas, monospace; font-size: 10px; opacity: 0.7; }
   .parked-empty { font-size: 12px; color: var(--muted); }
 
   .ws-placeholder { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--muted); text-align: center; min-height: 300px; }
@@ -211,9 +210,9 @@
   .calc-divider { height: 1px; background: var(--border); margin: 10px 0; }
   .calc-result { display: flex; align-items: center; justify-content: space-between; padding: 8px 0 4px; }
   .calc-result-label { font-size: 12px; color: var(--muted); }
-  .calc-result-value { font-size: 20px; font-weight: 600; font-family: 'DM Mono', monospace; color: var(--text); }
+  .calc-result-value { font-size: 20px; font-weight: 600; font-family: ui-monospace, 'SF Mono', 'Cascadia Mono', 'Segoe UI Mono', Menlo, Consolas, monospace; color: var(--text); }
   .calc-result-value.has-value { color: #1a5fa8; }
-  .calc-formula { font-size: 10px; color: var(--muted); font-family: 'DM Mono', monospace; margin-top: 2px; line-height: 1.5; }
+  .calc-formula { font-size: 10px; color: var(--muted); font-family: ui-monospace, 'SF Mono', 'Cascadia Mono', 'Segoe UI Mono', Menlo, Consolas, monospace; margin-top: 2px; line-height: 1.5; }
   .calc-apply { width: 100%; margin-top: 10px; padding: 7px 14px; border-radius: 6px; border: 1px solid var(--border); background: var(--subtle); font-family: inherit; font-size: 12px; font-weight: 500; color: var(--text); cursor: pointer; transition: background 0.12s; }
   .calc-apply:hover { background: var(--border); }
   .calc-apply:disabled { opacity: 0.4; cursor: default; }
@@ -232,7 +231,7 @@
   .modal { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); padding: 1.5rem; width: 500px; max-width: 95vw; box-shadow: 0 8px 40px rgba(0,0,0,0.15); }
   .modal-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
   .modal-sub   { font-size: 12px; color: var(--muted); margin-bottom: 1rem; }
-  textarea { width: 100%; height: 200px; font-family: 'DM Mono', monospace; font-size: 11px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px; color: var(--text); outline: none; resize: vertical; transition: border-color 0.15s; }
+  textarea { width: 100%; height: 200px; font-family: ui-monospace, 'SF Mono', 'Cascadia Mono', 'Segoe UI Mono', Menlo, Consolas, monospace; font-size: 11px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px; color: var(--text); outline: none; resize: vertical; transition: border-color 0.15s; }
   textarea:focus { border-color: #6a9fd8; }
   .modal-error   { font-size: 12px; color: #b52020; margin-top: 6px; min-height: 16px; }
   .modal-actions { display: flex; gap: 8px; margin-top: 1rem; justify-content: flex-end; }
@@ -611,7 +610,7 @@ function renderWorkspace() {
           </span>
           <span id="gridColsEdit" style="display:none;align-items:center;gap:4px;">
             <input id="gridColsInput" type="number" min="1" max="100"
-              style="width:52px;padding:1px 5px;font-size:11px;font-family:'DM Mono',monospace;border:1px solid var(--border2);border-radius:4px;background:var(--bg);color:var(--text);outline:none;"
+              style="width:52px;padding:1px 5px;font-size:11px;font-family:ui-monospace,'SF Mono','Cascadia Mono','Segoe UI Mono',Menlo,Consolas,monospace;border:1px solid var(--border2);border-radius:4px;background:var(--bg);color:var(--text);outline:none;"
               onkeydown="if(event.key==='Enter')commitEditGridCols();if(event.key==='Escape')cancelEditGridCols();"
               onblur="commitEditGridCols()">
             <span style="font-size:11px;color:var(--muted)">&times;${capRows} grid</span>
