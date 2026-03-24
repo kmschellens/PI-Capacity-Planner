@@ -6,213 +6,157 @@
 <title>PI Capacity Planner</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
-
   :root {
-    --bg:      #f5f4f1;
-    --surface: #ffffff;
-    --border:  #e2e0db;
-    --border2: #cccac4;
-    --text:    #1c1b19;
-    --muted:   #8a8880;
-    --subtle:  #f0ede8;
-    --cell:    44px;
-    --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
-    --sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --bg:#f5f4f1;--surface:#ffffff;--border:#e2e0db;--border2:#cccac4;
+    --text:#1c1b19;--muted:#8a8880;--subtle:#f0ede8;--cell:44px;
+    --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+    --sans:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; line-height: 1.5; min-height: 100vh; }
-
-  /* ── TOP BAR ── */
-  .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 1.5rem; height: 52px; display: flex; align-items: center; justify-content: space-between; gap: 1rem; position: sticky; top: 0; z-index: 30; }
-  .topbar-title { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
-  .topbar-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-  .btn-sm { display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); font-family: inherit; font-size: 12px; font-weight: 500; color: var(--text); cursor: pointer; transition: background 0.12s, border-color 0.12s; white-space: nowrap; }
-  .btn-sm:hover { background: var(--subtle); border-color: var(--border2); }
-  .btn-sm.danger { color: #b52020; }
-  .btn-sm.danger:hover { background: #fceaea; border-color: #e89090; }
-
-  /* ── TAB BAR ── */
-  .tabbar { background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: stretch; padding: 0 1.5rem; overflow-x: auto; min-height: 40px; position: sticky; top: 52px; z-index: 29; }
-  .tabbar::-webkit-scrollbar { height: 0; }
-  .tab-item { display: flex; align-items: center; gap: 6px; padding: 0 14px; border-bottom: 2px solid transparent; font-size: 13px; font-weight: 500; color: var(--muted); cursor: pointer; white-space: nowrap; transition: color 0.12s, border-color 0.12s; user-select: none; min-height: 40px; }
-  .tab-item:hover { color: var(--text); }
-  .tab-item.active { color: var(--text); border-bottom-color: var(--text); }
-  .tab-name-input { background: none; border: none; outline: none; font: inherit; color: inherit; width: 100px; padding: 0; cursor: default; }
-  .tab-name-input:focus { background: var(--bg); border-radius: 3px; padding: 0 4px; margin: 0 -4px; cursor: text; }
-  .tab-del { background: none; border: none; cursor: pointer; color: var(--border2); font-size: 13px; padding: 1px 3px; border-radius: 3px; opacity: 0; transition: opacity 0.12s, color 0.12s; }
-  .tab-item:hover .tab-del, .tab-item.active .tab-del { opacity: 0.6; }
-  .tab-del:hover { color: #b52020; opacity: 1 !important; }
-  .tab-add { display: flex; align-items: center; padding: 0 12px; cursor: pointer; color: var(--muted); font-size: 20px; font-weight: 300; transition: color 0.12s; min-height: 40px; border-bottom: 2px solid transparent; }
-  .tab-add:hover { color: var(--text); }
-
-  /* ── 3-COLUMN LAYOUT ── */
-  .app-body { display: grid; grid-template-columns: 290px 1fr 270px; min-height: calc(100vh - 92px); }
-
-  /* ── SIDEBAR ── */
-  .sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 1.25rem; display: flex; flex-direction: column; gap: 1.25rem; overflow-y: auto; max-height: calc(100vh - 92px); }
-  .section-title { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; font-family: var(--mono); }
-  .field { margin-bottom: 10px; }
-  .field-label { display: block; font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; font-family: var(--mono); }
-  input[type="text"], input[type="number"] { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 7px 10px; font-family: inherit; font-size: 13px; color: var(--text); outline: none; transition: border-color 0.15s, box-shadow 0.15s; }
-  input:focus { border-color: #6a9fd8; box-shadow: 0 0 0 3px rgba(106,159,216,0.15); }
-  .btn { width: 100%; padding: 8px 14px; border-radius: 6px; border: none; font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; transition: background 0.15s; }
-  .btn-primary { background: #1c1b19; color: #fff; }
-  .btn-primary:hover { background: #333; }
-  .btn-secondary { background: var(--subtle); color: var(--text); border: 1px solid var(--border); }
-  .btn-secondary:hover { background: var(--border); }
-  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .two-col .field { margin-bottom: 0; }
-  .sprint-preview { font-size: 11px; color: var(--muted); font-family: var(--mono); margin-bottom: 8px; min-height: 16px; line-height: 1.5; }
-
-  /* ── SIZE PICKER ── */
-  .size-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 10px; }
-  .size-radio { display: none; }
-  .size-btn { display: flex; flex-direction: column; align-items: center; padding: 7px 4px; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; color: var(--muted); background: var(--bg); transition: all 0.12s; gap: 2px; }
-  .size-btn:hover { border-color: var(--border2); color: var(--text); }
-  .size-radio:checked + .size-btn { background: var(--text); color: #fff; border-color: var(--text); }
-  .size-sub { font-size: 10px; font-weight: 400; opacity: 0.65; }
-
-  /* ── BACKLOG ── */
-  .backlog-list { display: flex; flex-direction: column; gap: 5px; min-height: 40px; }
-  .feature-card { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 7px; cursor: grab; user-select: none; transition: border-color 0.12s, box-shadow 0.12s; }
-  .feature-card:hover { border-color: var(--border2); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
-  .feature-card.is-dragging { opacity: 0.35; }
-  .card-dot  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .card-info { flex: 1; min-width: 0; }
-  .card-name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .card-meta { font-size: 11px; color: var(--muted); margin-top: 1px; font-family: var(--mono); }
-  .card-del  { background: none; border: none; cursor: pointer; color: var(--border2); font-size: 14px; padding: 2px 4px; border-radius: 4px; opacity: 0; transition: opacity 0.12s, color 0.12s; line-height: 1; }
-  .feature-card:hover .card-del { opacity: 1; }
-  .card-del:hover { color: #c0392b; }
-  .empty-state { font-size: 12px; color: var(--muted); text-align: center; padding: 12px 0; }
-  .count-badge { display: inline-flex; align-items: center; justify-content: center; background: var(--subtle); border: 1px solid var(--border); border-radius: 10px; padding: 0 6px; height: 18px; font-size: 10px; font-weight: 600; color: var(--muted); font-family: var(--mono); }
-
-  /* ── WORKSPACE ── */
-  .workspace { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; overflow-y: auto; overflow-x: auto; max-height: calc(100vh - 92px); }
-  .ws-header { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
-  .ws-title  { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
-  .ws-sub    { font-size: 11px; color: var(--muted); margin-top: 2px; font-family: var(--mono); display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
-  .ws-stats  { display: flex; align-items: center; gap: 1.5rem; }
-  .stat-item { text-align: right; }
-  .stat-num  { font-size: 20px; font-weight: 600; font-family: var(--mono); }
-  .stat-lbl  { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; font-family: var(--mono); }
-  .status-pill { font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 20px; border: 1px solid transparent; }
-  .pill-ok   { background: #eaf5ef; color: #2d7d4e; border-color: #a8d9bc; }
-  .pill-near { background: #fdf5e0; color: #8a6200; border-color: #e0c97a; }
-  .pill-over { background: #fceaea; color: #b52020; border-color: #e89090; }
-  .progress-wrap { background: var(--border); border-radius: 3px; height: 4px; overflow: hidden; }
-  .progress-bar  { height: 100%; border-radius: 3px; transition: width 0.35s ease, background 0.3s; }
-
-  /* ── GRID ── */
-  .box-label { font-size: 11px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; font-family: var(--mono); }
-  .tetris-outer { background: var(--surface); border: 1.5px solid var(--border); border-radius: 10px; overflow: hidden; position: relative; width: 100%; }
-  .tetris-grid  { display: grid; position: relative; cursor: crosshair; }
-  .t-cell { width: var(--cell); height: var(--cell); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--bg); }
-
-  /* ── DROP GHOST ── */
-  .drop-ghost { position: absolute; border-radius: 6px; border: 2px dashed; pointer-events: none; z-index: 5; display: none; opacity: 0.65; transition: left 0.04s, top 0.04s; }
-  .drop-ghost.blocked { border-style: solid; opacity: 0.4; }
-
-  /* ── TILES ── */
-  .feat-tile { position: absolute; border-radius: 6px; border: 1.5px solid; display: flex; flex-direction: column; justify-content: flex-end; padding: 5px 7px; user-select: none; overflow: hidden; z-index: 2; }
-  .feat-tile:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.13); z-index: 10; }
-  .tile-name { font-size: 10px; font-weight: 600; line-height: 1.3; word-break: break-word; cursor: default; }
-  .tile-name[contenteditable="true"] { outline: none; background: rgba(255,255,255,0.55); border-radius: 3px; padding: 1px 3px; margin: -1px -3px; cursor: text; }
-  .tile-meta { font-size: 9px; opacity: 0.65; margin-top: 1px; font-family: var(--mono); }
-  .tile-rm { position: absolute; top: 3px; right: 3px; width: 15px; height: 15px; border-radius: 3px; background: rgba(0,0,0,0.12); border: none; cursor: pointer; font-size: 9px; color: inherit; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.12s; }
-  .feat-tile:hover .tile-rm { opacity: 1; }
-  .tile-rm:hover { background: rgba(0,0,0,0.22); }
-
-  /* ── COLOUR BAR ON TILES ── */
-  .tile-colour-bar { position: absolute; top: 3px; left: 3px; display: flex; gap: 3px; opacity: 0; transition: opacity 0.15s; pointer-events: none; }
-  .feat-tile:hover .tile-colour-bar { opacity: 1; pointer-events: all; }
-  .colour-dot { width: 11px; height: 11px; border-radius: 50%; cursor: pointer; border: 1.5px solid rgba(255,255,255,0.6); transition: transform 0.1s, box-shadow 0.1s; flex-shrink: 0; }
-  .colour-dot:hover { transform: scale(1.3); border-color: #fff; }
-  .colour-dot.active { border-color: #fff; box-shadow: 0 0 0 1.5px rgba(0,0,0,0.3); }
-
-  /* ── DRAGGING ── */
-  .feat-tile.is-dragging { opacity: 0.3; }
-
-  /* ── PARKED ZONE ── */
-  .parked-outer { background: var(--surface); border: 1.5px dashed var(--border2); border-radius: 10px; padding: 12px; min-height: 60px; transition: border-color 0.15s, background 0.15s; }
-  .parked-outer.drag-over { border-color: #c89ee0; background: #f9f4fe; }
-  .parked-chips { display: flex; flex-wrap: wrap; gap: 6px; min-height: 28px; align-content: flex-start; }
-  .parked-chip  { display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border-radius: 5px; border: 1px solid; font-size: 12px; font-weight: 500; cursor: grab; user-select: none; transition: box-shadow 0.12s; }
-  .parked-chip:hover { box-shadow: 0 1px 6px rgba(0,0,0,0.1); }
-  .parked-chip.is-dragging { opacity: 0.3; }
-  .chip-sz { font-family: var(--mono); font-size: 10px; opacity: 0.7; }
-  .parked-empty { font-size: 12px; color: var(--muted); }
-
-  .ws-placeholder { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--muted); text-align: center; min-height: 300px; }
-
-  /* ── RIGHT PANEL ── */
-  .right-panel { background: var(--surface); border-left: 1px solid var(--border); padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; overflow-y: auto; max-height: calc(100vh - 92px); }
-  .panel-title { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; font-family: var(--mono); margin-bottom: 3px; }
-  .panel-desc  { font-size: 11px; color: var(--muted); line-height: 1.5; }
-  .summary-card { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 6px; }
-  .sc-val { font-size: 18px; font-weight: 600; font-family: var(--mono); color: #1a5fa8; }
-  .sc-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; font-family: var(--mono); }
-  .breakdown-list { display: flex; flex-direction: column; gap: 6px; }
-  .bd-row { background: var(--bg); border: 1px solid var(--border); border-radius: 7px; padding: 8px 10px; }
-  .bd-head { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
-  .bd-dot  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .bd-name { font-size: 12px; font-weight: 600; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .bd-size { font-family: var(--mono); font-size: 10px; color: var(--muted); }
-  .bd-bar-wrap { background: var(--border); border-radius: 2px; height: 3px; margin-bottom: 6px; overflow: hidden; }
-  .bd-bar { height: 100%; border-radius: 2px; }
-  .bd-nums { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
-  .bd-num-val { font-size: 14px; font-weight: 600; font-family: var(--mono); }
-  .bd-num-lbl { font-size: 9px; color: var(--muted); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.04em; }
-  .bd-empty { font-size: 12px; color: var(--muted); text-align: center; padding: 24px 0; line-height: 1.6; }
-  .divider { height: 1px; background: var(--border); }
-
-  /* ── DROPDOWN ── */
-  .dropdown-wrap { position: relative; display: inline-flex; }
-  .dropdown-menu { display: none; position: absolute; top: calc(100% + 4px); right: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.1); min-width: 180px; z-index: 100; overflow: hidden; }
-  .dropdown-menu.open { display: block; }
-  .dropdown-item { display: flex; align-items: center; gap: 8px; padding: 8px 14px; font-size: 13px; cursor: pointer; transition: background 0.1s; white-space: nowrap; border: none; background: none; width: 100%; text-align: left; font-family: inherit; color: var(--text); }
-  .dropdown-item:hover { background: var(--subtle); }
-  .dropdown-divider { height: 1px; background: var(--border); margin: 4px 0; }
-
-  /* ── MODAL ── */
-  .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 200; align-items: center; justify-content: center; }
-  .modal-backdrop.open { display: flex; }
-  .modal { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); padding: 1.5rem; width: 500px; max-width: 95vw; box-shadow: 0 8px 40px rgba(0,0,0,0.15); }
-  .modal-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
-  .modal-sub   { font-size: 12px; color: var(--muted); margin-bottom: 1rem; }
-  textarea { width: 100%; height: 200px; font-family: var(--mono); font-size: 11px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px; color: var(--text); outline: none; resize: vertical; }
-  textarea:focus { border-color: #6a9fd8; }
-  .modal-error   { font-size: 12px; color: #b52020; margin-top: 6px; min-height: 16px; }
-  .modal-actions { display: flex; gap: 8px; margin-top: 1rem; justify-content: flex-end; }
-  .modal-actions .btn { width: auto; padding: 7px 16px; }
-
-  /* ── TYPE BADGE ── */
-  .type-badge { display: inline-flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 9px; font-weight: 600; letter-spacing: 0.04em; padding: 1px 5px; border-radius: 3px; border: 1px solid; line-height: 1.4; flex-shrink: 0; }
-  .type-badge.feature { color: #1a5fa8; background: #e8f1fb; border-color: #9dc0e8; }
-  .type-badge.story   { color: #7040b0; background: #f3edfb; border-color: #c9a8e8; }
-
-  /* ── COLLAPSIBLE SECTIONS ── */
-  .collapsible-header { display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; margin-bottom: 0; }
-  .collapsible-header:hover .collapse-chevron { color: var(--text); }
-  .collapse-chevron { color: var(--muted); transition: transform 0.2s; flex-shrink: 0; }
-  .collapse-chevron.open { transform: rotate(180deg); }
-  .collapsible-body { overflow: hidden; transition: max-height 0.25s ease, opacity 0.2s; opacity: 1; }
-  .collapsible-body.closed { max-height: 0 !important; opacity: 0; }
-
-  /* ── RIGHT PANEL COLLAPSIBLE ── */
-  .right-panel-inner { overflow: hidden; transition: max-height 0.25s ease, opacity 0.2s; opacity: 1; }
-  .right-panel-inner.closed { max-height: 0 !important; opacity: 0; }
-  .right-panel-toggle { display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; padding-bottom: 2px; }
-  .right-panel-toggle:hover .collapse-chevron { color: var(--text); }
-
-  ::-webkit-scrollbar { width: 5px; height: 5px; }
-  ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.5;min-height:100vh;}
+  .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 1.5rem;height:52px;display:flex;align-items:center;justify-content:space-between;gap:1rem;position:sticky;top:0;z-index:30;}
+  .topbar-title{font-size:15px;font-weight:600;letter-spacing:-.01em;}
+  .topbar-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+  .btn-sm{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:6px;border:1px solid var(--border);background:var(--surface);font-family:inherit;font-size:12px;font-weight:500;color:var(--text);cursor:pointer;transition:background .12s,border-color .12s;white-space:nowrap;}
+  .btn-sm:hover{background:var(--subtle);border-color:var(--border2);}
+  .btn-sm.danger{color:#b52020;}.btn-sm.danger:hover{background:#fceaea;border-color:#e89090;}
+  .tabbar{background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:stretch;padding:0 1.5rem;overflow-x:auto;min-height:40px;position:sticky;top:52px;z-index:29;}
+  .tabbar::-webkit-scrollbar{height:0;}
+  .tab-item{display:flex;align-items:center;gap:6px;padding:0 14px;border-bottom:2px solid transparent;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap;transition:color .12s,border-color .12s;user-select:none;min-height:40px;}
+  .tab-item:hover{color:var(--text);}.tab-item.active{color:var(--text);border-bottom-color:var(--text);}
+  .tab-name-input{background:none;border:none;outline:none;font:inherit;color:inherit;width:100px;padding:0;cursor:default;}
+  .tab-name-input:focus{background:var(--bg);border-radius:3px;padding:0 4px;margin:0 -4px;cursor:text;}
+  .tab-del{background:none;border:none;cursor:pointer;color:var(--border2);font-size:13px;padding:1px 3px;border-radius:3px;opacity:0;transition:opacity .12s,color .12s;}
+  .tab-item:hover .tab-del,.tab-item.active .tab-del{opacity:.6;}
+  .tab-del:hover{color:#b52020;opacity:1!important;}
+  .tab-add{display:flex;align-items:center;padding:0 12px;cursor:pointer;color:var(--muted);font-size:20px;font-weight:300;transition:color .12s;min-height:40px;border-bottom:2px solid transparent;}
+  .tab-add:hover{color:var(--text);}
+  .app-body{display:grid;grid-template-columns:290px 1fr 270px;min-height:calc(100vh - 92px);}
+  .sidebar{background:var(--surface);border-right:1px solid var(--border);padding:1.25rem;display:flex;flex-direction:column;gap:1.25rem;overflow-y:auto;max-height:calc(100vh - 92px);}
+  .section-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;font-family:var(--mono);}
+  .field{margin-bottom:10px;}
+  .field-label{display:block;font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;font-family:var(--mono);}
+  input[type="text"],input[type="number"]{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-family:inherit;font-size:13px;color:var(--text);outline:none;transition:border-color .15s,box-shadow .15s;}
+  input:focus{border-color:#6a9fd8;box-shadow:0 0 0 3px rgba(106,159,216,.15);}
+  .btn{width:100%;padding:8px 14px;border-radius:6px;border:none;font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:background .15s;}
+  .btn-primary{background:#1c1b19;color:#fff;}.btn-primary:hover{background:#333;}
+  .btn-secondary{background:var(--subtle);color:var(--text);border:1px solid var(--border);}.btn-secondary:hover{background:var(--border);}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px;}.two-col .field{margin-bottom:0;}
+  .sprint-preview{font-size:11px;color:var(--muted);font-family:var(--mono);margin-bottom:8px;min-height:16px;line-height:1.5;}
+  .size-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:10px;}
+  .size-radio{display:none;}
+  .size-btn{display:flex;flex-direction:column;align-items:center;padding:7px 4px;border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;color:var(--muted);background:var(--bg);transition:all .12s;gap:2px;}
+  .size-btn:hover{border-color:var(--border2);color:var(--text);}
+  .size-radio:checked+.size-btn{background:var(--text);color:#fff;border-color:var(--text);}
+  .size-sub{font-size:10px;font-weight:400;opacity:.65;}
+  .backlog-list{display:flex;flex-direction:column;gap:5px;min-height:40px;}
+  .feature-card{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg);border:1px solid var(--border);border-radius:7px;cursor:grab;user-select:none;transition:border-color .12s,box-shadow .12s;}
+  .feature-card:hover{border-color:var(--border2);box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  .feature-card.is-dragging{opacity:.35;}
+  .card-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .card-info{flex:1;min-width:0;}
+  .card-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .card-meta{font-size:11px;color:var(--muted);margin-top:1px;font-family:var(--mono);}
+  .card-del{background:none;border:none;cursor:pointer;color:var(--border2);font-size:14px;padding:2px 4px;border-radius:4px;opacity:0;transition:opacity .12s,color .12s;line-height:1;}
+  .feature-card:hover .card-del{opacity:1;}.card-del:hover{color:#c0392b;}
+  .empty-state{font-size:12px;color:var(--muted);text-align:center;padding:12px 0;}
+  .count-badge{display:inline-flex;align-items:center;justify-content:center;background:var(--subtle);border:1px solid var(--border);border-radius:10px;padding:0 6px;height:18px;font-size:10px;font-weight:600;color:var(--muted);font-family:var(--mono);}
+  .workspace{padding:1.5rem;display:flex;flex-direction:column;gap:1.25rem;overflow-y:auto;overflow-x:auto;max-height:calc(100vh - 92px);}
+  .ws-header{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+  .ws-title{font-size:16px;font-weight:600;letter-spacing:-.01em;}
+  .ws-sub{font-size:11px;color:var(--muted);margin-top:2px;font-family:var(--mono);display:flex;align-items:center;flex-wrap:wrap;gap:5px;}
+  .ws-stats{display:flex;align-items:center;gap:1.5rem;}
+  .stat-item{text-align:right;}
+  .stat-num{font-size:20px;font-weight:600;font-family:var(--mono);}
+  .stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);}
+  .status-pill{font-size:12px;font-weight:500;padding:4px 10px;border-radius:20px;border:1px solid transparent;}
+  .pill-ok{background:#eaf5ef;color:#2d7d4e;border-color:#a8d9bc;}
+  .pill-near{background:#fdf5e0;color:#8a6200;border-color:#e0c97a;}
+  .pill-over{background:#fceaea;color:#b52020;border-color:#e89090;}
+  .progress-wrap{background:var(--border);border-radius:3px;height:4px;overflow:hidden;}
+  .progress-bar{height:100%;border-radius:3px;transition:width .35s ease,background .3s;}
+  .box-label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;display:flex;align-items:center;gap:6px;font-family:var(--mono);}
+  .tetris-outer{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;overflow:hidden;position:relative;width:100%;}
+  .tetris-grid{display:grid;position:relative;cursor:crosshair;}
+  .t-cell{width:var(--cell);height:var(--cell);border-right:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--bg);}
+  .drop-ghost{position:absolute;border-radius:6px;border:2px dashed;pointer-events:none;z-index:5;display:none;opacity:.65;transition:left .04s,top .04s;}
+  .drop-ghost.blocked{border-style:solid;opacity:.4;}
+  .feat-tile{position:absolute;border-radius:6px;border:1.5px solid;display:flex;flex-direction:column;justify-content:flex-end;padding:5px 7px;user-select:none;overflow:hidden;z-index:2;}
+  .feat-tile:hover{box-shadow:0 2px 10px rgba(0,0,0,.13);z-index:10;}
+  .tile-name{font-size:10px;font-weight:600;line-height:1.3;word-break:break-word;cursor:default;}
+  .tile-name[contenteditable="true"]{outline:none;background:rgba(255,255,255,.55);border-radius:3px;padding:1px 3px;margin:-1px -3px;cursor:text;}
+  .tile-meta{font-size:9px;opacity:.65;margin-top:1px;font-family:var(--mono);}
+  /* ✕ top-right */
+  .tile-rm{position:absolute;top:3px;right:3px;width:15px;height:15px;border-radius:3px;background:rgba(0,0,0,.12);border:none;cursor:pointer;font-size:9px;color:inherit;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .12s;}
+  .feat-tile:hover .tile-rm{opacity:1;}.tile-rm:hover{background:rgba(0,0,0,.22);}
+  /* ✂ bottom-right — only rendered on feature tiles */
+  .tile-split{position:absolute;bottom:3px;right:3px;width:15px;height:15px;border-radius:3px;background:rgba(0,0,0,.12);border:none;cursor:pointer;color:inherit;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .12s,background .12s;}
+  .feat-tile:hover .tile-split{opacity:1;}.tile-split:hover{background:rgba(0,0,0,.26);}
+  .tile-colour-bar{position:absolute;top:3px;left:3px;display:flex;gap:3px;opacity:0;transition:opacity .15s;pointer-events:none;}
+  .feat-tile:hover .tile-colour-bar{opacity:1;pointer-events:all;}
+  .colour-dot{width:11px;height:11px;border-radius:50%;cursor:pointer;border:1.5px solid rgba(255,255,255,.6);transition:transform .1s,box-shadow .1s;flex-shrink:0;}
+  .colour-dot:hover{transform:scale(1.3);border-color:#fff;}
+  .colour-dot.active{border-color:#fff;box-shadow:0 0 0 1.5px rgba(0,0,0,.3);}
+  .feat-tile.is-dragging{opacity:.3;}
+  .parked-outer{background:var(--surface);border:1.5px dashed var(--border2);border-radius:10px;padding:12px;min-height:60px;transition:border-color .15s,background .15s;}
+  .parked-outer.drag-over{border-color:#c89ee0;background:#f9f4fe;}
+  .parked-chips{display:flex;flex-wrap:wrap;gap:6px;min-height:28px;align-content:flex-start;}
+  .parked-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:5px;border:1px solid;font-size:12px;font-weight:500;cursor:grab;user-select:none;transition:box-shadow .12s;}
+  .parked-chip:hover{box-shadow:0 1px 6px rgba(0,0,0,.1);}
+  .parked-chip.is-dragging{opacity:.3;}
+  .chip-sz{font-family:var(--mono);font-size:10px;opacity:.7;}
+  .parked-empty{font-size:12px;color:var(--muted);}
+  .ws-placeholder{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--muted);text-align:center;min-height:300px;}
+  .right-panel{background:var(--surface);border-left:1px solid var(--border);padding:1.25rem;display:flex;flex-direction:column;gap:1rem;overflow-y:auto;max-height:calc(100vh - 92px);}
+  .panel-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);margin-bottom:3px;}
+  .panel-desc{font-size:11px;color:var(--muted);line-height:1.5;}
+  .bd-row{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:8px 10px;}
+  .bd-head{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+  .bd-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .bd-name{font-size:12px;font-weight:600;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .bd-size{font-family:var(--mono);font-size:10px;color:var(--muted);}
+  .bd-bar-wrap{background:var(--border);border-radius:2px;height:3px;margin-bottom:6px;overflow:hidden;}
+  .bd-bar{height:100%;border-radius:2px;}
+  .bd-num-val{font-size:14px;font-weight:600;font-family:var(--mono);}
+  .bd-num-lbl{font-size:9px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.04em;}
+  .bd-empty{font-size:12px;color:var(--muted);text-align:center;padding:24px 0;line-height:1.6;}
+  .divider{height:1px;background:var(--border);}
+  .dropdown-wrap{position:relative;display:inline-flex;}
+  .dropdown-menu{display:none;position:absolute;top:calc(100% + 4px);right:0;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.1);min-width:180px;z-index:100;overflow:hidden;}
+  .dropdown-menu.open{display:block;}
+  .dropdown-item{display:flex;align-items:center;gap:8px;padding:8px 14px;font-size:13px;cursor:pointer;transition:background .1s;white-space:nowrap;border:none;background:none;width:100%;text-align:left;font-family:inherit;color:var(--text);}
+  .dropdown-item:hover{background:var(--subtle);}
+  .dropdown-divider{height:1px;background:var(--border);margin:4px 0;}
+  .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;align-items:center;justify-content:center;}
+  .modal-backdrop.open{display:flex;}
+  .modal{background:var(--surface);border-radius:12px;border:1px solid var(--border);padding:1.5rem;width:500px;max-width:95vw;box-shadow:0 8px 40px rgba(0,0,0,.15);}
+  .modal-title{font-size:15px;font-weight:600;margin-bottom:4px;}
+  .modal-sub{font-size:12px;color:var(--muted);margin-bottom:1rem;}
+  textarea{width:100%;height:200px;font-family:var(--mono);font-size:11px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px;color:var(--text);outline:none;resize:vertical;}
+  textarea:focus{border-color:#6a9fd8;}
+  .modal-error{font-size:12px;color:#b52020;margin-top:6px;min-height:16px;}
+  .modal-actions{display:flex;gap:8px;margin-top:1rem;justify-content:flex-end;}
+  .modal-actions .btn{width:auto;padding:7px 16px;}
+  .type-badge{display:inline-flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.04em;padding:1px 5px;border-radius:3px;border:1px solid;line-height:1.4;flex-shrink:0;}
+  .type-badge.feature{color:#1a5fa8;background:#e8f1fb;border-color:#9dc0e8;}
+  .type-badge.story{color:#7040b0;background:#f3edfb;border-color:#c9a8e8;}
+  .collapsible-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;margin-bottom:0;}
+  .collapsible-header:hover .collapse-chevron{color:var(--text);}
+  .collapse-chevron{color:var(--muted);transition:transform .2s;flex-shrink:0;}
+  .collapse-chevron.open{transform:rotate(180deg);}
+  .collapsible-body{overflow:hidden;transition:max-height .25s ease,opacity .2s;opacity:1;}
+  .collapsible-body.closed{max-height:0!important;opacity:0;}
+  .right-panel-inner{overflow:hidden;transition:max-height .25s ease,opacity .2s;opacity:1;}
+  .right-panel-inner.closed{max-height:0!important;opacity:0;}
+  .right-panel-toggle{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;padding-bottom:2px;}
+  .right-panel-toggle:hover .collapse-chevron{color:var(--text);}
+  ::-webkit-scrollbar{width:5px;height:5px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
 </style>
 </head>
 <body>
 
-<!-- TOP BAR -->
 <div class="topbar">
   <span class="topbar-title">PI Capacity Planner</span>
   <div class="topbar-actions">
@@ -239,19 +183,14 @@
   </div>
 </div>
 
-<!-- TAB BAR -->
 <div class="tabbar" id="tabbar"></div>
 
-<!-- BODY -->
 <div class="app-body">
-
-  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div>
       <div class="section-title">Quarter setup</div>
       <div class="field"><label class="field-label">Quarter name</label><input type="text" id="quarterName" value="Q3 2025" oninput="onQuarterNameInput()"></div>
     </div>
-
     <div>
       <div class="collapsible-header" onclick="toggleSection('teamCapSection','teamCapChevron')">
         <div class="section-title" style="margin-bottom:0">Team Capacity</div>
@@ -271,45 +210,40 @@
         <button class="btn btn-primary" onclick="applySprintCapacity()">Set capacity</button>
       </div>
     </div>
-
     <div>
       <div class="section-title">Add work item</div>
       <div class="field"><label class="field-label">Name</label><input type="text" id="featureName" placeholder="e.g. User authentication"></div>
       <div class="field">
         <label class="field-label">Feature</label>
         <div class="size-grid">
-          <div><input type="radio" name="sz" id="sz-f-s"  class="size-radio" value="S"  data-type="feature" checked><label for="sz-f-s"  class="size-btn">S<span class="size-sub">40 pts</span></label></div>
-          <div><input type="radio" name="sz" id="sz-f-m"  class="size-radio" value="M"  data-type="feature"><label for="sz-f-m"  class="size-btn">M<span class="size-sub">60 pts</span></label></div>
-          <div><input type="radio" name="sz" id="sz-f-l"  class="size-radio" value="L"  data-type="feature"><label for="sz-f-l"  class="size-btn">L<span class="size-sub">80 pts</span></label></div>
+          <div><input type="radio" name="sz" id="sz-f-s" class="size-radio" value="S" data-type="feature" checked><label for="sz-f-s" class="size-btn">S<span class="size-sub">40 pts</span></label></div>
+          <div><input type="radio" name="sz" id="sz-f-m" class="size-radio" value="M" data-type="feature"><label for="sz-f-m" class="size-btn">M<span class="size-sub">60 pts</span></label></div>
+          <div><input type="radio" name="sz" id="sz-f-l" class="size-radio" value="L" data-type="feature"><label for="sz-f-l" class="size-btn">L<span class="size-sub">80 pts</span></label></div>
           <div><input type="radio" name="sz" id="sz-f-xl" class="size-radio" value="XL" data-type="feature"><label for="sz-f-xl" class="size-btn">XL<span class="size-sub">100 pts</span></label></div>
         </div>
       </div>
       <div class="field">
         <label class="field-label">User Story</label>
         <div class="size-grid">
-          <div><input type="radio" name="sz" id="sz-us-s"  class="size-radio" value="S"  data-type="story"><label for="sz-us-s"  class="size-btn">S<span class="size-sub">5 pts</span></label></div>
-          <div><input type="radio" name="sz" id="sz-us-m"  class="size-radio" value="M"  data-type="story"><label for="sz-us-m"  class="size-btn">M<span class="size-sub">8 pts</span></label></div>
-          <div><input type="radio" name="sz" id="sz-us-l"  class="size-radio" value="L"  data-type="story"><label for="sz-us-l"  class="size-btn">L<span class="size-sub">13 pts</span></label></div>
+          <div><input type="radio" name="sz" id="sz-us-s" class="size-radio" value="S" data-type="story"><label for="sz-us-s" class="size-btn">S<span class="size-sub">5 pts</span></label></div>
+          <div><input type="radio" name="sz" id="sz-us-m" class="size-radio" value="M" data-type="story"><label for="sz-us-m" class="size-btn">M<span class="size-sub">8 pts</span></label></div>
+          <div><input type="radio" name="sz" id="sz-us-l" class="size-radio" value="L" data-type="story"><label for="sz-us-l" class="size-btn">L<span class="size-sub">13 pts</span></label></div>
           <div><input type="radio" name="sz" id="sz-us-xl" class="size-radio" value="XL" data-type="story"><label for="sz-us-xl" class="size-btn">XL<span class="size-sub">20 pts</span></label></div>
         </div>
       </div>
       <button class="btn btn-secondary" onclick="addFeature()">Add to backlog</button>
     </div>
-
     <div>
       <div class="section-title" style="display:flex;align-items:center;gap:6px;">Backlog <span class="count-badge" id="backlogCount">0</span></div>
       <div class="backlog-list" id="backlogList"></div>
     </div>
   </aside>
 
-  <!-- WORKSPACE -->
   <main class="workspace" id="workspace"></main>
 
   <aside class="right-panel">
     <div class="right-panel-toggle" onclick="toggleRightPanel()">
-      <div>
-        <div class="panel-title" style="margin-bottom:0">Dev load calculator</div>
-      </div>
+      <div><div class="panel-title" style="margin-bottom:0">Dev load calculator</div></div>
       <svg class="collapse-chevron open" id="rightPanelChevron" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 4l4 4 4-4"/></svg>
     </div>
     <div class="right-panel-inner" id="rightPanelInner" style="max-height:2000px;">
@@ -321,7 +255,6 @@
   </aside>
 </div>
 
-<!-- IMPORT MODAL -->
 <div class="modal-backdrop" id="importModal">
   <div class="modal">
     <div class="modal-title">Import</div>
@@ -330,272 +263,240 @@
     <div class="modal-error" id="importError"></div>
     <div class="modal-actions">
       <button class="btn btn-secondary" style="width:auto" onclick="closeImport()">Cancel</button>
-      <button class="btn btn-primary"   style="width:auto" onclick="doImport()">Import</button>
+      <button class="btn btn-primary" style="width:auto" onclick="doImport()">Import</button>
     </div>
   </div>
 </div>
 
 <script>
-// ══════════════════════════════════════════════════════════
-// CONFIG
-// ══════════════════════════════════════════════════════════
-const STORAGE_KEY = 'capacityPlanner_v5';
-const CELL = 44;
-const PTS_PER_CELL = 5;
-
-const PALETTES = [
-  { id:1, color:'#1a5fa8', bg:'#e8f1fb', border:'#9dc0e8' },
-  { id:2, color:'#2d7d4e', bg:'#eaf5ef', border:'#a8d9bc' },
-  { id:3, color:'#b54a00', bg:'#fdf0e8', border:'#e8b48a' },
-  { id:4, color:'#7040b0', bg:'#f3edfb', border:'#c9a8e8' },
-  { id:5, color:'#b52020', bg:'#fceaea', border:'#e89090' },
+const STORAGE_KEY='capacityPlanner_v5',CELL=44,PTS_PER_CELL=5;
+const PALETTES=[
+  {id:1,color:'#1a5fa8',bg:'#e8f1fb',border:'#9dc0e8'},
+  {id:2,color:'#2d7d4e',bg:'#eaf5ef',border:'#a8d9bc'},
+  {id:3,color:'#b54a00',bg:'#fdf0e8',border:'#e8b48a'},
+  {id:4,color:'#7040b0',bg:'#f3edfb',border:'#c9a8e8'},
+  {id:5,color:'#b52020',bg:'#fceaea',border:'#e89090'},
 ];
-
-const FEATURE_SIZES = {
-  S:  { pts:40,  cols:4, rows:2, paletteId:1 },
-  M:  { pts:60,  cols:4, rows:3, paletteId:2 },
-  L:  { pts:80,  cols:4, rows:4, paletteId:3 },
-  XL: { pts:100, cols:5, rows:4, paletteId:5 },
+const FEATURE_SIZES={
+  S:{pts:40,cols:4,rows:2,paletteId:1},M:{pts:60,cols:4,rows:3,paletteId:2},
+  L:{pts:80,cols:4,rows:4,paletteId:3},XL:{pts:100,cols:5,rows:4,paletteId:5},
 };
-const STORY_SIZES = {
-  S:  { pts:5,  cols:2, rows:1, paletteId:1 },
-  M:  { pts:8,  cols:2, rows:1, paletteId:2 },
-  L:  { pts:13, cols:3, rows:1, paletteId:3 },
-  XL: { pts:20, cols:3, rows:2, paletteId:5 },
+const STORY_SIZES={
+  S:{pts:5,cols:2,rows:1,paletteId:1},M:{pts:8,cols:2,rows:1,paletteId:2},
+  L:{pts:13,cols:3,rows:1,paletteId:3},XL:{pts:20,cols:3,rows:2,paletteId:5},
 };
-// unified lookup
-function SIZES(type, size) {
-  return (type === 'story' ? STORY_SIZES : FEATURE_SIZES)[size] || FEATURE_SIZES[size];
-}
+// F-S(40)→2×XL  F-M(60)→3×XL  F-L(80)→4×XL  F-XL(100)→5×XL
+const SPLIT_COUNT={S:2,M:3,L:4,XL:5};
 
-function getPalette(f) {
-  const pid = (f.paletteId != null) ? f.paletteId : (SIZES(f.type, f.size)?.paletteId || 1);
-  return PALETTES.find(p => p.id === pid) || PALETTES[0];
-}
+function SIZES(type,size){return(type==='story'?STORY_SIZES:FEATURE_SIZES)[size]||FEATURE_SIZES[size];}
+function getPalette(f){const pid=f.paletteId!=null?f.paletteId:(SIZES(f.type,f.size)?.paletteId||1);return PALETTES.find(p=>p.id===pid)||PALETTES[0];}
 
-// ══════════════════════════════════════════════════════════
-// STATE
-// ══════════════════════════════════════════════════════════
-let tabs = [], activeTabId = null, tabIdSeq = 0;
-let dragId = null, dragFrom = null;
+let tabs=[],activeTabId=null,tabIdSeq=0,dragId=null,dragFrom=null;
+function tab(){return tabs.find(t=>t.id===activeTabId);}
+function getGridCols(){return tab()?.gridCols||12;}
+function getGridRows(){const t=tab();if(!t||!t.capacity)return 0;return Math.ceil(Math.ceil(t.capacity/PTS_PER_CELL)/getGridCols());}
 
-function tab() { return tabs.find(t => t.id === activeTabId); }
-
-function getGridCols() { const t = tab(); return t?.gridCols || 12; }
-function getGridRows() {
-  const t = tab(); if (!t || !t.capacity) return 0;
-  return Math.ceil(Math.ceil(t.capacity / PTS_PER_CELL) / getGridCols());
-}
-
-// ══════════════════════════════════════════════════════════
-// PERSISTENCE
-// ══════════════════════════════════════════════════════════
-function saveState() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ version:5, tabs, activeTabId, tabIdSeq })); } catch(e) {}
-}
-function loadState() {
-  try {
-    const s = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (!s || s.version !== 5 || !Array.isArray(s.tabs) || !s.tabs.length) return false;
-    tabs = s.tabs; activeTabId = s.activeTabId; tabIdSeq = s.tabIdSeq || s.tabs.length;
-    if (!tabs.find(t => t.id === activeTabId)) activeTabId = tabs[0].id;
+function saveState(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify({version:5,tabs,activeTabId,tabIdSeq}));}catch(e){}}
+function loadState(){
+  try{
+    const s=JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if(!s||s.version!==5||!Array.isArray(s.tabs)||!s.tabs.length)return false;
+    tabs=s.tabs;activeTabId=s.activeTabId;tabIdSeq=s.tabIdSeq||s.tabs.length;
+    if(!tabs.find(t=>t.id===activeTabId))activeTabId=tabs[0].id;
     return true;
-  } catch(e) { return false; }
+  }catch(e){return false;}
 }
 
-// ══════════════════════════════════════════════════════════
-// SPRINT CAPACITY
-// ══════════════════════════════════════════════════════════
-function onSprintInput() {
-  const devs = parseFloat(document.getElementById('sprintDevs').value);
-  const sprints = parseFloat(document.getElementById('sprintCount').value);
-  const weeks = parseFloat(document.getElementById('sprintWeeks').value);
-  const pts = parseFloat(document.getElementById('sprintPtsPerDev').value);
-  const prev = document.getElementById('sprintPreview');
-  if (!devs || !sprints || !pts) { prev.textContent = ''; return; }
-  const total = Math.round(devs * sprints * pts);
-  const wNote = weeks ? ` · ${sprints * weeks}wks total` : '';
-  prev.textContent = `${devs} × ${sprints} × ${pts} = ${total} pts${wNote}`;
+function onSprintInput(){
+  const d=parseFloat(document.getElementById('sprintDevs').value),
+        sp=parseFloat(document.getElementById('sprintCount').value),
+        w=parseFloat(document.getElementById('sprintWeeks').value),
+        p=parseFloat(document.getElementById('sprintPtsPerDev').value),
+        prev=document.getElementById('sprintPreview');
+  if(!d||!sp||!p){prev.textContent='';return;}
+  prev.textContent=`${d} × ${sp} × ${p} = ${Math.round(d*sp*p)} pts`+(w?` · ${sp*w}wks total`:'');
 }
-
-function applySprintCapacity() {
-  const devs = parseFloat(document.getElementById('sprintDevs').value);
-  const sprints = parseFloat(document.getElementById('sprintCount').value);
-  const pts = parseFloat(document.getElementById('sprintPtsPerDev').value);
-  const weeks = parseFloat(document.getElementById('sprintWeeks').value) || null;
-  if (!devs || !sprints || !pts) { alert('Fill in Developers, Sprints and Pts/dev/sprint.'); return; }
-  const t = tab(); if (!t) return;
-  t.sprintDevs = devs; t.sprintCount = sprints; t.sprintWeeks = weeks; t.sprintPtsPerDev = pts;
-  t.capacity = Math.round(devs * sprints * pts);
-  // evict any tiles that now fall outside the (possibly smaller) grid
-  evictOutOfBounds();
-  saveState(); renderWorkspace();
+function applySprintCapacity(){
+  const d=parseFloat(document.getElementById('sprintDevs').value),
+        sp=parseFloat(document.getElementById('sprintCount').value),
+        p=parseFloat(document.getElementById('sprintPtsPerDev').value),
+        w=parseFloat(document.getElementById('sprintWeeks').value)||null;
+  if(!d||!sp||!p){alert('Fill in Developers, Sprints and Pts/dev/sprint.');return;}
+  const t=tab();if(!t)return;
+  t.sprintDevs=d;t.sprintCount=sp;t.sprintWeeks=w;t.sprintPtsPerDev=p;
+  t.capacity=Math.round(d*sp*p);evictOutOfBounds();saveState();renderWorkspace();
 }
-
-function evictOutOfBounds() {
-  const t = tab(); if (!t) return;
-  const cols = getGridCols(), rows = getGridRows();
-  for (const id in t.placed) {
-    const f = t.features.find(f => f.id === +id); if (!f) { delete t.placed[id]; continue; }
-    const s = SIZES(f.type, f.size), p = t.placed[id];
-    if (p.col + s.cols > cols || p.row + s.rows > rows) delete t.placed[id];
+function evictOutOfBounds(){
+  const t=tab();if(!t)return;
+  const cols=getGridCols(),rows=getGridRows();
+  for(const id in t.placed){
+    const f=t.features.find(f=>f.id===+id);if(!f){delete t.placed[id];continue;}
+    const s=SIZES(f.type,f.size),p=t.placed[id];
+    if(p.col+s.cols>cols||p.row+s.rows>rows)delete t.placed[id];
   }
 }
-
-function loadSprintInputs() {
-  const t = tab(); if (!t) return;
-  document.getElementById('sprintDevs').value      = t.sprintDevs      || '';
-  document.getElementById('sprintCount').value     = t.sprintCount     || '';
-  document.getElementById('sprintWeeks').value     = t.sprintWeeks     || '';
-  document.getElementById('sprintPtsPerDev').value = t.sprintPtsPerDev || '';
+function loadSprintInputs(){
+  const t=tab();if(!t)return;
+  document.getElementById('sprintDevs').value=t.sprintDevs||'';
+  document.getElementById('sprintCount').value=t.sprintCount||'';
+  document.getElementById('sprintWeeks').value=t.sprintWeeks||'';
+  document.getElementById('sprintPtsPerDev').value=t.sprintPtsPerDev||'';
   onSprintInput();
 }
 
-// ══════════════════════════════════════════════════════════
-// TABS
-// ══════════════════════════════════════════════════════════
-function newTab(name) {
-  const id = ++tabIdSeq;
-  tabs.push({ id, name: name || `Team ${id}`, quarterName:'Q3 2025', capacity:0, gridCols:12,
-    sprintDevs:null, sprintCount:null, sprintWeeks:null, sprintPtsPerDev:null,
-    features:[], idCounter:0, placed:{}, parked:[] });
-  return tabs[tabs.length - 1];
+function newTab(name){
+  const id=++tabIdSeq;
+  tabs.push({id,name:name||`Team ${id}`,quarterName:'Q3 2025',capacity:0,gridCols:12,
+    sprintDevs:null,sprintCount:null,sprintWeeks:null,sprintPtsPerDev:null,
+    features:[],idCounter:0,placed:{},parked:[]});
+  return tabs[tabs.length-1];
 }
-function addTab() { const t = newTab(); activeTabId = t.id; saveState(); renderTabBar(); loadTabIntoSidebar(); renderWorkspace(); }
-function deleteTab(id) {
-  if (tabs.length === 1) { alert('Need at least one team tab.'); return; }
-  if (!confirm(`Delete team "${tabs.find(t=>t.id===id)?.name}"?`)) return;
-  tabs = tabs.filter(t => t.id !== id);
-  if (activeTabId === id) activeTabId = tabs[0].id;
-  saveState(); renderTabBar(); loadTabIntoSidebar(); renderWorkspace();
+function addTab(){const t=newTab();activeTabId=t.id;saveState();renderTabBar();loadTabIntoSidebar();renderWorkspace();}
+function deleteTab(id){
+  if(tabs.length===1){alert('Need at least one team tab.');return;}
+  if(!confirm(`Delete team "${tabs.find(t=>t.id===id)?.name}"?`))return;
+  tabs=tabs.filter(t=>t.id!==id);
+  if(activeTabId===id)activeTabId=tabs[0].id;
+  saveState();renderTabBar();loadTabIntoSidebar();renderWorkspace();
 }
-function switchTab(id) { if (id === activeTabId) return; activeTabId = id; saveState(); renderTabBar(); loadTabIntoSidebar(); renderWorkspace(); }
-function renameTab(id, name) { const t = tabs.find(t => t.id === id); if (t) { t.name = name || t.name; saveState(); } }
-
-function loadTabIntoSidebar() {
-  const t = tab(); if (!t) return;
-  document.getElementById('quarterName').value = t.quarterName || 'Q3 2025';
-  loadSprintInputs();
-  renderBacklog();
+function switchTab(id){if(id===activeTabId)return;activeTabId=id;saveState();renderTabBar();loadTabIntoSidebar();renderWorkspace();}
+function renameTab(id,name){const t=tabs.find(t=>t.id===id);if(t){t.name=name||t.name;saveState();}}
+function loadTabIntoSidebar(){
+  const t=tab();if(!t)return;
+  document.getElementById('quarterName').value=t.quarterName||'Q3 2025';
+  loadSprintInputs();renderBacklog();
 }
-function onQuarterNameInput() {
-  const t = tab(); if (!t) return;
-  t.quarterName = document.getElementById('quarterName').value; saveState();
-  const el = document.getElementById('wsTitle'); if (el) el.textContent = t.quarterName || 'Quarter';
+function onQuarterNameInput(){
+  const t=tab();if(!t)return;
+  t.quarterName=document.getElementById('quarterName').value;saveState();
+  const el=document.getElementById('wsTitle');if(el)el.textContent=t.quarterName||'Quarter';
 }
 
-// ══════════════════════════════════════════════════════════
-// TAB BAR
-// ══════════════════════════════════════════════════════════
-function renderTabBar() {
-  const bar = document.getElementById('tabbar'); bar.innerHTML = '';
-  tabs.forEach(t => {
-    const el = document.createElement('div');
-    el.className = 'tab-item' + (t.id === activeTabId ? ' active' : '');
-    const inp = document.createElement('input');
-    inp.className = 'tab-name-input'; inp.value = t.name; inp.readOnly = true;
-    inp.addEventListener('dblclick', () => { inp.readOnly = false; inp.focus(); inp.select(); });
-    inp.addEventListener('blur', () => { inp.readOnly = true; renameTab(t.id, inp.value.trim() || t.name); inp.value = t.name; });
-    inp.addEventListener('keydown', e => { if (e.key==='Enter') inp.blur(); if (e.key==='Escape') { inp.value=t.name; inp.blur(); } });
-    inp.addEventListener('mousedown', e => { if (inp.readOnly) { e.preventDefault(); switchTab(t.id); } });
-    const del = document.createElement('button');
-    del.className = 'tab-del'; del.textContent = '×';
-    del.addEventListener('click', e => { e.stopPropagation(); deleteTab(t.id); });
-    el.append(inp, del); bar.appendChild(el);
+function renderTabBar(){
+  const bar=document.getElementById('tabbar');bar.innerHTML='';
+  tabs.forEach(t=>{
+    const el=document.createElement('div');
+    el.className='tab-item'+(t.id===activeTabId?' active':'');
+    const inp=document.createElement('input');
+    inp.className='tab-name-input';inp.value=t.name;inp.readOnly=true;
+    inp.addEventListener('dblclick',()=>{inp.readOnly=false;inp.focus();inp.select();});
+    inp.addEventListener('blur',()=>{inp.readOnly=true;renameTab(t.id,inp.value.trim()||t.name);inp.value=t.name;});
+    inp.addEventListener('keydown',e=>{if(e.key==='Enter')inp.blur();if(e.key==='Escape'){inp.value=t.name;inp.blur();}});
+    inp.addEventListener('mousedown',e=>{if(inp.readOnly){e.preventDefault();switchTab(t.id);}});
+    const del=document.createElement('button');
+    del.className='tab-del';del.textContent='×';
+    del.addEventListener('click',e=>{e.stopPropagation();deleteTab(t.id);});
+    el.append(inp,del);bar.appendChild(el);
   });
-  const add = document.createElement('div');
-  add.className = 'tab-add'; add.textContent = '+';
-  add.addEventListener('click', addTab); bar.appendChild(add);
+  const add=document.createElement('div');
+  add.className='tab-add';add.textContent='+';
+  add.addEventListener('click',addTab);bar.appendChild(add);
 }
 
-// ══════════════════════════════════════════════════════════
-// GRID HELPERS  (no gravity — just collision check at exact position)
-// ══════════════════════════════════════════════════════════
-function buildMatrix(excludeId = -1) {
-  const t = tab(); if (!t) return [];
-  const cols = getGridCols(), rows = getGridRows();
-  const mat = Array.from({ length: rows }, () => new Array(cols).fill(false));
-  for (const [id, pos] of Object.entries(t.placed)) {
-    if (+id === excludeId) continue;
-    const f = t.features.find(f => f.id === +id); if (!f) continue;
-    const s = SIZES(f.type, f.size);
-    for (let r = pos.row; r < pos.row + s.rows; r++)
-      for (let c = pos.col; c < pos.col + s.cols; c++)
-        if (r >= 0 && r < rows && c >= 0 && c < cols) mat[r][c] = true;
+// Build occupancy matrix, excluding listed IDs
+function buildMatrix(excludeIds=[]){
+  const t=tab();if(!t)return[];
+  const cols=getGridCols(),rows=getGridRows();
+  const mat=Array.from({length:rows},()=>new Array(cols).fill(false));
+  for(const[id,pos]of Object.entries(t.placed)){
+    if(excludeIds.includes(+id))continue;
+    const f=t.features.find(f=>f.id===+id);if(!f)continue;
+    const s=SIZES(f.type,f.size);
+    for(let r=pos.row;r<pos.row+s.rows;r++)
+      for(let c=pos.col;c<pos.col+s.cols;c++)
+        if(r>=0&&r<rows&&c>=0&&c<cols)mat[r][c]=true;
   }
   return mat;
 }
 
-// Returns {col, row} snapped to grid, clamped so tile stays in bounds.
-// Does NOT search for an empty spot — caller checks canPlace().
-function snapPosition(mouseX, mouseY, tileCols, tileRows, gridRect) {
-  const cols = getGridCols(), rows = getGridRows();
-  const col = Math.floor((mouseX - gridRect.left) / CELL) - Math.floor(tileCols / 2);
-  const row = Math.floor((mouseY - gridRect.top)  / CELL) - Math.floor(tileRows / 2);
-  return {
-    col: Math.max(0, Math.min(col, cols - tileCols)),
-    row: Math.max(0, Math.min(row, rows - tileRows)),
-  };
+function snapPosition(mx,my,tc,tr,rect){
+  const cols=getGridCols(),rows=getGridRows();
+  const col=Math.floor((mx-rect.left)/CELL)-Math.floor(tc/2);
+  const row=Math.floor((my-rect.top)/CELL)-Math.floor(tr/2);
+  return{col:Math.max(0,Math.min(col,cols-tc)),row:Math.max(0,Math.min(row,rows-tr))};
 }
-
-function canPlace(col, row, tileCols, tileRows, excludeId = -1) {
-  const cols = getGridCols(), rows = getGridRows();
-  if (col < 0 || row < 0 || col + tileCols > cols || row + tileRows > rows) return false;
-  const mat = buildMatrix(excludeId);
-  for (let r = row; r < row + tileRows; r++)
-    for (let c = col; c < col + tileCols; c++)
-      if (mat[r][c]) return false;
+function canPlace(col,row,tc,tr,excludeId=-1){
+  const cols=getGridCols(),rows=getGridRows();
+  if(col<0||row<0||col+tc>cols||row+tr>rows)return false;
+  const mat=buildMatrix([excludeId]);
+  for(let r=row;r<row+tr;r++)for(let c=col;c<col+tc;c++)if(mat[r][c])return false;
   return true;
 }
+// Scan entire grid for first free slot; mat is mutated to reserve found slot for subsequent calls
+function findFreeSlot(tc,tr,mat){
+  const cols=getGridCols(),rows=getGridRows();
+  for(let r=0;r<=rows-tr;r++){
+    for(let c=0;c<=cols-tc;c++){
+      let ok=true;
+      outer:for(let dr=0;dr<tr;dr++)for(let dc=0;dc<tc;dc++)if(mat[r+dr]?.[c+dc]){ok=false;break outer;}
+      if(ok){
+        for(let dr=0;dr<tr;dr++)for(let dc=0;dc<tc;dc++)mat[r+dr][c+dc]=true;
+        return{col:c,row:r};
+      }
+    }
+  }
+  return null;
+}
 
-// ══════════════════════════════════════════════════════════
-// WORKSPACE RENDER
-// ══════════════════════════════════════════════════════════
-function renderWorkspace() {
-  const ws = document.getElementById('workspace');
-  const t  = tab();
-  if (!t || !t.capacity) {
-    ws.innerHTML = `<div class="ws-placeholder"><p style="font-size:13px;">Fill in sprint capacity on the left<br>and click <strong>Set capacity</strong> to start.</p></div>`;
-    updateRightPanel(); return;
+// ── ONE-CLICK SPLIT ─────────────────────────────────────
+function splitFeature(featureId){
+  const t=tab();if(!t)return;
+  const parent=t.features.find(f=>f.id===featureId);
+  if(!parent||(parent.type||'feature')!=='feature')return;
+  const count=SPLIT_COUNT[parent.size];if(!count)return;
+  const paletteId=parent.paletteId!=null?parent.paletteId:(SIZES(parent.type,parent.size)?.paletteId||1);
+
+  // Remove parent
+  delete t.placed[featureId];
+  t.features=t.features.filter(f=>f.id!==featureId);
+  t.parked=t.parked.filter(i=>i!==featureId);
+
+  // Build shared matrix once so each child reserves its slot for the next
+  const mat=buildMatrix([]);
+
+  for(let i=0;i<count;i++){
+    const child={id:++t.idCounter,name:`${parent.name} – Part ${i+1}`,size:'XL',type:'story',paletteId};
+    t.features.push(child);
+    const s=SIZES('story','XL');
+    const slot=findFreeSlot(s.cols,s.rows,mat);
+    if(slot)t.placed[child.id]=slot;
+    // else: stays in backlog
   }
 
-  const cols = getGridCols(), rows = getGridRows();
-  const usedPts = Object.keys(t.placed).reduce((s, id) => {
-    const f = t.features.find(f => f.id === +id); return s + (f ? SIZES(f.type, f.size).pts : 0);
-  }, 0);
-  const pct = Math.min(100, Math.round(usedPts / t.capacity * 100));
-  const rem = t.capacity - usedPts;
+  saveState();renderWorkspace();
+}
 
-  const gridCapacity = cols * rows * PTS_PER_CELL;
-  const sprintLine = (t.sprintDevs && t.sprintCount)
-    ? `Total team capacity: ${t.capacity} pts · ${t.sprintCount} sprints${t.sprintWeeks ? ` · ${t.sprintWeeks}wk each` : ''} · ${t.sprintPtsPerDev} pts/dev/sprint`
-    : `Total team capacity: ${t.capacity} pts`;
-
-  let pillCls, pillTxt;
-  if (pct < 70)       { pillCls = 'status-pill pill-ok';   pillTxt = `${rem} pts remaining`; }
-  else if (pct < 100) { pillCls = 'status-pill pill-near'; pillTxt = `⚠ ${rem} pts left`; }
-  else                { pillCls = 'status-pill pill-over'; pillTxt = 'At capacity'; }
-
-  const barColor = pct < 70 ? '#2d7d4e' : pct < 95 ? '#8a6200' : '#b52020';
-
-  let cellsHtml = '';
-  for (let r = 0; r < rows; r++)
-    for (let c = 0; c < cols; c++)
-      cellsHtml += `<div class="t-cell"></div>`;
-
-  ws.innerHTML = `
+function renderWorkspace(){
+  const ws=document.getElementById('workspace'),t=tab();
+  if(!t||!t.capacity){
+    ws.innerHTML=`<div class="ws-placeholder"><p style="font-size:13px;">Fill in sprint capacity on the left<br>and click <strong>Set capacity</strong> to start.</p></div>`;
+    updateRightPanel();return;
+  }
+  const cols=getGridCols(),rows=getGridRows();
+  const usedPts=Object.keys(t.placed).reduce((s,id)=>{const f=t.features.find(f=>f.id===+id);return s+(f?SIZES(f.type,f.size).pts:0);},0);
+  const pct=Math.min(100,Math.round(usedPts/t.capacity*100)),rem=t.capacity-usedPts;
+  const gridCap=cols*rows*PTS_PER_CELL;
+  const sprintLine=(t.sprintDevs&&t.sprintCount)
+    ?`Total team capacity: ${t.capacity} pts · ${t.sprintCount} sprints${t.sprintWeeks?` · ${t.sprintWeeks}wk each`:''} · ${t.sprintPtsPerDev} pts/dev/sprint`
+    :`Total team capacity: ${t.capacity} pts`;
+  let pillCls,pillTxt;
+  if(pct<70){pillCls='status-pill pill-ok';pillTxt=`${rem} pts remaining`;}
+  else if(pct<100){pillCls='status-pill pill-near';pillTxt=`⚠ ${rem} pts left`;}
+  else{pillCls='status-pill pill-over';pillTxt='At capacity';}
+  const barColor=pct<70?'#2d7d4e':pct<95?'#8a6200':'#b52020';
+  let cellsHtml='';
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)cellsHtml+=`<div class="t-cell"></div>`;
+  ws.innerHTML=`
     <div class="ws-header">
       <div>
-        <div class="ws-title" id="wsTitle">${esc(t.quarterName || 'Quarter')}</div>
+        <div class="ws-title" id="wsTitle">${esc(t.quarterName||'Quarter')}</div>
         <div class="ws-sub">
-          <span>${sprintLine}</span>
-          <span>·</span>
+          <span>${sprintLine}</span><span>·</span>
           <span style="display:inline-flex;align-items:center;gap:3px;cursor:pointer;" onclick="promptGridCols()" title="Edit grid width">
             ${cols}×${rows} grid
-            <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.5"><path d="M11.5 2.5a1.414 1.414 0 012 2L5 13H3v-2L11.5 2.5z"/></svg>
+            <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5"><path d="M11.5 2.5a1.414 1.414 0 012 2L5 13H3v-2L11.5 2.5z"/></svg>
           </span>
-          <span>·</span>
-          <span>Grid capacity: ${gridCapacity} pts</span>
+          <span>·</span><span>Grid capacity: ${gridCap} pts</span>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
@@ -606,11 +507,9 @@ function renderWorkspace() {
         </div>
       </div>
     </div>
-
     <div class="progress-wrap"><div class="progress-bar" style="width:${pct}%;background:${barColor}"></div></div>
-
     <div>
-      <div class="box-label">Quarter grid — drag features from the backlog to place them</div>
+      <div class="box-label">Quarter grid — drag features from backlog · hover a feature tile and click ✂ to split into user stories</div>
       <div class="tetris-outer" id="tetrisOuter">
         <div class="tetris-grid" id="tetrisGrid"
           style="grid-template-columns:repeat(${cols},${CELL}px);grid-template-rows:repeat(${rows},${CELL}px);width:${cols*CELL}px;min-width:100%;height:${rows*CELL}px;">
@@ -619,303 +518,195 @@ function renderWorkspace() {
         </div>
       </div>
     </div>
-
     <div>
-      <div class="box-label" style="margin-bottom:6px;">
-        Parked — won't fit this quarter
-        <span class="count-badge" id="parkedCount" style="display:none"></span>
-      </div>
-      <div class="parked-outer" id="parkedOuter">
-        <div class="parked-chips" id="parkedChips"></div>
-      </div>
-    </div>
-  `;
-
-  const outer = document.getElementById('tetrisOuter');
-  outer.addEventListener('dragover',  onGridDragOver);
-  outer.addEventListener('dragleave', onGridDragLeave);
-  outer.addEventListener('drop',      onGridDrop);
-
-  const po = document.getElementById('parkedOuter');
-  po.addEventListener('dragover',  e => { e.preventDefault(); po.classList.add('drag-over'); });
-  po.addEventListener('dragleave', ()  => po.classList.remove('drag-over'));
-  po.addEventListener('drop',      onParkedDrop);
-
-  updateStats();
-  updateParked();
-  renderTiles();
-  renderBacklog();
-  updateRightPanel();
+      <div class="box-label" style="margin-bottom:6px;">Parked — won't fit this quarter <span class="count-badge" id="parkedCount" style="display:none"></span></div>
+      <div class="parked-outer" id="parkedOuter"><div class="parked-chips" id="parkedChips"></div></div>
+    </div>`;
+  const outer=document.getElementById('tetrisOuter');
+  outer.addEventListener('dragover',onGridDragOver);
+  outer.addEventListener('dragleave',onGridDragLeave);
+  outer.addEventListener('drop',onGridDrop);
+  const po=document.getElementById('parkedOuter');
+  po.addEventListener('dragover',e=>{e.preventDefault();po.classList.add('drag-over');});
+  po.addEventListener('dragleave',()=>po.classList.remove('drag-over'));
+  po.addEventListener('drop',onParkedDrop);
+  updateStats();updateParked();renderTiles();renderBacklog();updateRightPanel();
 }
 
-// ══════════════════════════════════════════════════════════
-// DRAG — OVER GRID
-// ══════════════════════════════════════════════════════════
-function onGridDragOver(e) {
-  e.preventDefault();
-  if (dragId == null) return;
-  const t = tab(); if (!t) return;
-  const f = t.features.find(f => f.id === dragId); if (!f) return;
-  const s = SIZES(f.type, f.size);
-  const pal = getPalette(f);
-  const grid = document.getElementById('tetrisGrid'); if (!grid) return;
-  const rect = grid.getBoundingClientRect();
-  const { col, row } = snapPosition(e.clientX, e.clientY, s.cols, s.rows, rect);
-  const ok = canPlace(col, row, s.cols, s.rows, dragFrom === 'box' ? dragId : -1);
-
-  const ghost = document.getElementById('dropGhost');
-  if (ghost) {
-    ghost.style.display      = 'block';
-    ghost.style.left         = `${col * CELL + 1}px`;
-    ghost.style.top          = `${row * CELL + 1}px`;
-    ghost.style.width        = `${s.cols * CELL - 2}px`;
-    ghost.style.height       = `${s.rows * CELL - 2}px`;
-    ghost.style.borderColor  = ok ? pal.border : '#b52020';
-    ghost.style.background   = ok ? `${pal.color}22` : 'rgba(181,32,32,0.1)';
-    ghost.className          = 'drop-ghost' + (ok ? '' : ' blocked');
+function onGridDragOver(e){
+  e.preventDefault();if(dragId==null)return;
+  const t=tab();if(!t)return;
+  const f=t.features.find(f=>f.id===dragId);if(!f)return;
+  const s=SIZES(f.type,f.size),pal=getPalette(f);
+  const grid=document.getElementById('tetrisGrid');if(!grid)return;
+  const rect=grid.getBoundingClientRect();
+  const{col,row}=snapPosition(e.clientX,e.clientY,s.cols,s.rows,rect);
+  const ok=canPlace(col,row,s.cols,s.rows,dragFrom==='box'?dragId:-1);
+  const ghost=document.getElementById('dropGhost');
+  if(ghost){
+    ghost.style.display='block';ghost.style.left=`${col*CELL+1}px`;ghost.style.top=`${row*CELL+1}px`;
+    ghost.style.width=`${s.cols*CELL-2}px`;ghost.style.height=`${s.rows*CELL-2}px`;
+    ghost.style.borderColor=ok?pal.border:'#b52020';
+    ghost.style.background=ok?`${pal.color}22`:'rgba(181,32,32,.1)';
+    ghost.className='drop-ghost'+(ok?'':' blocked');
   }
-  e.dataTransfer.dropEffect = ok ? 'move' : 'none';
+  e.dataTransfer.dropEffect=ok?'move':'none';
 }
-
-function onGridDragLeave(e) {
-  const outer = document.getElementById('tetrisOuter');
-  if (outer && !outer.contains(e.relatedTarget)) hideGhost();
+function onGridDragLeave(e){const o=document.getElementById('tetrisOuter');if(o&&!o.contains(e.relatedTarget))hideGhost();}
+function onGridDrop(e){
+  e.preventDefault();hideGhost();if(dragId==null)return;
+  const t=tab();if(!t)return;
+  const f=t.features.find(f=>f.id===dragId);if(!f){resetDrag();return;}
+  const s=SIZES(f.type,f.size);
+  const grid=document.getElementById('tetrisGrid');if(!grid)return;
+  const rect=grid.getBoundingClientRect();
+  const{col,row}=snapPosition(e.clientX,e.clientY,s.cols,s.rows,rect);
+  if(canPlace(col,row,s.cols,s.rows,dragFrom==='box'?dragId:-1)){
+    t.parked=t.parked.filter(i=>i!==dragId);t.placed[dragId]={col,row};
+    resetDrag();saveState();renderBacklog();updateStats();renderTiles();updateParked();updateRightPanel();
+  }else{resetDrag();}
 }
-
-function onGridDrop(e) {
-  e.preventDefault(); hideGhost();
-  if (dragId == null) return;
-  const t = tab(); if (!t) return;
-  const f = t.features.find(f => f.id === dragId); if (!f) { resetDrag(); return; }
-  const s = SIZES(f.type, f.size);
-  const grid = document.getElementById('tetrisGrid'); if (!grid) return;
-  const rect = grid.getBoundingClientRect();
-  const { col, row } = snapPosition(e.clientX, e.clientY, s.cols, s.rows, rect);
-
-  if (canPlace(col, row, s.cols, s.rows, dragFrom === 'box' ? dragId : -1)) {
-    t.parked = t.parked.filter(i => i !== dragId);
-    t.placed[dragId] = { col, row };
-    resetDrag(); saveState(); renderBacklog(); updateStats(); renderTiles(); updateParked(); updateRightPanel();
-  } else {
-    resetDrag();
-  }
+function onParkedDrop(e){
+  e.preventDefault();document.getElementById('parkedOuter')?.classList.remove('drag-over');
+  if(dragId==null)return;const t=tab();if(!t)return;
+  delete t.placed[dragId];if(!t.parked.includes(dragId))t.parked.push(dragId);
+  resetDrag();saveState();renderBacklog();updateStats();renderTiles();updateParked();updateRightPanel();
 }
+function hideGhost(){const g=document.getElementById('dropGhost');if(g)g.style.display='none';}
+function resetDrag(){dragId=null;dragFrom=null;}
 
-function onParkedDrop(e) {
-  e.preventDefault();
-  document.getElementById('parkedOuter')?.classList.remove('drag-over');
-  if (dragId == null) return;
-  const t = tab(); if (!t) return;
-  delete t.placed[dragId];
-  if (!t.parked.includes(dragId)) t.parked.push(dragId);
-  resetDrag(); saveState(); renderBacklog(); updateStats(); renderTiles(); updateParked(); updateRightPanel();
-}
-
-function hideGhost() { const g = document.getElementById('dropGhost'); if (g) g.style.display = 'none'; }
-function resetDrag() { dragId = null; dragFrom = null; }
-
-// ══════════════════════════════════════════════════════════
-// RENDER TILES
-// ══════════════════════════════════════════════════════════
-function renderTiles() {
-  const grid = document.getElementById('tetrisGrid'); if (!grid) return;
-  grid.querySelectorAll('.feat-tile').forEach(el => el.remove());
-  const t = tab(); if (!t) return;
-
-  for (const [id, pos] of Object.entries(t.placed)) {
-    const f = t.features.find(f => f.id === +id); if (!f) continue;
-    const s = SIZES(f.type, f.size);
-    const pal = getPalette(f);
-    const tile = document.createElement('div');
-    tile.className = 'feat-tile'; tile.dataset.id = id; tile.draggable = true;
-    tile.style.cssText = `left:${pos.col*CELL+1}px;top:${pos.row*CELL+1}px;width:${s.cols*CELL-2}px;height:${s.rows*CELL-2}px;background:${pal.bg};color:${pal.color};border-color:${pal.border};`;
-
-    const activePid = f.paletteId != null ? f.paletteId : s.paletteId;
-    const dots = PALETTES.map(p =>
-      `<div class="colour-dot${activePid===p.id?' active':''}" style="background:${p.color}" onclick="setFeatureColour(${id},${p.id})"></div>`
-    ).join('');
-
-    tile.innerHTML = `
+function renderTiles(){
+  const grid=document.getElementById('tetrisGrid');if(!grid)return;
+  grid.querySelectorAll('.feat-tile').forEach(el=>el.remove());
+  const t=tab();if(!t)return;
+  for(const[id,pos]of Object.entries(t.placed)){
+    const f=t.features.find(f=>f.id===+id);if(!f)continue;
+    const s=SIZES(f.type,f.size),pal=getPalette(f);
+    const isF=(f.type||'feature')==='feature';
+    const tile=document.createElement('div');
+    tile.className='feat-tile';tile.dataset.id=id;tile.draggable=true;
+    tile.style.cssText=`left:${pos.col*CELL+1}px;top:${pos.row*CELL+1}px;width:${s.cols*CELL-2}px;height:${s.rows*CELL-2}px;background:${pal.bg};color:${pal.color};border-color:${pal.border};`;
+    const activePid=f.paletteId!=null?f.paletteId:s.paletteId;
+    const dots=PALETTES.map(p=>`<div class="colour-dot${activePid===p.id?' active':''}" style="background:${p.color}" onclick="setFeatureColour(${id},${p.id})"></div>`).join('');
+    const splitBtn=isF?`<button class="tile-split" onclick="splitFeature(${id})" title="Split into ${SPLIT_COUNT[f.size]} × XL user stories (${SPLIT_COUNT[f.size]}×20 pts)">
+      <svg width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="4.5" cy="4.5" r="2"/><circle cx="4.5" cy="11.5" r="2"/>
+        <path d="M6.5 4.5l7 7M6.5 11.5l7-7"/>
+      </svg></button>`:'';
+    tile.innerHTML=`
       <div class="tile-colour-bar">${dots}</div>
       <button class="tile-rm" onclick="tileRemove(${id})" title="Return to backlog">✕</button>
+      ${splitBtn}
       <div class="tile-name" id="tileName-${id}" ondblclick="startTileEdit(${id})" title="Double-click to rename">${esc(f.name)}</div>
-      <div class="tile-meta" style="display:flex;align-items:center;gap:4px;">${f.size} · ${s.pts}pts <span style="font-size:8px;font-weight:600;opacity:0.7;letter-spacing:0.03em">${(f.type||'feature')==='story'?'US':'F'}</span></div>
-    `;
-
-    tile.addEventListener('dragstart', e => {
-      if (document.getElementById('tileName-'+id)?.getAttribute('contenteditable') === 'true') { e.preventDefault(); return; }
-      dragId = +id; dragFrom = 'box';
-      e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('text/plain', String(id));
-      setTimeout(() => tile.classList.add('is-dragging'), 0);
+      <div class="tile-meta" style="display:flex;align-items:center;gap:4px;">${f.size} · ${s.pts}pts <span style="font-size:8px;font-weight:600;opacity:.7;letter-spacing:.03em">${isF?'F':'US'}</span></div>`;
+    tile.addEventListener('dragstart',e=>{
+      if(document.getElementById('tileName-'+id)?.getAttribute('contenteditable')==='true'){e.preventDefault();return;}
+      dragId=+id;dragFrom='box';e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',String(id));
+      setTimeout(()=>tile.classList.add('is-dragging'),0);
     });
-    tile.addEventListener('dragend', () => { tile.classList.remove('is-dragging'); hideGhost(); });
+    tile.addEventListener('dragend',()=>{tile.classList.remove('is-dragging');hideGhost();});
     grid.appendChild(tile);
   }
 }
 
-function tileRemove(id) {
-  const t = tab(); if (!t) return;
-  delete t.placed[id];
-  saveState(); renderBacklog(); updateStats(); renderTiles(); updateParked(); updateRightPanel();
+function tileRemove(id){
+  const t=tab();if(!t)return;
+  delete t.placed[id];saveState();renderBacklog();updateStats();renderTiles();updateParked();updateRightPanel();
+}
+function setFeatureColour(id,pid){
+  const t=tab();if(!t)return;
+  const f=t.features.find(f=>f.id===id);if(!f)return;
+  f.paletteId=pid;saveState();renderTiles();renderBacklog();updateParked();updateRightPanel();
 }
 
-function setFeatureColour(id, pid) {
-  const t = tab(); if (!t) return;
-  const f = t.features.find(f => f.id === id); if (!f) return;
-  f.paletteId = pid;
-  saveState(); renderTiles(); renderBacklog(); updateParked(); updateRightPanel();
-}
-
-// ══════════════════════════════════════════════════════════
-// STATS
-// ══════════════════════════════════════════════════════════
-function updateStats() {
-  const t = tab(); if (!t || !t.capacity) return;
-  const usedPts = Object.keys(t.placed).reduce((s, id) => {
-    const f = t.features.find(f => f.id === +id); return s + (f ? SIZES(f.type, f.size).pts : 0);
-  }, 0);
-  const pct = Math.min(100, Math.round(usedPts / t.capacity * 100));
-  const rem = t.capacity - usedPts;
-  const statUsed = document.getElementById('statUsed'); // may not exist — stats live in ws-header now, rerender covers it
-  const bar = document.getElementById('progressBar');
-  if (bar) { bar.style.width = pct+'%'; bar.style.background = pct<70?'#2d7d4e':pct<95?'#8a6200':'#b52020'; }
-  // pill
-  const pill = document.querySelector('.status-pill');
-  if (pill) {
-    if (pct<70)       { pill.className='status-pill pill-ok';   pill.textContent=`${rem} pts remaining`; }
-    else if (pct<100) { pill.className='status-pill pill-near'; pill.textContent=`⚠ ${rem} pts left`; }
-    else              { pill.className='status-pill pill-over'; pill.textContent='At capacity'; }
+function updateStats(){
+  const t=tab();if(!t||!t.capacity)return;
+  const usedPts=Object.keys(t.placed).reduce((s,id)=>{const f=t.features.find(f=>f.id===+id);return s+(f?SIZES(f.type,f.size).pts:0);},0);
+  const pct=Math.min(100,Math.round(usedPts/t.capacity*100)),rem=t.capacity-usedPts;
+  const pill=document.querySelector('.status-pill');
+  if(pill){
+    if(pct<70){pill.className='status-pill pill-ok';pill.textContent=`${rem} pts remaining`;}
+    else if(pct<100){pill.className='status-pill pill-near';pill.textContent=`⚠ ${rem} pts left`;}
+    else{pill.className='status-pill pill-over';pill.textContent='At capacity';}
   }
-  // committed stat
-  const statCommitted = document.querySelector('.stat-num[style*="1a5fa8"]');
-  if (statCommitted) statCommitted.textContent = usedPts;
+  const sc=document.querySelector('.stat-num[style*="1a5fa8"]');if(sc)sc.textContent=usedPts;
 }
 
-// ══════════════════════════════════════════════════════════
-// PARKED
-// ══════════════════════════════════════════════════════════
-function updateParked() {
-  const t = tab(); if (!t) return;
-  const chips = document.getElementById('parkedChips');
-  const badge = document.getElementById('parkedCount');
-  if (!chips) return;
-  chips.innerHTML = '';
-  if (!t.parked.length) {
-    chips.innerHTML = '<span class="parked-empty">Drag features here to park them for a later quarter</span>';
-    if (badge) badge.style.display = 'none'; return;
-  }
-  const totalPts = t.parked.reduce((s, id) => { const f = t.features.find(f=>f.id===id); return s+(f?SIZES(f.type, f.size).pts:0); }, 0);
-  if (badge) { badge.textContent = totalPts+' pts'; badge.style.display = 'inline-flex'; }
-  t.parked.forEach(id => {
-    const f = t.features.find(x => x.id === id); if (!f) return;
-    const s = SIZES(f.type, f.size), pal = getPalette(f);
-    const chip = document.createElement('div');
-    chip.className = 'parked-chip'; chip.draggable = true; chip.dataset.id = id;
-    chip.style.cssText = `background:${pal.bg};color:${pal.color};border-color:${pal.border}`;
-    chip.innerHTML = `${esc(f.name)} <span class="chip-sz">${f.size} · ${s.pts}pt</span><span class="type-badge ${f.type||'feature'}" style="margin-left:3px">${(f.type||'feature')==='story'?'US':'F'}</span>`;
-    chip.addEventListener('dragstart', e => {
-      dragId = +chip.dataset.id; dragFrom = 'parked';
-      e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', String(dragId));
-      setTimeout(() => chip.classList.add('is-dragging'), 0);
-    });
-    chip.addEventListener('dragend', () => chip.classList.remove('is-dragging'));
+function updateParked(){
+  const t=tab();if(!t)return;
+  const chips=document.getElementById('parkedChips'),badge=document.getElementById('parkedCount');
+  if(!chips)return;chips.innerHTML='';
+  if(!t.parked.length){chips.innerHTML='<span class="parked-empty">Drag features here to park them for a later quarter</span>';if(badge)badge.style.display='none';return;}
+  const totalPts=t.parked.reduce((s,id)=>{const f=t.features.find(f=>f.id===id);return s+(f?SIZES(f.type,f.size).pts:0);},0);
+  if(badge){badge.textContent=totalPts+' pts';badge.style.display='inline-flex';}
+  t.parked.forEach(id=>{
+    const f=t.features.find(x=>x.id===id);if(!f)return;
+    const s=SIZES(f.type,f.size),pal=getPalette(f);
+    const chip=document.createElement('div');
+    chip.className='parked-chip';chip.draggable=true;chip.dataset.id=id;
+    chip.style.cssText=`background:${pal.bg};color:${pal.color};border-color:${pal.border}`;
+    chip.innerHTML=`${esc(f.name)} <span class="chip-sz">${f.size} · ${s.pts}pt</span><span class="type-badge ${f.type||'feature'}" style="margin-left:3px">${(f.type||'feature')==='story'?'US':'F'}</span>`;
+    chip.addEventListener('dragstart',e=>{dragId=+chip.dataset.id;dragFrom='parked';e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',String(dragId));setTimeout(()=>chip.classList.add('is-dragging'),0);});
+    chip.addEventListener('dragend',()=>chip.classList.remove('is-dragging'));
     chips.appendChild(chip);
   });
 }
 
-// ══════════════════════════════════════════════════════════
-// BACKLOG
-// ══════════════════════════════════════════════════════════
-function renderBacklog() {
-  const t = tab();
-  const list = document.getElementById('backlogList');
-  if (!t) { list.innerHTML = '<div class="empty-state">No team selected</div>'; return; }
-  const ids = t.features.filter(f => !t.placed[f.id] && !t.parked.includes(f.id)).map(f => f.id);
-  document.getElementById('backlogCount').textContent = ids.length;
-  list.innerHTML = '';
-  if (!ids.length) { list.innerHTML = '<div class="empty-state">No work items in backlog</div>'; return; }
-  ids.forEach(id => {
-    const f = t.features.find(x => x.id === id);
-    const type = f.type || 'feature';
-    const s = SIZES(type, f.size), pal = getPalette(f);
-    const badgeLabel = type === 'story' ? 'US' : 'F';
-    const card = document.createElement('div');
-    card.className = 'feature-card'; card.draggable = true; card.dataset.id = id;
-    card.innerHTML = `<div class="card-dot" style="background:${pal.color}"></div><div class="card-info"><div class="card-name">${esc(f.name)}</div><div class="card-meta">${f.size} · ${s.pts} pts</div></div><span class="type-badge ${type}">${badgeLabel}</span><button class="card-del" onclick="removeFeature(${id})">✕</button>`;
-    card.addEventListener('dragstart', e => {
-      dragId = id; dragFrom = 'backlog';
-      e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', String(id));
-      setTimeout(() => card.classList.add('is-dragging'), 0);
-    });
-    card.addEventListener('dragend', () => card.classList.remove('is-dragging'));
+function renderBacklog(){
+  const t=tab(),list=document.getElementById('backlogList');
+  if(!t){list.innerHTML='<div class="empty-state">No team selected</div>';return;}
+  const ids=t.features.filter(f=>!t.placed[f.id]&&!t.parked.includes(f.id)).map(f=>f.id);
+  document.getElementById('backlogCount').textContent=ids.length;
+  list.innerHTML='';
+  if(!ids.length){list.innerHTML='<div class="empty-state">No work items in backlog</div>';return;}
+  ids.forEach(id=>{
+    const f=t.features.find(x=>x.id===id),type=f.type||'feature';
+    const s=SIZES(type,f.size),pal=getPalette(f);
+    const card=document.createElement('div');
+    card.className='feature-card';card.draggable=true;card.dataset.id=id;
+    card.innerHTML=`<div class="card-dot" style="background:${pal.color}"></div><div class="card-info"><div class="card-name">${esc(f.name)}</div><div class="card-meta">${f.size} · ${s.pts} pts</div></div><span class="type-badge ${type}">${type==='story'?'US':'F'}</span><button class="card-del" onclick="removeFeature(${id})">✕</button>`;
+    card.addEventListener('dragstart',e=>{dragId=id;dragFrom='backlog';e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',String(id));setTimeout(()=>card.classList.add('is-dragging'),0);});
+    card.addEventListener('dragend',()=>card.classList.remove('is-dragging'));
     list.appendChild(card);
   });
 }
 
-function addFeature() {
-  const name = document.getElementById('featureName').value.trim();
-  const checked = document.querySelector('input[name="sz"]:checked');
-  const size = checked?.value;
-  const type = checked?.dataset.type || 'feature';
-  if (!name) { alert('Enter a name.'); return; }
-  const t = tab(); if (!t) { alert('Select a team tab first.'); return; }
-  t.features.push({ id: ++t.idCounter, name, size, type });
-  document.getElementById('featureName').value = '';
-  saveState(); renderBacklog();
+function addFeature(){
+  const name=document.getElementById('featureName').value.trim();
+  const checked=document.querySelector('input[name="sz"]:checked');
+  const size=checked?.value,type=checked?.dataset.type||'feature';
+  if(!name){alert('Enter a name.');return;}
+  const t=tab();if(!t){alert('Select a team tab first.');return;}
+  t.features.push({id:++t.idCounter,name,size,type});
+  document.getElementById('featureName').value='';saveState();renderBacklog();
 }
-
-function removeFeature(id) {
-  const t = tab(); if (!t) return;
-  t.features = t.features.filter(f => f.id !== id);
-  delete t.placed[id]; t.parked = t.parked.filter(i => i !== id);
-  saveState(); renderBacklog();
-  if (t.capacity) { updateStats(); renderTiles(); updateParked(); updateRightPanel(); }
+function removeFeature(id){
+  const t=tab();if(!t)return;
+  t.features=t.features.filter(f=>f.id!==id);delete t.placed[id];t.parked=t.parked.filter(i=>i!==id);
+  saveState();renderBacklog();if(t.capacity){updateStats();renderTiles();updateParked();updateRightPanel();}
 }
-
-document.getElementById('backlogList').addEventListener('dragover', e => e.preventDefault());
-document.getElementById('backlogList').addEventListener('drop', e => {
-  e.preventDefault(); if (dragId == null) return;
-  const t = tab(); if (!t) return;
-  delete t.placed[dragId]; t.parked = t.parked.filter(i => i !== dragId);
-  resetDrag(); saveState(); renderBacklog();
-  if (t.capacity) { updateStats(); renderTiles(); updateParked(); updateRightPanel(); }
+document.getElementById('backlogList').addEventListener('dragover',e=>e.preventDefault());
+document.getElementById('backlogList').addEventListener('drop',e=>{
+  e.preventDefault();if(dragId==null)return;const t=tab();if(!t)return;
+  delete t.placed[dragId];t.parked=t.parked.filter(i=>i!==dragId);
+  resetDrag();saveState();renderBacklog();if(t.capacity){updateStats();renderTiles();updateParked();updateRightPanel();}
 });
 
-// ══════════════════════════════════════════════════════════
-// RIGHT PANEL
-// ══════════════════════════════════════════════════════════
-function updateRightPanel() {
-  const t = tab();
-  const sumWrap = document.getElementById('summaryCardWrap');
-  const bdList  = document.getElementById('breakdownList');
-  if (!sumWrap || !bdList) return;
-
-  if (!t || !t.capacity || !t.sprintDevs || !t.sprintCount) {
-    sumWrap.innerHTML = '';
-    bdList.innerHTML = '<div class="bd-empty">Set sprint capacity and place features to see the dev load breakdown.</div>';
-    return;
-  }
-
-  const placedIds = Object.keys(t.placed).map(Number);
-  if (!placedIds.length) {
-    sumWrap.innerHTML = '';
-    bdList.innerHTML = '<div class="bd-empty">Place features on the grid to see per-dev breakdown.</div>';
-    return;
-  }
-
-  const devs = t.sprintDevs, sprints = t.sprintCount;
-  const totalPts = placedIds.reduce((s, id) => { const f = t.features.find(f => f.id === id); return s + (f ? SIZES(f.type, f.size).pts : 0); }, 0);
-
-  sumWrap.innerHTML = '';
-
-  const rows = placedIds.map(id => {
-    const f = t.features.find(f => f.id === id); if (!f) return null;
-    const pts = SIZES(f.type, f.size).pts;
-    return { f, pts, ppds: pts / devs / sprints, pct: totalPts > 0 ? pts / totalPts * 100 : 0, pal: getPalette(f) };
-  }).filter(Boolean).sort((a, b) => b.pts - a.pts);
-
-  bdList.innerHTML = rows.map(({ f, ppds, pct, pal }) => `
+function updateRightPanel(){
+  const t=tab(),sumWrap=document.getElementById('summaryCardWrap'),bdList=document.getElementById('breakdownList');
+  if(!sumWrap||!bdList)return;
+  if(!t||!t.capacity||!t.sprintDevs||!t.sprintCount){sumWrap.innerHTML='';bdList.innerHTML='<div class="bd-empty">Set sprint capacity and place features to see the dev load breakdown.</div>';return;}
+  const placedIds=Object.keys(t.placed).map(Number);
+  if(!placedIds.length){sumWrap.innerHTML='';bdList.innerHTML='<div class="bd-empty">Place features on the grid to see per-dev breakdown.</div>';return;}
+  const devs=t.sprintDevs,sprints=t.sprintCount;
+  const totalPts=placedIds.reduce((s,id)=>{const f=t.features.find(f=>f.id===id);return s+(f?SIZES(f.type,f.size).pts:0);},0);
+  sumWrap.innerHTML='';
+  const rows=placedIds.map(id=>{
+    const f=t.features.find(f=>f.id===id);if(!f)return null;
+    const pts=SIZES(f.type,f.size).pts;
+    return{f,pts,ppds:pts/devs/sprints,pct:totalPts>0?pts/totalPts*100:0,pal:getPalette(f)};
+  }).filter(Boolean).sort((a,b)=>b.pts-a.pts);
+  bdList.innerHTML=rows.map(({f,ppds,pct,pal})=>`
     <div class="bd-row">
       <div class="bd-head">
         <div class="bd-dot" style="background:${pal.color}"></div>
@@ -924,156 +715,97 @@ function updateRightPanel() {
         <div class="bd-size">${f.size}</div>
       </div>
       <div class="bd-bar-wrap"><div class="bd-bar" style="width:${pct.toFixed(1)}%;background:${pal.color}"></div></div>
-      <div style="padding-top:2px;">
-        <div class="bd-num-val" style="color:${pal.color}">${ppds.toFixed(2)}</div>
-        <div class="bd-num-lbl">pts / dev / sprint</div>
-      </div>
-    </div>
-  `).join('');
+      <div style="padding-top:2px;"><div class="bd-num-val" style="color:${pal.color}">${ppds.toFixed(2)}</div><div class="bd-num-lbl">pts / dev / sprint</div></div>
+    </div>`).join('');
 }
 
-// ══════════════════════════════════════════════════════════
-// INLINE TILE NAME EDIT
-// ══════════════════════════════════════════════════════════
-function startTileEdit(id) {
-  const el = document.getElementById('tileName-' + id); if (!el) return;
-  el.setAttribute('contenteditable', 'true'); el.focus();
-  const range = document.createRange(); range.selectNodeContents(el); range.collapse(false);
-  const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
-  function commit() {
+function startTileEdit(id){
+  const el=document.getElementById('tileName-'+id);if(!el)return;
+  el.setAttribute('contenteditable','true');el.focus();
+  const range=document.createRange();range.selectNodeContents(el);range.collapse(false);
+  const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);
+  function commit(){
     el.removeAttribute('contenteditable');
-    const newName = el.textContent.trim();
-    if (!newName) { el.textContent = tab()?.features.find(f => f.id === id)?.name || ''; return; }
-    const t = tab(); if (!t) return;
-    const f = t.features.find(f => f.id === id);
-    if (f) { f.name = newName; saveState(); renderBacklog(); updateRightPanel(); }
+    const n=el.textContent.trim();
+    if(!n){el.textContent=tab()?.features.find(f=>f.id===id)?.name||'';return;}
+    const t=tab();if(!t)return;
+    const f=t.features.find(f=>f.id===id);
+    if(f){f.name=n;saveState();renderBacklog();updateRightPanel();}
     updateParked();
   }
-  el.addEventListener('blur', commit, { once: true });
-  el.addEventListener('keydown', e => {
-    if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
-    if (e.key === 'Escape') { el.textContent = tab()?.features.find(f => f.id === id)?.name || ''; el.blur(); }
-  });
+  el.addEventListener('blur',commit,{once:true});
+  el.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();el.blur();}if(e.key==='Escape'){el.textContent=tab()?.features.find(f=>f.id===id)?.name||'';el.blur();}});
 }
 
-// ══════════════════════════════════════════════════════════
-// GRID WIDTH
-// ══════════════════════════════════════════════════════════
-function promptGridCols() {
-  const t = tab(); if (!t) return;
-  const cur = t.gridCols || 12;
-  const val = prompt(`Grid width (current: ${cur} columns):`, cur);
-  if (val === null) return;
-  const n = parseInt(val);
-  if (!n || n < 1) { alert('Enter a valid number.'); return; }
-  if (Object.keys(t.placed).length > 0) {
-    if (!confirm('Changing the grid width will clear all placed features. Continue?')) return;
-    t.placed = {}; t.parked = [];
+function promptGridCols(){
+  const t=tab();if(!t)return;
+  const cur=t.gridCols||12,val=prompt(`Grid width (current: ${cur} columns):`,cur);
+  if(val===null)return;const n=parseInt(val);if(!n||n<1){alert('Enter a valid number.');return;}
+  if(Object.keys(t.placed).length>0){if(!confirm('Changing the grid width will clear all placed features. Continue?'))return;t.placed={};t.parked=[];}
+  t.gridCols=n;saveState();renderWorkspace();
+}
+
+function toggleExportDropdown(){document.getElementById('exportDropdown').classList.toggle('open');}
+document.addEventListener('click',e=>{if(!document.getElementById('exportDropWrap').contains(e.target))document.getElementById('exportDropdown').classList.remove('open');});
+function downloadJSON(obj,fn){const b=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}),u=URL.createObjectURL(b),a=Object.assign(document.createElement('a'),{href:u,download:fn});a.click();URL.revokeObjectURL(u);}
+function exportCurrentTab(){document.getElementById('exportDropdown').classList.remove('open');const t=tab();if(!t)return;downloadJSON({version:5,type:'single',tab:t},`capacity-${slug(t.name)}.json`);}
+function exportAllTabs(){document.getElementById('exportDropdown').classList.remove('open');downloadJSON({version:5,type:'all',tabs},'capacity-all-teams.json');}
+function slug(s){return s.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');}
+function openImport(){document.getElementById('importText').value='';document.getElementById('importError').textContent='';document.getElementById('importModal').classList.add('open');}
+function closeImport(){document.getElementById('importModal').classList.remove('open');}
+function doImport(){
+  const errEl=document.getElementById('importError');errEl.textContent='';
+  try{
+    const s=JSON.parse(document.getElementById('importText').value.trim());
+    if(!s||s.version!==5)throw new Error('Unrecognised format (expected version 5).');
+    if(s.type==='single'){
+      if(!s.tab)throw new Error('Missing tab data.');
+      const ex=tabs.find(t=>t.name===s.tab.name);
+      if(ex)Object.assign(ex,s.tab,{id:ex.id});else{const id=++tabIdSeq;tabs.push({...s.tab,id});activeTabId=id;}
+    }else if(s.type==='all'){
+      if(!Array.isArray(s.tabs))throw new Error('Missing tabs array.');
+      s.tabs.forEach(inc=>{const ex=tabs.find(t=>t.name===inc.name);if(ex)Object.assign(ex,inc,{id:ex.id});else{const id=++tabIdSeq;tabs.push({...inc,id});}});
+    }else throw new Error('Unknown export type.');
+    saveState();closeImport();renderTabBar();loadTabIntoSidebar();renderWorkspace();
+  }catch(e){errEl.textContent='Error: '+(e.message||'Invalid JSON.');}
+}
+
+function clearAll(){if(!confirm('Clear all teams and start fresh?'))return;tabs=[];tabIdSeq=0;activeTabId=null;localStorage.removeItem(STORAGE_KEY);init();}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+document.getElementById('featureName').addEventListener('keydown',e=>{if(e.key==='Enter')addFeature();});
+document.getElementById('importModal').addEventListener('click',e=>{if(e.target===document.getElementById('importModal'))closeImport();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeImport();});
+
+function toggleSection(bodyId,chevronId){
+  const body=document.getElementById(bodyId),chevron=document.getElementById(chevronId);if(!body)return;
+  const isOpen=!body.classList.contains('closed');
+  if(isOpen){body.style.maxHeight=body.scrollHeight+'px';requestAnimationFrame(()=>{body.classList.add('closed');body.style.maxHeight='';});}
+  else{body.classList.remove('closed');body.style.maxHeight=body.scrollHeight+'px';body.addEventListener('transitionend',()=>{body.style.maxHeight='';},{once:true});}
+  if(chevron)chevron.classList.toggle('open',!isOpen);
+}
+function toggleRightPanel(){
+  const inner=document.getElementById('rightPanelInner'),chevron=document.getElementById('rightPanelChevron');if(!inner)return;
+  const isOpen=!inner.classList.contains('closed');
+  if(isOpen){inner.style.maxHeight=inner.scrollHeight+'px';requestAnimationFrame(()=>{inner.classList.add('closed');inner.style.maxHeight='';});}
+  else{inner.classList.remove('closed');inner.style.maxHeight=inner.scrollHeight+'px';inner.addEventListener('transitionend',()=>{inner.style.maxHeight='';},{once:true});}
+  if(chevron)chevron.classList.toggle('open',!isOpen);
+}
+
+function init(){
+  if(!tabs.length){
+    const t=newTab('Team A');activeTabId=t.id;
+    t.sprintDevs=4;t.sprintCount=6;t.sprintWeeks=2;t.sprintPtsPerDev=10;t.capacity=240;
+    [{name:'User authentication',size:'M',type:'feature'},{name:'Dashboard redesign',size:'L',type:'feature'},
+     {name:'Email notifications',size:'S',type:'feature'},{name:'Mobile app',size:'XL',type:'feature'},
+     {name:'API v2 migration',size:'XL',type:'feature'},{name:'Dark mode',size:'S',type:'feature'},
+     {name:'Analytics integration',size:'M',type:'feature'},{name:'Fix login redirect',size:'S',type:'story'},
+     {name:'Update password flow',size:'M',type:'story'},{name:'Profile page bug',size:'L',type:'story'},
+    ].forEach(({name,size,type})=>t.features.push({id:++t.idCounter,name,size,type}));
   }
-  t.gridCols = n;
-  saveState(); renderWorkspace();
+  renderTabBar();loadTabIntoSidebar();renderWorkspace();
 }
-
-// ══════════════════════════════════════════════════════════
-// EXPORT / IMPORT
-// ══════════════════════════════════════════════════════════
-function toggleExportDropdown() { document.getElementById('exportDropdown').classList.toggle('open'); }
-document.addEventListener('click', e => { if (!document.getElementById('exportDropWrap').contains(e.target)) document.getElementById('exportDropdown').classList.remove('open'); });
-function downloadJSON(obj, fn) { const b = new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}),u=URL.createObjectURL(b),a=Object.assign(document.createElement('a'),{href:u,download:fn}); a.click(); URL.revokeObjectURL(u); }
-function exportCurrentTab() { document.getElementById('exportDropdown').classList.remove('open'); const t=tab(); if(!t)return; downloadJSON({version:5,type:'single',tab:t},`capacity-${slug(t.name)}.json`); }
-function exportAllTabs()    { document.getElementById('exportDropdown').classList.remove('open'); downloadJSON({version:5,type:'all',tabs},'capacity-all-teams.json'); }
-function slug(s) { return s.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,''); }
-function openImport()  { document.getElementById('importText').value=''; document.getElementById('importError').textContent=''; document.getElementById('importModal').classList.add('open'); }
-function closeImport() { document.getElementById('importModal').classList.remove('open'); }
-function doImport() {
-  const errEl = document.getElementById('importError'); errEl.textContent = '';
-  try {
-    const s = JSON.parse(document.getElementById('importText').value.trim());
-    if (!s || s.version !== 5) throw new Error('Unrecognised format (expected version 5).');
-    if (s.type === 'single') {
-      if (!s.tab) throw new Error('Missing tab data.');
-      const ex = tabs.find(t => t.name === s.tab.name);
-      if (ex) Object.assign(ex, s.tab, {id: ex.id}); else { const id=++tabIdSeq; tabs.push({...s.tab,id}); activeTabId=id; }
-    } else if (s.type === 'all') {
-      if (!Array.isArray(s.tabs)) throw new Error('Missing tabs array.');
-      s.tabs.forEach(inc => { const ex=tabs.find(t=>t.name===inc.name); if(ex) Object.assign(ex,inc,{id:ex.id}); else { const id=++tabIdSeq; tabs.push({...inc,id}); } });
-    } else throw new Error('Unknown export type.');
-    saveState(); closeImport(); renderTabBar(); loadTabIntoSidebar(); renderWorkspace();
-  } catch(e) { errEl.textContent = 'Error: ' + (e.message || 'Invalid JSON.'); }
-}
-
-// ══════════════════════════════════════════════════════════
-// MISC
-// ══════════════════════════════════════════════════════════
-function clearAll() {
-  if (!confirm('Clear all teams and start fresh?')) return;
-  tabs=[]; tabIdSeq=0; activeTabId=null;
-  localStorage.removeItem(STORAGE_KEY); init();
-}
-function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-document.getElementById('featureName').addEventListener('keydown', e => { if (e.key==='Enter') addFeature(); });
-document.getElementById('importModal').addEventListener('click',   e => { if (e.target===document.getElementById('importModal')) closeImport(); });
-document.addEventListener('keydown', e => { if (e.key==='Escape') closeImport(); });
-
-// ══════════════════════════════════════════════════════════
-// COLLAPSIBLE HELPERS
-// ══════════════════════════════════════════════════════════
-function toggleSection(bodyId, chevronId) {
-  const body    = document.getElementById(bodyId);
-  const chevron = document.getElementById(chevronId);
-  if (!body) return;
-  const isOpen = !body.classList.contains('closed');
-  if (isOpen) {
-    body.style.maxHeight = body.scrollHeight + 'px'; // set explicit px first so transition works
-    requestAnimationFrame(() => { body.classList.add('closed'); body.style.maxHeight = ''; });
-  } else {
-    body.classList.remove('closed');
-    body.style.maxHeight = body.scrollHeight + 'px';
-    body.addEventListener('transitionend', () => { body.style.maxHeight = ''; }, { once: true });
-  }
-  if (chevron) chevron.classList.toggle('open', isOpen ? false : true);
-}
-
-function toggleRightPanel() {
-  const inner   = document.getElementById('rightPanelInner');
-  const chevron = document.getElementById('rightPanelChevron');
-  if (!inner) return;
-  const isOpen = !inner.classList.contains('closed');
-  if (isOpen) {
-    inner.style.maxHeight = inner.scrollHeight + 'px';
-    requestAnimationFrame(() => { inner.classList.add('closed'); inner.style.maxHeight = ''; });
-  } else {
-    inner.classList.remove('closed');
-    inner.style.maxHeight = inner.scrollHeight + 'px';
-    inner.addEventListener('transitionend', () => { inner.style.maxHeight = ''; }, { once: true });
-  }
-  if (chevron) chevron.classList.toggle('open', !isOpen);
-}
-
-// ══════════════════════════════════════════════════════════
-// BOOT
-// ══════════════════════════════════════════════════════════
-function init() {
-  if (!tabs.length) {
-    const t = newTab('Team A'); activeTabId = t.id;
-    t.sprintDevs = 4; t.sprintCount = 6; t.sprintWeeks = 2; t.sprintPtsPerDev = 10; t.capacity = 240;
-    [
-      { name:'User authentication',   size:'M',  type:'feature' },
-      { name:'Dashboard redesign',    size:'L',  type:'feature' },
-      { name:'Email notifications',   size:'S',  type:'feature' },
-      { name:'Mobile app',            size:'XL', type:'feature' },
-      { name:'API v2 migration',      size:'XL', type:'feature' },
-      { name:'Dark mode',             size:'S',  type:'feature' },
-      { name:'Analytics integration', size:'M',  type:'feature' },
-      { name:'Fix login redirect',    size:'S',  type:'story'   },
-      { name:'Update password flow',  size:'M',  type:'story'   },
-      { name:'Profile page bug',      size:'L',  type:'story'   },
-    ].forEach(({ name, size, type }) => t.features.push({ id: ++t.idCounter, name, size, type }));
-  }
-  renderTabBar(); loadTabIntoSidebar(); renderWorkspace();
-}
-loadState(); init();
+loadState();init();
 </script>
 </body>
 </html>
