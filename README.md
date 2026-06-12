@@ -1,2 +1,50 @@
-# PI-Capacity-Planner
-PI Capacity Planner
+# PI Capacity Planner
+
+A small, **client-only** tool for visual quarterly capacity planning.
+
+Set a story point capacity, add features, and drag them into a grid to see what actually fits in the quarter. If it doesn’t fit in the box, it doesn’t fit in the plan.
+
+Try it: https://kmschellens.github.io/PI-Capacity-Planner/
+
+<img width="1721" height="1270" alt="picp2" src="https://github.com/user-attachments/assets/44499e24-fed3-45b4-b156-0d5337e892cb" />
+
+## 🔒 Client-only
+
+**No data leaves your browser.**
+
+- No backend
+- No accounts
+- No tracking
+- Works offline
+- All data stored locally in the browser
+
+The only way data leaves your machine is if **you export it yourself**.
+
+## Features
+
+- Set quarter name and story point capacity
+- Grid-based planning where cells correspond to capacity
+- Tetris-style placement of features
+- Feature sizes: S (40), M (60), L (80), XL (100)
+- Editable feature names, even after placement
+- Backlog + parked area for items that don’t fit
+- Team tabs with separate plans
+- Import/export (single tab or all tabs)
+- Local persistence in the browser
+
+## Capacity calculator
+
+Optional helper to estimate quarterly capacity based on:
+
+- number of developers
+- total team holiday days
+- average points per developer per week
+- number of weeks in the quarter
+
+## Licence
+
+Copyright © 2026 K M Schellens. All rights reserved.
+
+This project is not open source. No permission is granted to copy, modify,
+redistribute, host, sublicense, or create derivative works from this code
+without written permission.
