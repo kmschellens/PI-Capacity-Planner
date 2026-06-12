@@ -1,0 +1,2052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PI Capacity Planner</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+  :root {
+    --bg:#f5f4f1;--surface:#ffffff;--border:#e2e0db;--border2:#cccac4;
+    --text:#1c1b19;--muted:#8a8880;--subtle:#f0ede8;--cell:44px;
+    --mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+    --sans:'IBM Plex Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.5;min-height:100vh;}
+  .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 1.5rem;height:52px;display:flex;align-items:center;justify-content:space-between;gap:1rem;position:sticky;top:0;z-index:30;}
+  .topbar-title{font-size:15px;font-weight:600;letter-spacing:-.01em;}
+  .topbar-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+  .btn-sm{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:6px;border:1px solid var(--border);background:var(--surface);font-family:inherit;font-size:12px;font-weight:500;color:var(--text);cursor:pointer;transition:background .12s,border-color .12s;white-space:nowrap;}
+  .btn-sm:hover{background:var(--subtle);border-color:var(--border2);}
+  .btn-sm:disabled{opacity:.45;cursor:not-allowed;}.btn-sm:disabled:hover{background:var(--surface);border-color:var(--border);}
+  .btn-sm.danger{color:#b52020;}.btn-sm.danger:hover{background:#fceaea;border-color:#e89090;}
+  .tabbar{background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:stretch;padding:0 1.5rem;overflow-x:auto;min-height:40px;position:sticky;top:52px;z-index:29;}
+  .tabbar::-webkit-scrollbar{height:0;}
+  .tab-item{display:flex;align-items:center;gap:6px;padding:0 14px;border-bottom:2px solid transparent;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap;transition:color .12s,border-color .12s;user-select:none;min-height:40px;}
+  .tab-item:hover{color:var(--text);}.tab-item.active{color:var(--text);border-bottom-color:var(--text);}
+  .tab-item.tab-dragging{opacity:.45;}.tab-item.tab-drop-target{background:#eef5fc;border-bottom-color:#6a9fd8;}
+  .tab-name-input{background:none;border:none;outline:none;font:inherit;color:inherit;width:100px;padding:0;cursor:default;}
+  .tab-name-input:focus{background:var(--bg);border-radius:3px;padding:0 4px;margin:0 -4px;cursor:text;}
+  .tab-del{background:none;border:none;cursor:pointer;color:var(--border2);font-size:13px;padding:1px 3px;border-radius:3px;opacity:0;transition:opacity .12s,color .12s;}
+  .tab-item:hover .tab-del,.tab-item.active .tab-del{opacity:.6;}
+  .tab-del:hover{color:#b52020;opacity:1!important;}
+  .tab-add{display:flex;align-items:center;padding:0 12px;cursor:pointer;color:var(--muted);font-size:20px;font-weight:300;transition:color .12s;min-height:40px;border-bottom:2px solid transparent;}
+  .tab-add:hover{color:var(--text);}
+  .app-body{display:grid;grid-template-columns:290px minmax(0,1fr) 270px;min-height:calc(100vh - 92px);}
+  .sidebar{background:var(--surface);border-right:1px solid var(--border);padding:1.25rem;display:flex;flex-direction:column;gap:1.25rem;overflow-y:auto;max-height:calc(100vh - 92px);}
+  .section-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;font-family:var(--mono);}
+  .field{margin-bottom:10px;}
+  .field-label{display:block;font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;font-family:var(--mono);}
+  input[type="text"],input[type="number"]{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-family:inherit;font-size:13px;color:var(--text);outline:none;transition:border-color .15s,box-shadow .15s;}
+  input:focus{border-color:#6a9fd8;box-shadow:0 0 0 3px rgba(106,159,216,.15);}
+  .btn{width:100%;padding:8px 14px;border-radius:6px;border:none;font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:background .15s;}
+  .btn-primary{background:#1c1b19;color:#fff;}.btn-primary:hover{background:#333;}
+  .btn-secondary{background:var(--subtle);color:var(--text);border:1px solid var(--border);}.btn-secondary:hover{background:var(--border);}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:8px;}.two-col .field{margin-bottom:0;}
+  .sprint-preview{font-size:11px;color:var(--muted);font-family:var(--mono);margin-bottom:8px;min-height:16px;line-height:1.5;}
+  .size-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:10px;}
+  .size-radio{display:none;}
+  .size-btn{display:flex;flex-direction:column;align-items:center;padding:7px 4px;border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;color:var(--muted);background:var(--bg);transition:all .12s;gap:2px;}
+  .size-btn:hover{border-color:var(--border2);color:var(--text);}
+  .size-radio:checked+.size-btn{background:var(--text);color:#fff;border-color:var(--text);}
+  .size-sub{font-size:10px;font-weight:400;opacity:.65;}
+  .backlog-list{display:flex;flex-direction:column;gap:5px;min-height:40px;}
+  .feature-card{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg);border:1px solid var(--border);border-radius:7px;cursor:grab;user-select:none;transition:border-color .12s,box-shadow .12s;}
+  .feature-card:hover{border-color:var(--border2);box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  .feature-card.is-dragging{opacity:.35;}
+  .card-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .card-info{flex:1;min-width:0;}
+  .card-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .card-meta{font-size:11px;color:var(--muted);margin-top:1px;font-family:var(--mono);}
+  .card-del{background:none;border:none;cursor:pointer;color:var(--border2);font-size:14px;padding:2px 4px;border-radius:4px;opacity:0;transition:opacity .12s,color .12s;line-height:1;}
+  .feature-card:hover .card-del{opacity:1;}.card-del:hover{color:#c0392b;}
+  .empty-state{font-size:12px;color:var(--muted);text-align:center;padding:12px 0;}
+  .count-badge{display:inline-flex;align-items:center;justify-content:center;background:var(--subtle);border:1px solid var(--border);border-radius:10px;padding:0 6px;height:18px;font-size:10px;font-weight:600;color:var(--muted);font-family:var(--mono);}
+  .workspace{padding:1.5rem;display:flex;flex-direction:column;gap:1.25rem;overflow-y:auto;overflow-x:auto;max-height:calc(100vh - 92px);}
+  .ws-header{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+  .ws-title{font-size:16px;font-weight:600;letter-spacing:-.01em;}
+  .ws-sub{font-size:11px;color:var(--muted);margin-top:2px;font-family:var(--mono);display:flex;align-items:center;flex-wrap:wrap;gap:5px;}
+  .ws-stats{display:flex;align-items:center;gap:1.5rem;}
+  .stat-item{text-align:right;}
+  .stat-num{font-size:20px;font-weight:600;font-family:var(--mono);}
+  .stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);}
+  .status-pill{font-size:12px;font-weight:500;padding:4px 10px;border-radius:20px;border:1px solid transparent;}
+  .pill-ok{background:#eaf5ef;color:#2d7d4e;border-color:#a8d9bc;}
+  .pill-near{background:#fdf5e0;color:#8a6200;border-color:#e0c97a;}
+  .pill-over{background:#fceaea;color:#b52020;border-color:#e89090;}
+  .progress-wrap{background:var(--border);border-radius:3px;height:4px;overflow:hidden;}
+  .progress-bar{height:100%;border-radius:3px;transition:width .35s ease,background .3s;}
+  .box-label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;display:flex;align-items:center;gap:6px;font-family:var(--mono);}
+  .tetris-outer{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;overflow:hidden;position:relative;width:100%;}
+  .tetris-grid{display:grid;position:relative;cursor:crosshair;}
+  .t-cell{width:var(--cell);height:var(--cell);border-right:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--bg);}
+  .drop-ghost{position:absolute;border-radius:6px;border:2px dashed;pointer-events:none;z-index:5;display:none;opacity:.65;transition:left .04s,top .04s;}
+  .drop-ghost.blocked{border-style:solid;opacity:.4;}
+  .drop-ghost.create-preview{display:flex;align-items:flex-end;justify-content:flex-start;padding:5px 7px;font-family:var(--mono);font-size:10px;font-weight:600;line-height:1.25;pointer-events:none;}
+  .drop-ghost.create-preview .preview-sub{font-size:9px;font-weight:500;opacity:.72;margin-top:1px;}
+  .feat-tile{position:absolute;border-radius:6px;border:1.5px solid;display:flex;flex-direction:column;justify-content:flex-end;padding:5px 7px;user-select:none;overflow:hidden;z-index:2;}
+  .feat-tile:hover{box-shadow:0 2px 10px rgba(0,0,0,.13);z-index:10;}
+  .tile-name{font-size:10px;font-weight:600;line-height:1.3;word-break:break-word;cursor:text;border-radius:3px;padding:1px 3px;margin:-1px -3px;transition:background .12s,box-shadow .12s;}
+  .tile-name:hover{background:rgba(255,255,255,.38);box-shadow:0 0 0 1px rgba(255,255,255,.34) inset;}
+  .tile-name[contenteditable="true"]{outline:none;background:rgba(255,255,255,.62);border-radius:3px;padding:1px 3px;margin:-1px -3px;cursor:text;box-shadow:0 0 0 1px rgba(0,0,0,.08) inset;}
+  .tile-meta{font-size:9px;opacity:.65;margin-top:1px;font-family:var(--mono);}
+  /* ✕ top-right */
+  .tile-rm{position:absolute;top:3px;right:3px;width:15px;height:15px;border-radius:3px;background:rgba(0,0,0,.12);border:none;cursor:pointer;font-size:9px;color:inherit;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .12s;}
+  .feat-tile:hover .tile-rm{opacity:1;}.tile-rm:hover{background:rgba(0,0,0,.22);}
+  /* ✂ bottom-right — only rendered on feature tiles */
+  .tile-split{position:absolute;bottom:3px;right:3px;width:15px;height:15px;border-radius:3px;background:rgba(0,0,0,.12);border:none;cursor:pointer;color:inherit;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .12s,background .12s;}
+  .feat-tile:hover .tile-split{opacity:1;}.tile-split:hover{background:rgba(0,0,0,.26);}
+  .tile-colour-bar{position:absolute;top:3px;left:3px;display:flex;gap:3px;opacity:0;transition:opacity .15s;pointer-events:none;}
+  .feat-tile:hover .tile-colour-bar{opacity:1;pointer-events:all;}
+  .colour-dot{width:11px;height:11px;border-radius:50%;cursor:pointer;border:1.5px solid rgba(255,255,255,.6);transition:transform .1s,box-shadow .1s;flex-shrink:0;}
+  .colour-dot:hover{transform:scale(1.3);border-color:#fff;}
+  .colour-dot.active{border-color:#fff;box-shadow:0 0 0 1.5px rgba(0,0,0,.3);}
+  .feat-tile.is-dragging{opacity:.3;}
+  .parked-outer{background:var(--surface);border:1.5px dashed var(--border2);border-radius:10px;padding:12px;min-height:60px;transition:border-color .15s,background .15s;}
+  .parked-outer.drag-over{border-color:#c89ee0;background:#f9f4fe;}
+  .parked-chips{display:flex;flex-wrap:wrap;gap:6px;min-height:28px;align-content:flex-start;}
+  .parked-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:5px;border:1px solid;font-size:12px;font-weight:500;cursor:grab;user-select:none;transition:box-shadow .12s;}
+  .parked-name{outline:none;cursor:text;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-radius:3px;padding:1px 3px;margin:-1px 0;transition:background .12s,box-shadow .12s;}
+  .parked-name:hover{background:rgba(255,255,255,.38);box-shadow:0 0 0 1px rgba(255,255,255,.34) inset;}
+  .parked-name[contenteditable="true"]{background:rgba(255,255,255,.62);border-radius:3px;padding:1px 3px;margin:-1px 0;cursor:text;user-select:text;box-shadow:0 0 0 1px rgba(0,0,0,.08) inset;}
+  .parked-chip:hover{box-shadow:0 1px 6px rgba(0,0,0,.1);}
+  .parked-chip.is-dragging{opacity:.3;}
+  .chip-sz{font-family:var(--mono);font-size:10px;opacity:.7;}
+
+  .size-trigger{display:inline-flex;align-items:center;gap:3px;border-radius:3px;padding:1px 4px;margin:-1px -2px;cursor:pointer;transition:background .12s,box-shadow .12s,opacity .12s;}
+  .size-trigger:hover{background:rgba(255,255,255,.42);box-shadow:0 0 0 1px rgba(255,255,255,.38) inset;opacity:1;}
+  .size-trigger::after{content:'▾';font-size:8px;line-height:1;opacity:.65;margin-left:1px;}
+  .size-menu{position:fixed;z-index:260;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 28px rgba(0,0,0,.16);min-width:178px;overflow:hidden;padding:4px;}
+  .size-menu-item{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;border:0;background:transparent;color:var(--text);font-family:inherit;font-size:12px;text-align:left;padding:7px 9px;border-radius:5px;cursor:pointer;}
+  .size-menu-item:hover{background:var(--subtle);}
+  .size-menu-item.active{background:var(--text);color:#fff;}
+  .size-menu-meta{font-family:var(--mono);font-size:10px;opacity:.72;white-space:nowrap;}
+  .parked-empty{font-size:12px;color:var(--muted);}
+  .capacity-section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
+  .capacity-section-head .box-label{margin-bottom:0;}
+  .capacity-trash{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1.5px dashed var(--border2);border-radius:999px;background:var(--surface);color:var(--muted);font-size:11px;font-weight:600;font-family:var(--mono);text-transform:uppercase;letter-spacing:.04em;cursor:default;transition:background .12s,border-color .12s,color .12s,transform .12s;}
+  .capacity-trash svg{flex-shrink:0;}
+  .capacity-trash.drag-over{background:#fceaea;border-color:#e89090;color:#b52020;transform:scale(1.02);}
+  .ws-placeholder{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--muted);text-align:center;min-height:300px;}
+  .right-panel{background:var(--surface);border-left:1px solid var(--border);padding:1.25rem;display:flex;flex-direction:column;gap:1rem;overflow-y:auto;max-height:calc(100vh - 92px);}
+  .app-body.right-panel-collapsed{grid-template-columns:290px minmax(0,1fr) 38px;}
+  .right-panel.collapsed{padding:0;gap:0;overflow:hidden;}
+  .right-panel.collapsed .right-panel-inner{display:none!important;}
+  .right-panel.collapsed .right-panel-toggle{height:100%;padding:10px 0;align-items:center;justify-content:flex-start;flex-direction:column;gap:8px;}
+  .right-panel.collapsed .right-panel-toggle .panel-title{display:none;}
+  .right-panel-collapsed-label{display:none;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;}
+  .right-panel.collapsed .right-panel-collapsed-label{display:block;}
+  .right-panel.collapsed .collapse-chevron{transform:rotate(90deg);}
+
+  .panel-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);margin-bottom:3px;}
+  .panel-desc{font-size:11px;color:var(--muted);line-height:1.5;}
+  .bd-row{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:8px 10px;}
+  .bd-head{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+  .bd-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .bd-name{font-size:12px;font-weight:600;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .bd-size{font-family:var(--mono);font-size:10px;color:var(--muted);}
+  .bd-bar-wrap{background:var(--border);border-radius:2px;height:3px;margin-bottom:6px;overflow:hidden;}
+  .bd-bar{height:100%;border-radius:2px;}
+  .bd-num-val{font-size:14px;font-weight:600;font-family:var(--mono);}
+  .bd-num-lbl{font-size:9px;color:var(--muted);font-family:var(--mono);text-transform:uppercase;letter-spacing:.04em;}
+  .bd-empty{font-size:12px;color:var(--muted);text-align:center;padding:24px 0;line-height:1.6;}
+  .divider{height:1px;background:var(--border);}
+  .dropdown-wrap{position:relative;display:inline-flex;}
+  .dropdown-menu{display:none;position:absolute;top:calc(100% + 4px);right:0;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.1);min-width:180px;z-index:100;overflow:hidden;}
+  .dropdown-menu.open{display:block;}
+  .dropdown-item{display:flex;align-items:center;gap:8px;padding:8px 14px;font-size:13px;cursor:pointer;transition:background .1s;white-space:nowrap;border:none;background:none;width:100%;text-align:left;font-family:inherit;color:var(--text);}
+  .dropdown-item:hover{background:var(--subtle);}
+  .dropdown-divider{height:1px;background:var(--border);margin:4px 0;}
+  .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;align-items:center;justify-content:center;}
+  .modal-backdrop.open{display:flex;}
+  .modal{background:var(--surface);border-radius:12px;border:1px solid var(--border);padding:1.5rem;width:500px;max-width:95vw;box-shadow:0 8px 40px rgba(0,0,0,.15);}
+  .modal-title{font-size:15px;font-weight:600;margin-bottom:4px;}
+  .modal-sub{font-size:12px;color:var(--muted);margin-bottom:1rem;}
+  textarea{width:100%;height:200px;font-family:var(--mono);font-size:11px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px;color:var(--text);outline:none;resize:vertical;}
+  textarea:focus{border-color:#6a9fd8;}
+  .import-file-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;}
+  .import-file-input{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+  .import-file-name{font-size:11px;color:var(--muted);font-family:var(--mono);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:280px;}
+  .modal-error{font-size:12px;color:#b52020;margin-top:6px;min-height:16px;}
+  .modal-actions{display:flex;gap:8px;margin-top:1rem;justify-content:flex-end;}
+  .modal-actions .btn{width:auto;padding:7px 16px;}
+  .type-badge{display:inline-flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.04em;padding:1px 5px;border-radius:3px;border:1px solid;line-height:1.4;flex-shrink:0;}
+  .type-badge.feature{color:#1a5fa8;background:#e8f1fb;border-color:#9dc0e8;}
+  .type-badge.story{color:#7040b0;background:#f3edfb;border-color:#c9a8e8;}
+  .collapsible-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;margin-bottom:0;}
+  .collapsible-header:hover .collapse-chevron{color:var(--text);}
+  .collapse-chevron{color:var(--muted);transition:transform .2s;flex-shrink:0;}
+  .collapse-chevron.open{transform:rotate(180deg);}
+  .collapsible-body{overflow:hidden;transition:max-height .25s ease,opacity .2s;opacity:1;}
+  .collapsible-body.closed{max-height:0!important;opacity:0;}
+  .right-panel-inner{overflow:hidden;transition:max-height .25s ease,opacity .2s;opacity:1;}
+  .right-panel-inner.closed{max-height:0!important;opacity:0;}
+  .right-panel-toggle{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;padding-bottom:2px;}
+  .right-panel-toggle:hover .collapse-chevron{color:var(--text);}
+  ::-webkit-scrollbar{width:5px;height:5px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+
+  .topbar-left{display:flex;align-items:center;gap:14px;min-width:0;}
+  .view-toggle{display:inline-flex;align-items:center;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:3px;}
+  .view-toggle .btn-sm{border:0;background:transparent;padding:4px 9px;}
+  .view-toggle .btn-sm.active{background:var(--surface);box-shadow:0 1px 4px rgba(0,0,0,.08);color:var(--text);}
+  .board-only{display:none!important;}
+  body.board-view .capacity-only{display:none!important;}
+  body.board-view .board-only{display:block!important;}
+  body.board-view .app-body{grid-template-columns:290px minmax(0,1fr);}
+  body.board-view .right-panel{display:none;}
+  body.board-view .workspace{max-height:calc(100vh - 92px);}
+  .board-setup-note{font-size:11px;color:var(--muted);line-height:1.5;margin-top:8px;}
+  .board-backlog-list{display:flex;flex-direction:column;gap:6px;min-height:70px;}
+  .board-backlog-list.drag-over{outline:1.5px dashed var(--border2);outline-offset:5px;border-radius:8px;background:rgba(255,255,255,.35);}
+  .board-backlog-filter-wrap{background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:6px;margin-bottom:10px;}
+  .board-filter-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;border:0;background:transparent;color:var(--text);font-family:inherit;cursor:pointer;padding:4px 5px;border-radius:6px;text-align:left;}
+  .board-filter-toggle:hover{background:var(--subtle);}
+  .board-filter-toggle-left{display:flex;align-items:center;gap:7px;min-width:0;}
+  .board-filter-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);}
+  .board-filter-summary{font-family:var(--mono);font-size:10px;color:var(--muted);white-space:nowrap;}
+  .board-filter-chevron{color:var(--muted);transition:transform .18s ease;flex-shrink:0;}
+  .board-backlog-filter-wrap.open .board-filter-chevron{transform:rotate(180deg);}
+  .board-filter-body{margin-top:6px;padding:7px 5px 3px;border-top:1px solid var(--border);overflow:hidden;}
+  .board-filter-body.closed{display:none;}
+  .board-filter-actions{display:flex;align-items:center;justify-content:flex-end;gap:5px;margin-bottom:6px;}
+  .filter-link{border:0;background:none;color:var(--muted);font-family:var(--mono);font-size:10px;font-weight:600;cursor:pointer;padding:2px 3px;border-radius:3px;text-transform:uppercase;letter-spacing:.04em;}
+  .filter-link:hover{color:var(--text);background:var(--subtle);}
+  .board-backlog-filters{display:flex;flex-direction:column;gap:5px;}
+  .board-filter-option{display:flex;align-items:center;gap:7px;padding:5px 7px;background:var(--surface);border:1px solid var(--border);border-radius:6px;cursor:pointer;user-select:none;font-size:12px;color:var(--text);}
+  .board-filter-option:hover{border-color:var(--border2);}
+  .board-filter-option input{width:auto;margin:0;accent-color:var(--text);box-shadow:none;}
+  .board-filter-label{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .board-filter-pts{font-family:var(--mono);font-size:10px;color:var(--muted);}
+  .board-feature-card{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg);border:1px solid var(--border);border-radius:7px;cursor:grab;user-select:none;transition:border-color .12s,box-shadow .12s,opacity .12s;}
+  .board-feature-card:hover{border-color:var(--border2);box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  .board-feature-card.is-dragging{opacity:.35;}
+  .board-card-team{font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .pi-board-wrap{display:flex;flex-direction:column;gap:12px;}
+  .pi-board-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .pi-board-scroll{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;overflow:auto;position:relative;min-height:420px;}
+  .pi-board-canvas{position:relative;min-width:920px;}
+  .pi-board-grid{display:grid;position:relative;z-index:2;}
+  .pi-board-header,.pi-team-cell,.pi-board-cell{border-right:1px solid var(--border);border-bottom:1px solid var(--border);}
+  .pi-board-header{min-height:44px;background:var(--surface);display:flex;align-items:center;justify-content:center;padding:10px;font-size:12px;font-weight:600;font-family:var(--mono);position:sticky;top:0;z-index:4;}
+  .pi-board-header.corner{left:0;z-index:5;justify-content:flex-start;color:var(--muted);}
+  .pi-board-header.iteration{cursor:pointer;}
+  .pi-board-header.iteration:hover{background:var(--subtle);}
+  .pi-team-cell{background:#faf9f6;min-height:112px;padding:12px;position:sticky;left:0;z-index:3;display:flex;flex-direction:column;justify-content:center;cursor:grab;}
+  .pi-team-cell:active{cursor:grabbing;}
+  .pi-team-cell.row-dragging{opacity:.45;}
+  .pi-team-cell.row-drop-target,.pi-board-cell.row-drop-target{box-shadow:inset 0 0 0 2px #6a9fd8;background:#eef5fc;}
+  .pi-row-hint{font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:5px;}
+  .pi-team-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .pi-team-count{font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:3px;}
+  .pi-board-cell{min-height:112px;padding:8px;display:flex;flex-direction:column;gap:7px;background:rgba(255,255,255,.55);transition:background .12s,box-shadow .12s;}
+  .pi-board-cell.drag-over{background:#f3edfb;box-shadow:inset 0 0 0 2px #c9a8e8;}
+  .pi-board-cell.blocked{background:#fceaea;box-shadow:inset 0 0 0 2px #e89090;}
+  .pi-board-empty{font-size:12px;color:var(--muted);text-align:center;padding:50px 20px;background:var(--surface);border:1.5px dashed var(--border2);border-radius:10px;}
+  .pi-board-card{position:relative;border:1.5px solid;border-radius:8px;padding:8px 26px 8px 10px;min-height:46px;cursor:grab;user-select:none;box-shadow:0 1px 3px rgba(0,0,0,.04);transition:box-shadow .12s,opacity .12s,transform .12s;}
+  .pi-board-card:hover{box-shadow:0 3px 12px rgba(0,0,0,.12);z-index:8;}
+  .pi-board-card.is-dragging{opacity:.35;}
+  .pi-board-card-name{font-size:12px;font-weight:600;line-height:1.25;word-break:break-word;padding-right:5px;}
+  .pi-board-card-meta{font-size:10px;font-family:var(--mono);opacity:.72;margin-top:2px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+  .board-rm{position:absolute;top:4px;right:4px;width:16px;height:16px;border-radius:4px;background:rgba(0,0,0,.12);border:none;cursor:pointer;font-size:10px;color:inherit;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .12s,background .12s;}
+  .pi-board-card:hover .board-rm{opacity:1;}
+  .board-rm:hover{background:rgba(0,0,0,.22);}
+  .dep-handle{position:absolute;right:-6px;top:50%;transform:translateY(-50%);width:12px;height:12px;border-radius:50%;border:2px solid currentColor;background:var(--surface);cursor:crosshair;z-index:12;box-shadow:0 1px 4px rgba(0,0,0,.15);}
+  .dep-handle:hover{transform:translateY(-50%) scale(1.18);}
+  body.dependency-dragging .pi-board-card{cursor:crosshair;}
+  .dependency-layer{position:absolute;inset:0;z-index:6;overflow:visible;pointer-events:none;}
+  .dep-path{fill:none;stroke:#7040b0;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;pointer-events:stroke;cursor:pointer;filter:drop-shadow(0 1px 2px rgba(0,0,0,.12));}
+  .dep-path:hover{stroke-width:4;}
+  .dep-temp{fill:none;stroke:#7040b0;stroke-width:2.2;stroke-dasharray:6 5;stroke-linecap:round;pointer-events:none;opacity:.75;}
+  .dependency-hint{font-size:11px;color:var(--muted);font-family:var(--mono);display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+  .copyright-footer{position:fixed;right:14px;bottom:8px;z-index:80;font-family:var(--mono);font-size:10px;letter-spacing:.03em;color:var(--muted);background:rgba(255,255,255,.72);border:1px solid rgba(226,224,219,.82);border-radius:999px;padding:3px 8px;box-shadow:0 1px 4px rgba(0,0,0,.04);pointer-events:none;}
+
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <span class="topbar-title">PI Capacity Planner</span>
+    <div class="view-toggle" role="tablist" aria-label="Planner view">
+      <button class="btn-sm active" id="capacityViewBtn" onclick="setView('capacity')" role="tab" aria-selected="true">Capacity</button>
+      <button class="btn-sm" id="boardViewBtn" onclick="setView('board')" role="tab" aria-selected="false">PI Board</button>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <button class="btn-sm" id="undoBtn" onclick="undoLastAction()" disabled title="Undo last action">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4L2 8l4 4"/><path d="M3 8h7a4 4 0 010 8"/></svg>
+      Undo
+    </button>
+    <div class="dropdown-wrap" id="exportDropWrap">
+      <button class="btn-sm" onclick="toggleExportDropdown()">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1v9M4 7l4 4 4-4"/><path d="M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1"/></svg>
+        Export
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 3.5l3 3 3-3"/></svg>
+      </button>
+      <div class="dropdown-menu" id="exportDropdown">
+        <button class="dropdown-item" onclick="exportCurrentTab()">Export current team</button>
+        <div class="dropdown-divider"></div>
+        <button class="dropdown-item" onclick="exportAllTabs()">Export all teams</button>
+      </div>
+    </div>
+    <button class="btn-sm" onclick="openImport()">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 11V2M4 5l4-4 4 4"/><path d="M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1"/></svg>
+      Import
+    </button>
+    <button class="btn-sm danger" onclick="clearAll()">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h12M5 4V2h6v2M6 7v5M10 7v5M3 4l1 9a1 1 0 001 1h6a1 1 0 001-1l1-9"/></svg>
+      Clear all
+    </button>
+  </div>
+</div>
+
+<div class="tabbar" id="tabbar"></div>
+
+<div class="app-body" id="appBody">
+  <aside class="sidebar">
+    <div class="capacity-only">
+      <div class="section-title">Quarter setup</div>
+      <div class="field"><label class="field-label">Quarter name</label><input type="text" id="quarterName" value="Q3 2026" oninput="onQuarterNameInput()"></div>
+    </div>
+
+    <div class="board-only">
+      <div class="section-title">PI Planning setup</div>
+      <div class="field"><label class="field-label">PI name</label><input type="text" id="boardName" value="PI 2026 Q3" oninput="onBoardNameInput()"></div>
+      <div class="field"><label class="field-label">Iterations</label><input type="number" id="boardIterationCount" value="6" min="1" max="24"></div>
+      <button class="btn btn-primary" onclick="applyBoardSetup()">Apply board setup</button>
+      <div class="board-setup-note">Rows are the current team tabs. Drag capacity-planner work items onto the matching team row, then drag from a card's rope handle to another card to create a dependency.</div>
+    </div>
+
+    <div class="capacity-only">
+      <div class="collapsible-header" onclick="toggleSection('teamCapSection','teamCapChevron')">
+        <div class="section-title" style="margin-bottom:0">Team Capacity</div>
+        <svg class="collapse-chevron open" id="teamCapChevron" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 4l4 4 4-4"/></svg>
+      </div>
+      <div class="collapsible-body" id="teamCapSection" style="max-height:400px;">
+        <div style="height:10px"></div>
+        <div class="two-col" style="margin-bottom:8px;">
+          <div class="field"><label class="field-label">Developers</label><input type="number" id="sprintDevs" placeholder="4" min="1" oninput="onSprintInput()"></div>
+          <div class="field"><label class="field-label">Sprints</label><input type="number" id="sprintCount" placeholder="6" min="1" oninput="onSprintInput()"></div>
+        </div>
+        <div class="two-col" style="margin-bottom:8px;">
+          <div class="field"><label class="field-label">Wks / sprint</label><input type="number" id="sprintWeeks" placeholder="2" min="0.5" step="0.5" oninput="onSprintInput()"></div>
+          <div class="field"><label class="field-label">Pts / dev / sprint</label><input type="number" id="sprintPtsPerDev" placeholder="10" min="1" oninput="onSprintInput()"></div>
+        </div>
+        <div class="sprint-preview" id="sprintPreview"></div>
+        <button class="btn btn-primary" onclick="applySprintCapacity()">Set capacity</button>
+      </div>
+    </div>
+    <div class="capacity-only">
+      <div class="section-title">Add work item</div>
+      <div class="field"><label class="field-label">Name</label><input type="text" id="featureName" placeholder="e.g. User authentication"></div>
+      <div class="field">
+        <label class="field-label">Feature</label>
+        <div class="size-grid">
+          <div><input type="radio" name="sz" id="sz-f-s" class="size-radio" value="S" data-type="feature" checked><label for="sz-f-s" class="size-btn">S<span class="size-sub">40 pts</span></label></div>
+          <div><input type="radio" name="sz" id="sz-f-m" class="size-radio" value="M" data-type="feature"><label for="sz-f-m" class="size-btn">M<span class="size-sub">60 pts</span></label></div>
+          <div><input type="radio" name="sz" id="sz-f-l" class="size-radio" value="L" data-type="feature"><label for="sz-f-l" class="size-btn">L<span class="size-sub">80 pts</span></label></div>
+          <div><input type="radio" name="sz" id="sz-f-xl" class="size-radio" value="XL" data-type="feature"><label for="sz-f-xl" class="size-btn">XL<span class="size-sub">100 pts</span></label></div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">User Story</label>
+        <div class="size-grid">
+          <div><input type="radio" name="sz" id="sz-us-s" class="size-radio" value="S" data-type="story"><label for="sz-us-s" class="size-btn">S<span class="size-sub">5 pts</span></label></div>
+          <div><input type="radio" name="sz" id="sz-us-m" class="size-radio" value="M" data-type="story"><label for="sz-us-m" class="size-btn">M<span class="size-sub">8 pts</span></label></div>
+          <div><input type="radio" name="sz" id="sz-us-l" class="size-radio" value="L" data-type="story"><label for="sz-us-l" class="size-btn">L<span class="size-sub">13 pts</span></label></div>
+          <div><input type="radio" name="sz" id="sz-us-xl" class="size-radio" value="XL" data-type="story"><label for="sz-us-xl" class="size-btn">XL<span class="size-sub">20 pts</span></label></div>
+        </div>
+      </div>
+      <button class="btn btn-secondary" onclick="addFeature()">Add to quarter</button>
+    </div>
+    <div class="capacity-only" style="display:none;">
+      <div class="section-title" style="display:flex;align-items:center;gap:6px;">Backlog <span class="count-badge" id="backlogCount">0</span></div>
+      <div class="backlog-list" id="backlogList"></div>
+    </div>
+
+    <div class="board-only">
+      <div class="board-backlog-filter-wrap" id="boardBacklogFilterWrap">
+        <button class="board-filter-toggle" type="button" onclick="toggleBoardBacklogFilterPanel()" aria-expanded="false" aria-controls="boardBacklogFilterBody">
+          <span class="board-filter-toggle-left">
+            <span class="board-filter-title">Filters</span>
+            <span class="count-badge" id="boardBacklogFilterStatus">All</span>
+          </span>
+          <span class="board-filter-summary" id="boardBacklogFilterSummary">Point/type</span>
+          <svg class="board-filter-chevron" id="boardBacklogFilterChevron" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 4l4 4 4-4"/></svg>
+        </button>
+        <div class="board-filter-body closed" id="boardBacklogFilterBody">
+          <div class="board-filter-actions">
+            <button class="filter-link" type="button" onclick="setAllBoardBacklogFilters(true)">All</button>
+            <button class="filter-link" type="button" onclick="setAllBoardBacklogFilters(false)">Clear</button>
+          </div>
+          <div class="board-backlog-filters" id="boardBacklogFilters"></div>
+        </div>
+      </div>
+      <div class="section-title" style="display:flex;align-items:center;gap:6px;">Board backlog <span class="count-badge" id="boardBacklogCount">0</span></div>
+      <div class="board-backlog-list" id="boardBacklogList"></div>
+    </div>
+  </aside>
+
+  <main class="workspace" id="workspace"></main>
+
+  <aside class="right-panel" id="rightPanel">
+    <div class="right-panel-toggle" onclick="toggleRightPanel()" title="Collapse / expand dev load calculator">
+      <div>
+        <div class="panel-title" style="margin-bottom:0">Dev load calculator</div>
+        <div class="right-panel-collapsed-label">Dev load</div>
+      </div>
+      <svg class="collapse-chevron open" id="rightPanelChevron" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 4l4 4 4-4"/></svg>
+    </div>
+    <div class="right-panel-inner" id="rightPanelInner" style="max-height:2000px;">
+      <div class="panel-desc" style="margin-top:4px;margin-bottom:8px;">Avg story points per developer per sprint, for each committed feature.</div>
+      <div id="summaryCardWrap"></div>
+      <div class="divider"></div>
+      <div id="breakdownList"><div class="bd-empty">Place features on the grid to see the per-dev breakdown.</div></div>
+    </div>
+  </aside>
+</div>
+
+<div class="modal-backdrop" id="importModal">
+  <div class="modal">
+    <div class="modal-title">Import</div>
+    <div class="modal-sub">Choose an exported JSON file or paste exported JSON below. A single-team export updates the matching tab (or creates one). An all-teams export merges all teams.</div>
+    <div class="import-file-row">
+      <input type="file" id="importFile" class="import-file-input" accept=".json,application/json" onchange="handleImportFile(event)">
+      <label for="importFile" class="btn btn-secondary" style="width:auto;padding:7px 12px;">Choose JSON file</label>
+      <span class="import-file-name" id="importFileName">No file selected</span>
+    </div>
+    <textarea id="importText" placeholder="Paste exported JSON here, or choose a .json file above…"></textarea>
+    <div class="modal-error" id="importError"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" style="width:auto" onclick="closeImport()">Cancel</button>
+      <button class="btn btn-primary" style="width:auto" onclick="doImport()">Import</button>
+    </div>
+  </div>
+</div>
+
+<div class="copyright-footer">© K M Schellens</div>
+
+<script>
+const STORAGE_KEY='capacityPlanner_v6',LEGACY_STORAGE_KEY='capacityPlanner_v5',CELL=44,PTS_PER_CELL=5;
+const PALETTES=[
+  {id:1,color:'#1a5fa8',bg:'#e8f1fb',border:'#9dc0e8'},
+  {id:2,color:'#2d7d4e',bg:'#eaf5ef',border:'#a8d9bc'},
+  {id:3,color:'#b54a00',bg:'#fdf0e8',border:'#e8b48a'},
+  {id:4,color:'#7040b0',bg:'#f3edfb',border:'#c9a8e8'},
+  {id:5,color:'#b52020',bg:'#fceaea',border:'#e89090'},
+];
+const FEATURE_SIZES={
+  S:{pts:40,cols:4,rows:2,paletteId:1},M:{pts:60,cols:4,rows:3,paletteId:2},
+  L:{pts:80,cols:4,rows:4,paletteId:3},XL:{pts:100,cols:5,rows:4,paletteId:5},
+};
+const STORY_SIZES={
+  S:{pts:5,cols:2,rows:1,paletteId:1},M:{pts:8,cols:2,rows:1,paletteId:2},
+  L:{pts:13,cols:3,rows:1,paletteId:3},XL:{pts:20,cols:3,rows:2,paletteId:5},
+};
+const SIZE_OPTIONS=[
+  {type:'feature',size:'XL',label:'XL Feature'},
+  {type:'feature',size:'L',label:'L Feature'},
+  {type:'feature',size:'M',label:'M Feature'},
+  {type:'feature',size:'S',label:'S Feature'},
+  {type:'story',size:'XL',label:'XL User Story'},
+  {type:'story',size:'L',label:'L User Story'},
+  {type:'story',size:'M',label:'M User Story'},
+  {type:'story',size:'S',label:'S User Story'},
+];
+// F-S(40)→2×XL  F-M(60)→3×XL  F-L(80)→4×XL  F-XL(100)→5×XL
+const SPLIT_COUNT={S:2,M:3,L:4,XL:5};
+
+const BOARD_BACKLOG_FILTER_OPTIONS=[
+  {key:'feature:XL',type:'feature',size:'XL',label:'XL Feature',pts:100},
+  {key:'feature:L',type:'feature',size:'L',label:'L Feature',pts:80},
+  {key:'feature:M',type:'feature',size:'M',label:'M Feature',pts:60},
+  {key:'feature:S',type:'feature',size:'S',label:'S Feature',pts:40},
+  {key:'story:XL',type:'story',size:'XL',label:'XL User Story',pts:20},
+  {key:'story:L',type:'story',size:'L',label:'L User Story',pts:13},
+  {key:'story:M',type:'story',size:'M',label:'M User Story',pts:8},
+  {key:'story:S',type:'story',size:'S',label:'S User Story',pts:5},
+];
+function defaultBoardBacklogFilters(){
+  const filters={};
+  BOARD_BACKLOG_FILTER_OPTIONS.forEach(opt=>filters[opt.key]=true);
+  return filters;
+}
+function boardBacklogFilterKey(f){return `${f.type||'feature'}:${f.size}`;}
+
+function SIZES(type,size){return(type==='story'?STORY_SIZES:FEATURE_SIZES)[size]||FEATURE_SIZES[size];}
+function compactTypeLabel(f){
+  const type=(f.type||'feature');
+  if(type==='feature')return'F';
+  // Hide the US badge for the smallest user stories to keep names readable on compact tiles/chips.
+  if(f.size==='S'||f.size==='M')return'';
+  return'US';
+}
+function getPalette(f){const pid=f.paletteId!=null?f.paletteId:(SIZES(f.type,f.size)?.paletteId||1);return PALETTES.find(p=>p.id===pid)||PALETTES[0];}
+function nextQuarterParts(date=new Date()){
+  const currentQuarter=Math.floor(date.getMonth()/3)+1;
+  let quarter=currentQuarter+1,year=date.getFullYear();
+  if(quarter>4){quarter=1;year++;}
+  return{quarter,year};
+}
+function defaultQuarterName(){
+  const{quarter,year}=nextQuarterParts();
+  return`Q${quarter} ${year}`;
+}
+function defaultPIName(){
+  const{quarter,year}=nextQuarterParts();
+  return`PI ${year} Q${quarter}`;
+}
+
+let tabs=[],activeTabId=null,tabIdSeq=0,dragId=null,dragFrom=null,currentView='capacity',boardDragKey=null,boardDragFrom=null,depDrag=null,boardRowDragTeamId=null,tabDragTeamId=null,suppressNextTabClick=false,rightPanelCollapsed=false;
+function freshBoardState(){return{name:defaultPIName(),iterationCount:6,iterationNames:[],placements:{},dependencies:[],teamOrder:[],backlogFilters:defaultBoardBacklogFilters(),backlogFiltersOpen:false};}
+let boardState=freshBoardState();
+function tab(){return tabs.find(t=>t.id===activeTabId);}
+function getGridCols(){return tab()?.gridCols||12;}
+function getGridRows(){const t=tab();if(!t||!t.capacity)return 0;return Math.ceil(Math.ceil(t.capacity/PTS_PER_CELL)/getGridCols());}
+
+const UNDO_LIMIT=60;
+let undoStack=[],lastStateSnapshot=null,isRestoringState=false;
+function statePayload(){return{version:6,tabs,activeTabId,tabIdSeq,currentView,boardState,rightPanelCollapsed};}
+function currentStateSnapshot(){return JSON.stringify(statePayload());}
+function writeStateSnapshot(snapshot){try{localStorage.setItem(STORAGE_KEY,snapshot);}catch(e){}}
+function updateUndoButton(){
+  const btn=document.getElementById('undoBtn');
+  if(btn)btn.disabled=!undoStack.length;
+}
+function resetUndoBaseline(){
+  lastStateSnapshot=currentStateSnapshot();
+  undoStack=[];
+  writeStateSnapshot(lastStateSnapshot);
+  updateUndoButton();
+}
+function saveState(){
+  const snapshot=currentStateSnapshot();
+  if(!isRestoringState&&lastStateSnapshot&&snapshot!==lastStateSnapshot){
+    undoStack.push(lastStateSnapshot);
+    if(undoStack.length>UNDO_LIMIT)undoStack.shift();
+  }
+  writeStateSnapshot(snapshot);
+  lastStateSnapshot=snapshot;
+  updateUndoButton();
+}
+function applyStateSnapshot(snapshot){
+  let s;
+  try{s=JSON.parse(snapshot);}catch(e){return false;}
+  if(!s||!Array.isArray(s.tabs)||!s.tabs.length)return false;
+  tabs=s.tabs;
+  activeTabId=s.activeTabId;
+  tabIdSeq=s.tabIdSeq||tabs.length;
+  currentView=s.currentView==='board'?'board':'capacity';
+  rightPanelCollapsed=!!s.rightPanelCollapsed;
+  boardState=normalizeBoardState(s.boardState);
+  if(!tabs.find(t=>t.id===activeTabId))activeTabId=tabs[0].id;
+  cleanupBoardState();
+  return true;
+}
+function undoLastAction(){
+  if(!undoStack.length)return;
+  const snapshot=undoStack.pop();
+  isRestoringState=true;
+  try{
+    if(applyStateSnapshot(snapshot)){
+      writeStateSnapshot(currentStateSnapshot());
+      lastStateSnapshot=currentStateSnapshot();
+      syncViewUI();
+      syncRightPanelUI();
+      renderTabBar();
+      loadTabIntoSidebar();
+      renderWorkspace();
+    }
+  }finally{
+    isRestoringState=false;
+    updateUndoButton();
+  }
+}
+function normalizeBoardState(s){
+  const b=freshBoardState();
+  if(!s||typeof s!=='object')return b;
+  b.name=String(s.name||b.name);
+  b.iterationCount=Math.max(1,parseInt(s.iterationCount)||b.iterationCount);
+  b.iterationNames=Array.isArray(s.iterationNames)?s.iterationNames.slice(0,b.iterationCount).map(x=>String(x||'')):[];
+  b.placements=(s.placements&&typeof s.placements==='object')?{...s.placements}:{};
+  b.dependencies=Array.isArray(s.dependencies)?s.dependencies.map(d=>({from:String(d.from||''),to:String(d.to||'')})):[];
+  b.teamOrder=Array.isArray(s.teamOrder)?s.teamOrder.map(id=>+id).filter(Boolean):[];
+  b.backlogFiltersOpen=!!s.backlogFiltersOpen;
+  const filterDefaults=defaultBoardBacklogFilters(),srcFilters=(s.backlogFilters&&typeof s.backlogFilters==='object')?s.backlogFilters:{};
+  b.backlogFilters={...filterDefaults};
+  Object.keys(filterDefaults).forEach(key=>{if(Object.prototype.hasOwnProperty.call(srcFilters,key))b.backlogFilters[key]=srcFilters[key]!==false;});
+  return b;
+}
+function loadState(){
+  try{
+    let s=JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if(s&&s.version===6&&Array.isArray(s.tabs)&&s.tabs.length){
+      tabs=s.tabs;activeTabId=s.activeTabId;tabIdSeq=s.tabIdSeq||s.tabs.length;
+      currentView=s.currentView==='board'?'board':'capacity';
+      rightPanelCollapsed=!!s.rightPanelCollapsed;
+      boardState=normalizeBoardState(s.boardState);
+      if(!tabs.find(t=>t.id===activeTabId))activeTabId=tabs[0].id;
+      cleanupBoardState();
+      return true;
+    }
+    s=JSON.parse(localStorage.getItem(LEGACY_STORAGE_KEY));
+    if(!s||s.version!==5||!Array.isArray(s.tabs)||!s.tabs.length)return false;
+    tabs=s.tabs;activeTabId=s.activeTabId;tabIdSeq=s.tabIdSeq||s.tabs.length;
+    currentView='capacity';rightPanelCollapsed=false;boardState=freshBoardState();
+    tabs.forEach(t=>{if(!t.capacity){t.capacity=240;t.sprintDevs=4;t.sprintCount=6;t.sprintWeeks=2;t.sprintPtsPerDev=10;}if(!t.quarterName)t.quarterName=defaultQuarterName();});
+    if(!tabs.find(t=>t.id===activeTabId))activeTabId=tabs[0].id;
+    return true;
+  }catch(e){return false;}
+}
+
+function onSprintInput(){
+  const d=parseFloat(document.getElementById('sprintDevs').value),
+        sp=parseFloat(document.getElementById('sprintCount').value),
+        w=parseFloat(document.getElementById('sprintWeeks').value),
+        p=parseFloat(document.getElementById('sprintPtsPerDev').value),
+        prev=document.getElementById('sprintPreview');
+  if(!d||!sp||!p){prev.textContent='';return;}
+  prev.textContent=`${d} × ${sp} × ${p} = ${Math.round(d*sp*p)} pts`+(w?` · ${sp*w}wks total`:'');
+}
+function applySprintCapacity(){
+  const d=parseFloat(document.getElementById('sprintDevs').value),
+        sp=parseFloat(document.getElementById('sprintCount').value),
+        p=parseFloat(document.getElementById('sprintPtsPerDev').value),
+        w=parseFloat(document.getElementById('sprintWeeks').value)||null;
+  if(!d||!sp||!p){alert('Fill in Developers, Sprints and Pts/dev/sprint.');return;}
+  const t=tab();if(!t)return;
+  t.sprintDevs=d;t.sprintCount=sp;t.sprintWeeks=w;t.sprintPtsPerDev=p;
+  t.capacity=Math.round(d*sp*p);evictOutOfBounds();saveState();renderWorkspace();
+}
+function evictOutOfBounds(){
+  const t=tab();if(!t)return;
+  const cols=getGridCols(),rows=getGridRows();
+  for(const id in t.placed){
+    const f=t.features.find(f=>f.id===+id);if(!f){delete t.placed[id];continue;}
+    const s=SIZES(f.type,f.size),p=t.placed[id];
+    if(p.col+s.cols>cols||p.row+s.rows>rows)delete t.placed[id];
+  }
+}
+function loadSprintInputs(){
+  const t=tab();if(!t)return;
+  document.getElementById('sprintDevs').value=t.sprintDevs||'';
+  document.getElementById('sprintCount').value=t.sprintCount||'';
+  document.getElementById('sprintWeeks').value=t.sprintWeeks||'';
+  document.getElementById('sprintPtsPerDev').value=t.sprintPtsPerDev||'';
+  onSprintInput();
+}
+
+function newTab(name){
+  const id=++tabIdSeq;
+  tabs.push({id,name:name||`Team ${id}`,quarterName:defaultQuarterName(),capacity:240,gridCols:12,
+    sprintDevs:4,sprintCount:6,sprintWeeks:2,sprintPtsPerDev:10,
+    features:[],idCounter:0,placed:{},parked:[]});
+  return tabs[tabs.length-1];
+}
+function addTab(){const t=newTab();activeTabId=t.id;saveState();renderTabBar();loadTabIntoSidebar();renderWorkspace();}
+function deleteTab(id){
+  if(tabs.length===1){alert('Need at least one team tab.');return;}
+  if(!confirm(`Delete team "${tabs.find(t=>t.id===id)?.name}"?`))return;
+  tabs=tabs.filter(t=>t.id!==id);
+  cleanupBoardState();
+  if(activeTabId===id)activeTabId=tabs[0].id;
+  saveState();renderTabBar();loadTabIntoSidebar();renderWorkspace();
+}
+function switchTab(id){
+  const isSameTab=id===activeTabId;
+
+  // When selecting a team tab from the PI Board, jump back to that team's
+  // Capacity view so the tab click behaves like "open this team".
+  if(currentView==='board'){
+    if(!isSameTab){
+      activeTabId=id;
+      renderTabBar();
+    }
+    setView('capacity');
+    return;
+  }
+
+  if(isSameTab)return;
+  activeTabId=id;
+  saveState();
+  renderTabBar();
+  loadTabIntoSidebar();
+  renderWorkspace();
+}
+function renameTab(id,name){const t=tabs.find(t=>t.id===id);if(t){t.name=name||t.name;saveState();if(currentView==='board')renderWorkspace();}}
+function loadTabIntoSidebar(){
+  const t=tab();if(!t)return;
+  if(!t.quarterName)t.quarterName=defaultQuarterName();
+  document.getElementById('quarterName').value=t.quarterName;
+  loadSprintInputs();renderBacklog();loadBoardInputs();
+}
+function onQuarterNameInput(){
+  const t=tab();if(!t)return;
+  t.quarterName=document.getElementById('quarterName').value;saveState();
+  const el=document.getElementById('wsTitle');if(el)el.textContent=t.quarterName||'Quarter';
+}
+
+
+function clearTabDropTargets(){
+  document.querySelectorAll('.tab-item.tab-drop-target').forEach(el=>el.classList.remove('tab-drop-target'));
+}
+function resetTabDrag(){
+  tabDragTeamId=null;
+  clearTabDropTargets();
+  document.querySelectorAll('.tab-item.tab-dragging').forEach(el=>el.classList.remove('tab-dragging'));
+}
+function onTeamTabDragStart(e){
+  if(e.target.closest('.tab-del')||!e.currentTarget.dataset.teamId){e.preventDefault();return;}
+  const teamId=+e.currentTarget.dataset.teamId;
+  if(!teamId)return;
+  tabDragTeamId=teamId;
+  suppressNextTabClick=true;
+  e.dataTransfer.effectAllowed='move';
+  e.dataTransfer.setData('text/plain',`team-tab:${teamId}`);
+  setTimeout(()=>e.currentTarget.classList.add('tab-dragging'),0);
+}
+function onTeamTabDragOver(e){
+  if(!tabDragTeamId)return;
+  const targetTeamId=+e.currentTarget.dataset.teamId;
+  if(!targetTeamId||targetTeamId===tabDragTeamId)return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect='move';
+  clearTabDropTargets();
+  e.currentTarget.classList.add('tab-drop-target');
+}
+function onTeamTabDragLeave(e){
+  if(!tabDragTeamId)return;
+  if(!e.currentTarget.contains(e.relatedTarget))e.currentTarget.classList.remove('tab-drop-target');
+}
+function onTeamTabDrop(e){
+  if(!tabDragTeamId)return;
+  e.preventDefault();
+  const targetTeamId=+e.currentTarget.dataset.teamId;
+  const moved=moveTabOnly(tabDragTeamId,targetTeamId);
+  resetTabDrag();
+  if(moved){
+    saveState();
+    renderTabBar();
+    renderWorkspace();
+  }
+}
+
+function renderTabBar(){
+  const bar=document.getElementById('tabbar');bar.innerHTML='';
+  tabs.forEach(t=>{
+    const el=document.createElement('div');
+    el.className='tab-item'+(t.id===activeTabId?' active':'');
+    el.draggable=true;
+    el.dataset.teamId=t.id;
+    el.title='Drag to reorder team tabs';
+    el.addEventListener('click',e=>{
+      if(suppressNextTabClick){suppressNextTabClick=false;return;}
+      if(e.target.closest('.tab-del'))return;
+      if(e.target.closest('.tab-name-input')&&!e.target.readOnly)return;
+      switchTab(t.id);
+    });
+    el.addEventListener('dragstart',onTeamTabDragStart);
+    el.addEventListener('dragover',onTeamTabDragOver);
+    el.addEventListener('dragleave',onTeamTabDragLeave);
+    el.addEventListener('drop',onTeamTabDrop);
+    el.addEventListener('dragend',resetTabDrag);
+    const inp=document.createElement('input');
+    inp.className='tab-name-input';inp.value=t.name;inp.readOnly=true;
+    inp.addEventListener('dblclick',e=>{e.stopPropagation();inp.readOnly=false;inp.focus();inp.select();});
+    inp.addEventListener('blur',()=>{inp.readOnly=true;renameTab(t.id,inp.value.trim()||t.name);inp.value=t.name;});
+    inp.addEventListener('keydown',e=>{if(e.key==='Enter')inp.blur();if(e.key==='Escape'){inp.value=t.name;inp.blur();}});
+    inp.addEventListener('mousedown',e=>{if(inp.readOnly)e.preventDefault();});
+    const del=document.createElement('button');
+    del.className='tab-del';del.textContent='×';
+    del.addEventListener('click',e=>{e.stopPropagation();deleteTab(t.id);});
+    el.append(inp,del);bar.appendChild(el);
+  });
+  const add=document.createElement('div');
+  add.className='tab-add';add.textContent='+';
+  add.addEventListener('click',addTab);bar.appendChild(add);
+}
+
+// Build occupancy matrix, excluding listed IDs
+function buildMatrix(excludeIds=[]){
+  const t=tab();if(!t)return[];
+  const cols=getGridCols(),rows=getGridRows();
+  const mat=Array.from({length:rows},()=>new Array(cols).fill(false));
+  for(const[id,pos]of Object.entries(t.placed)){
+    if(excludeIds.includes(+id))continue;
+    const f=t.features.find(f=>f.id===+id);if(!f)continue;
+    const s=SIZES(f.type,f.size);
+    for(let r=pos.row;r<pos.row+s.rows;r++)
+      for(let c=pos.col;c<pos.col+s.cols;c++)
+        if(r>=0&&r<rows&&c>=0&&c<cols)mat[r][c]=true;
+  }
+  return mat;
+}
+
+function snapPosition(mx,my,tc,tr,rect){
+  const cols=getGridCols(),rows=getGridRows();
+  const col=Math.floor((mx-rect.left)/CELL)-Math.floor(tc/2);
+  const row=Math.floor((my-rect.top)/CELL)-Math.floor(tr/2);
+  return{col:Math.max(0,Math.min(col,cols-tc)),row:Math.max(0,Math.min(row,rows-tr))};
+}
+function canPlace(col,row,tc,tr,excludeId=-1){
+  const cols=getGridCols(),rows=getGridRows();
+  if(col<0||row<0||col+tc>cols||row+tr>rows)return false;
+  const mat=buildMatrix([excludeId]);
+  for(let r=row;r<row+tr;r++)for(let c=col;c<col+tc;c++)if(mat[r][c])return false;
+  return true;
+}
+// Scan entire grid for first free slot; mat is mutated to reserve found slot for subsequent calls
+function findFreeSlot(tc,tr,mat){
+  const cols=getGridCols(),rows=getGridRows();
+  for(let r=0;r<=rows-tr;r++){
+    for(let c=0;c<=cols-tc;c++){
+      let ok=true;
+      outer:for(let dr=0;dr<tr;dr++)for(let dc=0;dc<tc;dc++)if(mat[r+dr]?.[c+dc]){ok=false;break outer;}
+      if(ok){
+        for(let dr=0;dr<tr;dr++)for(let dc=0;dc<tc;dc++)mat[r+dr][c+dc]=true;
+        return{col:c,row:r};
+      }
+    }
+  }
+  return null;
+}
+
+function placeFeatureOnGridOrPark(featureId,mat=null){
+  const t=tab();if(!t)return false;
+  const f=t.features.find(x=>x.id===+featureId);if(!f)return false;
+  const s=SIZES(f.type||'feature',f.size);
+  const workingMat=mat||buildMatrix([f.id]);
+  delete t.placed[f.id];
+  t.parked=t.parked.filter(i=>i!==f.id);
+  const slot=findFreeSlot(s.cols,s.rows,workingMat);
+  if(slot){t.placed[f.id]=slot;return true;}
+  t.parked.push(f.id);return false;
+}
+function reconcileUnassignedItems(){
+  const t=tab();if(!t)return;
+  const mat=buildMatrix([]);
+  t.features.forEach(f=>{
+    if(!t.placed[f.id]&&!t.parked.includes(f.id))placeFeatureOnGridOrPark(f.id,mat);
+  });
+}
+
+// ── ONE-CLICK SPLIT ─────────────────────────────────────
+function splitFeature(featureId){
+  const t=tab();if(!t)return;
+  const parent=t.features.find(f=>f.id===featureId);
+  if(!parent||(parent.type||'feature')!=='feature')return;
+  const count=SPLIT_COUNT[parent.size];if(!count)return;
+  const paletteId=parent.paletteId!=null?parent.paletteId:(SIZES(parent.type,parent.size)?.paletteId||1);
+
+  // Remove parent
+  delete t.placed[featureId];
+  t.features=t.features.filter(f=>f.id!==featureId);
+  t.parked=t.parked.filter(i=>i!==featureId);
+
+  // Build shared matrix once so each child reserves its slot for the next
+  const mat=buildMatrix([]);
+
+  for(let i=0;i<count;i++){
+    const child={id:++t.idCounter,name:`${parent.name} – Part ${i+1}`,size:'XL',type:'story',paletteId};
+    t.features.push(child);
+    const s=SIZES('story','XL');
+    const slot=findFreeSlot(s.cols,s.rows,mat);
+    if(slot)t.placed[child.id]=slot;
+    else if(!t.parked.includes(child.id))t.parked.push(child.id);
+  }
+
+  cleanupBoardState();saveState();renderWorkspace();
+}
+
+
+function featureKey(teamId,featureId){return `${teamId}:${featureId}`;}
+function parseFeatureKey(key){
+  const parts=String(key).split(':');
+  return{teamId:+parts[0],featureId:+parts[1]};
+}
+function getBoardFeature(key){
+  const ids=parseFeatureKey(key);
+  const team=tabs.find(t=>t.id===ids.teamId);
+  if(!team)return null;
+  const feature=team.features.find(f=>f.id===ids.featureId);
+  if(!feature)return null;
+  return{team,feature,key:String(key)};
+}
+function cleanupBoardState(){
+  boardState=normalizeBoardState(boardState);
+  const validTeamIds=new Set(tabs.map(t=>t.id));
+  const seenTeams=new Set();
+  boardState.teamOrder=(boardState.teamOrder||[]).filter(id=>validTeamIds.has(+id)&&!seenTeams.has(+id)&&(seenTeams.add(+id),true));
+  tabs.forEach(team=>{if(!seenTeams.has(team.id)){boardState.teamOrder.push(team.id);seenTeams.add(team.id);}});
+  const valid=new Set();
+  tabs.forEach(team=>team.features.forEach(f=>valid.add(featureKey(team.id,f.id))));
+  Object.keys(boardState.placements||{}).forEach(key=>{if(!valid.has(key))delete boardState.placements[key];});
+  const seen=new Set();
+  boardState.dependencies=(boardState.dependencies||[]).filter(d=>{
+    const from=String(d.from||''),to=String(d.to||''),edge=from+'>'+to;
+    if(!valid.has(from)||!valid.has(to)||from===to||seen.has(edge))return false;
+    if(!boardState.placements[from]||!boardState.placements[to])return false;
+    seen.add(edge);d.from=from;d.to=to;return true;
+  });
+}
+function syncViewUI(){
+  const isBoard=currentView==='board';
+  document.body.classList.toggle('board-view',isBoard);
+  document.getElementById('appBody')?.classList.toggle('board-mode',isBoard);
+  const capBtn=document.getElementById('capacityViewBtn'),boardBtn=document.getElementById('boardViewBtn');
+  if(capBtn){capBtn.classList.toggle('active',!isBoard);capBtn.setAttribute('aria-selected',String(!isBoard));}
+  if(boardBtn){boardBtn.classList.toggle('active',isBoard);boardBtn.setAttribute('aria-selected',String(isBoard));}
+  const title=document.querySelector('.topbar-title');
+  if(title)title.textContent=isBoard?'PI Planning Board':'PI Capacity Planner';
+  loadBoardInputs();
+  syncRightPanelUI();
+}
+function setView(view){
+  currentView=view==='board'?'board':'capacity';
+  syncViewUI();
+  saveState();
+  loadTabIntoSidebar();
+  renderWorkspace();
+}
+function loadBoardInputs(){
+  boardState=normalizeBoardState(boardState);
+  const name=document.getElementById('boardName'),iters=document.getElementById('boardIterationCount');
+  if(name)name.value=boardState.name||defaultPIName();
+  if(iters)iters.value=boardState.iterationCount||6;
+  renderBoardBacklogFilters();
+  renderBoardBacklog();
+}
+function onBoardNameInput(){
+  const inp=document.getElementById('boardName');
+  boardState.name=(inp?.value||'').trim()||defaultPIName();
+  const title=document.getElementById('piBoardTitle');
+  if(title)title.textContent=boardState.name;
+  saveState();
+}
+function applyBoardSetup(){
+  const inp=document.getElementById('boardIterationCount');
+  const n=Math.max(1,parseInt(inp?.value)||1);
+  const old=boardState.iterationCount||6;
+  if(n<old){
+    const outside=Object.values(boardState.placements||{}).some(p=>(p.iteration||0)>=n);
+    if(outside&&!confirm('Reducing iterations will remove board cards and dependency ropes outside the new range. Continue?')){
+      if(inp)inp.value=old;return;
+    }
+  }
+  boardState.iterationCount=n;
+  boardState.iterationNames=(boardState.iterationNames||[]).slice(0,n);
+  Object.entries(boardState.placements||{}).forEach(([key,pos])=>{if((pos.iteration||0)>=n)delete boardState.placements[key];});
+  cleanupBoardState();
+  saveState();
+  renderWorkspace();
+}
+function renameIteration(index){
+  const current=boardState.iterationNames?.[index]||`Iteration ${index+1}`;
+  const value=prompt(`Name for iteration ${index+1}:`,current);
+  if(value===null)return;
+  boardState.iterationNames=boardState.iterationNames||[];
+  boardState.iterationNames[index]=value.trim()||`Iteration ${index+1}`;
+  saveState();
+  renderWorkspace();
+}
+function resetBoardDrag(){
+  boardDragKey=null;boardDragFrom=null;
+  document.querySelectorAll('.pi-board-cell.drag-over,.pi-board-cell.blocked').forEach(el=>el.classList.remove('drag-over','blocked'));
+  document.getElementById('boardBacklogList')?.classList.remove('drag-over');
+}
+function boardCardInnerHTML(key,team,f){
+  const s=SIZES(f.type||'feature',f.size),pal=getPalette(f),type=f.type||'feature';
+  return `<div class="pi-board-card" draggable="true" data-feature-key="${key}" style="background:${pal.bg};color:${pal.color};border-color:${pal.border};">
+    <button class="board-rm" onclick="removeFromPIBoard('${key}')" title="Return to board backlog">✕</button>
+    <button class="dep-handle" onpointerdown="startDependency(event,'${key}')" title="Drag a dependency rope from here"></button>
+    <div class="pi-board-card-name">${esc(f.name)}</div>
+    <div class="pi-board-card-meta"><span>${esc(team.name)}</span><span>·</span><span>${f.size} · ${s.pts}pts</span><span class="type-badge ${type}">${type==='story'?'US':'F'}</span></div>
+  </div>`;
+}
+function boardBacklogItemMatchesFilters(f){
+  boardState=normalizeBoardState(boardState);
+  const key=boardBacklogFilterKey(f);
+  return boardState.backlogFilters?.[key]!==false;
+}
+function boardBacklogFilterSelection(){
+  boardState=normalizeBoardState(boardState);
+  const filters=boardState.backlogFilters||defaultBoardBacklogFilters();
+  const selected=BOARD_BACKLOG_FILTER_OPTIONS.filter(opt=>filters[opt.key]!==false).length;
+  return{filters,selected,total:BOARD_BACKLOG_FILTER_OPTIONS.length};
+}
+function boardBacklogFilterStatusText(selected,total){
+  if(selected===total)return'All';
+  if(selected===0)return'None';
+  return`${selected}/${total}`;
+}
+function renderBoardBacklogFilters(){
+  const list=document.getElementById('boardBacklogFilters');
+  const outer=document.getElementById('boardBacklogFilterWrap');
+  const body=document.getElementById('boardBacklogFilterBody');
+  const toggle=document.querySelector('.board-filter-toggle');
+  const status=document.getElementById('boardBacklogFilterStatus');
+  const summary=document.getElementById('boardBacklogFilterSummary');
+  if(!list)return;
+  const {filters,selected,total}=boardBacklogFilterSelection();
+  const isOpen=!!boardState.backlogFiltersOpen;
+  if(outer)outer.classList.toggle('open',isOpen);
+  if(body)body.classList.toggle('closed',!isOpen);
+  if(toggle)toggle.setAttribute('aria-expanded',String(isOpen));
+  if(status)status.textContent=boardBacklogFilterStatusText(selected,total);
+  if(summary)summary.textContent=isOpen?'Point/type filters':'Point/type';
+  list.innerHTML=BOARD_BACKLOG_FILTER_OPTIONS.map(opt=>{
+    const checked=filters[opt.key]!==false;
+    const badgeClass=opt.type==='story'?'story':'feature';
+    const typeLabel=opt.type==='story'?'US':'F';
+    return `<label class="board-filter-option">
+      <input type="checkbox" ${checked?'checked':''} onchange="setBoardBacklogFilter('${opt.key}',this.checked)">
+      <span class="type-badge ${badgeClass}">${typeLabel}</span>
+      <span class="board-filter-label">${esc(opt.label)}</span>
+      <span class="board-filter-pts">${opt.pts}pts</span>
+    </label>`;
+  }).join('');
+}
+function toggleBoardBacklogFilterPanel(){
+  boardState=normalizeBoardState(boardState);
+  boardState.backlogFiltersOpen=!boardState.backlogFiltersOpen;
+  saveState();
+  renderBoardBacklogFilters();
+}
+function setBoardBacklogFilter(key,checked){
+  const defaults=defaultBoardBacklogFilters();
+  if(!Object.prototype.hasOwnProperty.call(defaults,key))return;
+  boardState=normalizeBoardState(boardState);
+  boardState.backlogFilters={...defaults,...(boardState.backlogFilters||{})};
+  boardState.backlogFilters[key]=!!checked;
+  saveState();
+  renderBoardBacklogFilters();
+  renderBoardBacklog();
+}
+function setAllBoardBacklogFilters(checked){
+  const filters=defaultBoardBacklogFilters();
+  Object.keys(filters).forEach(key=>filters[key]=!!checked);
+  boardState=normalizeBoardState(boardState);
+  boardState.backlogFilters=filters;
+  saveState();
+  renderBoardBacklogFilters();
+  renderBoardBacklog();
+}
+function renderBoardBacklog(){
+  const list=document.getElementById('boardBacklogList'),count=document.getElementById('boardBacklogCount');
+  if(!list)return;
+  cleanupBoardState();
+  const allItems=[];
+  tabs.forEach(team=>team.features.forEach(f=>{
+    const key=featureKey(team.id,f.id);
+    if(!boardState.placements[key])allItems.push({team,f,key});
+  }));
+  const items=allItems.filter(({f})=>boardBacklogItemMatchesFilters(f));
+  if(count)count.textContent=items.length===allItems.length?String(items.length):`${items.length}/${allItems.length}`;
+  list.innerHTML='';
+  list.ondragover=e=>{if(boardDragKey){e.preventDefault();list.classList.add('drag-over');}};
+  list.ondragleave=e=>{if(!list.contains(e.relatedTarget))list.classList.remove('drag-over');};
+  list.ondrop=e=>{
+    e.preventDefault();list.classList.remove('drag-over');
+    if(!boardDragKey)return;
+    delete boardState.placements[boardDragKey];
+    cleanupBoardState();resetBoardDrag();saveState();renderWorkspace();
+  };
+  if(!allItems.length){list.innerHTML='<div class="empty-state">All work items are on the PI board</div>';return;}
+  if(!items.length){list.innerHTML='<div class="empty-state">No backlog items match the selected filters</div>';return;}
+  items.sort((a,b)=>a.team.name.localeCompare(b.team.name)||a.f.name.localeCompare(b.f.name));
+  items.forEach(({team,f,key})=>{
+    const s=SIZES(f.type||'feature',f.size),pal=getPalette(f),type=f.type||'feature';
+    const card=document.createElement('div');
+    card.className='board-feature-card';card.draggable=true;card.dataset.featureKey=key;
+    card.innerHTML=`<div class="card-dot" style="background:${pal.color}"></div>
+      <div class="card-info"><div class="card-name">${esc(f.name)}</div><div class="board-card-team">${esc(team.name)} · ${f.size} · ${s.pts} pts</div></div>
+      <span class="type-badge ${type}">${type==='story'?'US':'F'}</span>`;
+    card.addEventListener('dragstart',e=>{
+      boardDragKey=key;boardDragFrom='backlog';e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',key);
+      setTimeout(()=>card.classList.add('is-dragging'),0);
+    });
+    card.addEventListener('dragend',()=>{card.classList.remove('is-dragging');resetBoardDrag();});
+    list.appendChild(card);
+  });
+}
+function removeFromPIBoard(key){
+  delete boardState.placements[key];
+  cleanupBoardState();
+  saveState();
+  renderWorkspace();
+}
+function onBoardCellDragOver(e){
+  if(boardRowDragTeamId)return;
+  if(!boardDragKey)return;
+  const cell=e.currentTarget,info=getBoardFeature(boardDragKey);
+  const ok=!!info&&info.team.id===+cell.dataset.teamId;
+  e.preventDefault();
+  cell.classList.toggle('drag-over',ok);
+  cell.classList.toggle('blocked',!ok);
+  e.dataTransfer.dropEffect=ok?'move':'none';
+}
+function onBoardCellDragLeave(e){
+  if(boardRowDragTeamId)return;
+  const cell=e.currentTarget;
+  if(!cell.contains(e.relatedTarget))cell.classList.remove('drag-over','blocked');
+}
+function onBoardCellDrop(e){
+  if(boardRowDragTeamId)return;
+  e.preventDefault();
+  const cell=e.currentTarget,info=getBoardFeature(boardDragKey);
+  if(!info||info.team.id!==+cell.dataset.teamId){resetBoardDrag();return;}
+  boardState.placements[boardDragKey]={teamId:info.team.id,iteration:+cell.dataset.iteration};
+  cleanupBoardState();resetBoardDrag();saveState();renderWorkspace();
+}
+function addBoardCardDragHandlers(){
+  document.querySelectorAll('.pi-board-card').forEach(card=>{
+    card.addEventListener('dragstart',e=>{
+      if(e.target.closest('.dep-handle')||e.target.closest('.board-rm')){e.preventDefault();return;}
+      boardDragKey=card.dataset.featureKey;boardDragFrom='board';e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',boardDragKey);
+      setTimeout(()=>card.classList.add('is-dragging'),0);
+    });
+    card.addEventListener('dragend',()=>{card.classList.remove('is-dragging');resetBoardDrag();});
+  });
+}
+function getBoardCardEl(key){
+  return Array.from(document.querySelectorAll('.pi-board-card')).find(el=>el.dataset.featureKey===String(key));
+}
+function pointForBoardCard(key,side){
+  const el=getBoardCardEl(key),canvas=document.getElementById('piBoardCanvas');
+  if(!el||!canvas)return null;
+  const er=el.getBoundingClientRect(),cr=canvas.getBoundingClientRect();
+  return{x:(side==='left'?er.left:er.right)-cr.left,y:er.top+er.height/2-cr.top};
+}
+function clientToBoardCanvas(clientX,clientY){
+  const canvas=document.getElementById('piBoardCanvas');
+  if(!canvas)return null;
+  const cr=canvas.getBoundingClientRect();
+  return{x:clientX-cr.left,y:clientY-cr.top};
+}
+function dependencyPath(a,b){
+  const dx=Math.max(46,Math.abs(b.x-a.x)*0.42);
+  return`M ${a.x} ${a.y} C ${a.x+dx} ${a.y}, ${b.x-dx} ${b.y}, ${b.x} ${b.y}`;
+}
+function addDependencyDefs(svg){
+  const defs=document.createElementNS('http://www.w3.org/2000/svg','defs');
+  const marker=document.createElementNS('http://www.w3.org/2000/svg','marker');
+  marker.setAttribute('id','depArrow');marker.setAttribute('viewBox','0 0 10 10');marker.setAttribute('refX','9');marker.setAttribute('refY','5');marker.setAttribute('markerWidth','5');marker.setAttribute('markerHeight','5');marker.setAttribute('orient','auto-start-reverse');
+  const arrow=document.createElementNS('http://www.w3.org/2000/svg','path');
+  arrow.setAttribute('d','M 0 0 L 10 5 L 0 10 z');arrow.setAttribute('fill','#7040b0');
+  marker.appendChild(arrow);defs.appendChild(marker);svg.appendChild(defs);
+}
+function renderBoardDependencies(){
+  const svg=document.getElementById('dependencyLayer'),canvas=document.getElementById('piBoardCanvas');
+  if(!svg||!canvas)return;
+  const w=Math.max(canvas.offsetWidth,canvas.scrollWidth),h=Math.max(canvas.offsetHeight,canvas.scrollHeight);
+  svg.setAttribute('width',w);svg.setAttribute('height',h);svg.setAttribute('viewBox',`0 0 ${w} ${h}`);
+  svg.innerHTML='';addDependencyDefs(svg);
+  (boardState.dependencies||[]).forEach((dep,index)=>{
+    const a=pointForBoardCard(dep.from,'right'),b=pointForBoardCard(dep.to,'left');
+    if(!a||!b)return;
+    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('class','dep-path');path.setAttribute('d',dependencyPath(a,b));path.setAttribute('marker-end','url(#depArrow)');
+    const from=getBoardFeature(dep.from),to=getBoardFeature(dep.to);
+    const title=document.createElementNS('http://www.w3.org/2000/svg','title');
+    title.textContent=`${from?.feature?.name||'Feature'} depends on ${to?.feature?.name||'Feature'} — click to remove`;
+    path.appendChild(title);
+    path.addEventListener('click',e=>{e.stopPropagation();removeBoardDependency(index);});
+    svg.appendChild(path);
+  });
+  if(depDrag){
+    const a=pointForBoardCard(depDrag.from,'right'),b=clientToBoardCanvas(depDrag.x,depDrag.y);
+    if(a&&b){
+      const temp=document.createElementNS('http://www.w3.org/2000/svg','path');
+      temp.setAttribute('class','dep-temp');temp.setAttribute('d',dependencyPath(a,b));
+      svg.appendChild(temp);
+    }
+  }
+}
+function startDependency(e,key){
+  e.preventDefault();e.stopPropagation();
+  if(!boardState.placements[key])return;
+  depDrag={from:String(key),x:e.clientX,y:e.clientY};
+  document.body.classList.add('dependency-dragging');
+  document.addEventListener('pointermove',onDependencyPointerMove);
+  document.addEventListener('pointerup',onDependencyPointerUp,{once:true});
+  renderBoardDependencies();
+}
+function onDependencyPointerMove(e){
+  if(!depDrag)return;
+  depDrag.x=e.clientX;depDrag.y=e.clientY;
+  renderBoardDependencies();
+}
+function onDependencyPointerUp(e){
+  document.removeEventListener('pointermove',onDependencyPointerMove);
+  const from=depDrag?.from;
+  const target=e.target?.closest?.('.pi-board-card');
+  const to=target?.dataset?.featureKey;
+  depDrag=null;document.body.classList.remove('dependency-dragging');
+  if(from&&to&&from!==to&&boardState.placements[from]&&boardState.placements[to]){
+    const edge=from+'>'+to;
+    if(!boardState.dependencies.some(d=>d.from+'>'+d.to===edge)){
+      boardState.dependencies.push({from,to});
+      cleanupBoardState();saveState();
+    }
+  }
+  renderBoardDependencies();
+}
+function removeBoardDependency(index){
+  if(!confirm('Remove this dependency rope?'))return;
+  boardState.dependencies.splice(index,1);
+  saveState();
+  renderBoardDependencies();
+}
+
+function getBoardRowCells(teamId){
+  return Array.from(document.querySelectorAll(`[data-team-id="${teamId}"]`));
+}
+function clearBoardRowDropTargets(){
+  document.querySelectorAll('.row-drop-target').forEach(el=>el.classList.remove('row-drop-target'));
+}
+function markBoardRowDropTarget(teamId){
+  clearBoardRowDropTargets();
+  getBoardRowCells(teamId).forEach(el=>el.classList.add('row-drop-target'));
+}
+function moveTabOnly(dragTeamId,targetTeamId){
+  dragTeamId=+dragTeamId;targetTeamId=+targetTeamId;
+  if(!dragTeamId||!targetTeamId||dragTeamId===targetTeamId)return false;
+  const from=tabs.findIndex(t=>t.id===dragTeamId),to=tabs.findIndex(t=>t.id===targetTeamId);
+  if(from<0||to<0)return false;
+  const [moved]=tabs.splice(from,1);
+  tabs.splice(to,0,moved);
+  return true;
+}
+function getPIBoardTeams(){
+  cleanupBoardState();
+  const byId=new Map(tabs.map(t=>[t.id,t]));
+  return (boardState.teamOrder||[]).map(id=>byId.get(+id)).filter(Boolean);
+}
+function moveBoardTeamRow(dragTeamId,targetTeamId){
+  dragTeamId=+dragTeamId;targetTeamId=+targetTeamId;
+  if(!dragTeamId||!targetTeamId||dragTeamId===targetTeamId)return false;
+  cleanupBoardState();
+  const order=boardState.teamOrder||[];
+  const from=order.indexOf(dragTeamId),to=order.indexOf(targetTeamId);
+  if(from<0||to<0)return false;
+  const [moved]=order.splice(from,1);
+  order.splice(to,0,moved);
+  boardState.teamOrder=order;
+  return true;
+}
+function resetBoardRowDrag(){
+  boardRowDragTeamId=null;
+  clearBoardRowDropTargets();
+  document.querySelectorAll('.pi-team-cell.row-dragging').forEach(el=>el.classList.remove('row-dragging'));
+}
+function onBoardRowDragStart(e){
+  const teamId=+e.currentTarget.dataset.teamId;
+  if(!teamId)return;
+  boardRowDragTeamId=teamId;
+  boardDragKey=null;
+  e.dataTransfer.effectAllowed='move';
+  e.dataTransfer.setData('text/plain',`team-row:${teamId}`);
+  setTimeout(()=>e.currentTarget.classList.add('row-dragging'),0);
+}
+function onBoardRowDragOver(e){
+  if(!boardRowDragTeamId)return;
+  const targetTeamId=+e.currentTarget.dataset.teamId;
+  if(!targetTeamId||targetTeamId===boardRowDragTeamId)return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect='move';
+  markBoardRowDropTarget(targetTeamId);
+}
+function onBoardRowDragLeave(e){
+  if(!boardRowDragTeamId)return;
+  const targetTeamId=+e.currentTarget.dataset.teamId;
+  if(!targetTeamId)return;
+  const rowEls=getBoardRowCells(targetTeamId);
+  if(!rowEls.some(el=>el.contains(e.relatedTarget)))clearBoardRowDropTargets();
+}
+function onBoardRowDrop(e){
+  if(!boardRowDragTeamId)return;
+  e.preventDefault();
+  const targetTeamId=+e.currentTarget.dataset.teamId;
+  const moved=moveBoardTeamRow(boardRowDragTeamId,targetTeamId);
+  resetBoardRowDrag();
+  if(moved){
+    saveState();
+    renderWorkspace();
+  }
+}
+function addBoardRowDragHandlers(){
+  document.querySelectorAll('.pi-team-cell').forEach(cell=>{
+    cell.draggable=true;
+    cell.addEventListener('dragstart',onBoardRowDragStart);
+    cell.addEventListener('dragover',onBoardRowDragOver);
+    cell.addEventListener('dragleave',onBoardRowDragLeave);
+    cell.addEventListener('drop',onBoardRowDrop);
+    cell.addEventListener('dragend',resetBoardRowDrag);
+  });
+  document.querySelectorAll('.pi-board-cell').forEach(cell=>{
+    cell.addEventListener('dragover',onBoardRowDragOver);
+    cell.addEventListener('dragleave',onBoardRowDragLeave);
+    cell.addEventListener('drop',onBoardRowDrop);
+  });
+}
+
+function renderPIBoardWorkspace(){
+  cleanupBoardState();
+  const ws=document.getElementById('workspace');
+  const iterationCount=Math.max(1,parseInt(boardState.iterationCount)||6);
+  boardState.iterationCount=iterationCount;
+  const iterationNames=Array.from({length:iterationCount},(_,i)=>boardState.iterationNames?.[i]||`Iteration ${i+1}`);
+  const placedCount=Object.keys(boardState.placements||{}).length;
+  const depCount=(boardState.dependencies||[]).length;
+  const totalItems=tabs.reduce((sum,team)=>sum+team.features.length,0);
+  if(!tabs.length){
+    ws.innerHTML='<div class="pi-board-empty">Create at least one team tab to use the PI Planning Board.</div>';
+    renderBoardBacklog();return;
+  }
+  const colStyle=`170px repeat(${iterationCount}, minmax(170px, 1fr))`;
+  const minWidth=170+(iterationCount*170);
+  let header=`<div class="pi-board-header corner">Teams / Iterations</div>`+
+    iterationNames.map((n,i)=>`<div class="pi-board-header iteration" ondblclick="renameIteration(${i})" title="Double-click to rename">${esc(n)}</div>`).join('');
+  let rows='';
+  getPIBoardTeams().forEach(team=>{
+    rows+=`<div class="pi-team-cell" data-team-id="${team.id}" title="Drag to reorder this PI board row"><div class="pi-team-name" title="${esc(team.name)}">${esc(team.name)}</div><div class="pi-team-count">${team.features.length} work items</div><div class="pi-row-hint">drag row</div></div>`;
+    for(let i=0;i<iterationCount;i++){
+      const cards=Object.entries(boardState.placements||{})
+        .filter(([key,pos])=>pos.teamId===team.id&&pos.iteration===i)
+        .sort(([a],[b])=>parseFeatureKey(a).featureId-parseFeatureKey(b).featureId)
+        .map(([key])=>{const info=getBoardFeature(key);return info?boardCardInnerHTML(key,info.team,info.feature):'';}).join('');
+      rows+=`<div class="pi-board-cell" data-team-id="${team.id}" data-iteration="${i}">${cards}</div>`;
+    }
+  });
+  ws.innerHTML=`
+    <div class="ws-header">
+      <div>
+        <div class="ws-title" id="piBoardTitle">${esc(boardState.name||defaultPIName())}</div>
+        <div class="ws-sub">
+          <span>${tabs.length} teams</span><span>·</span><span>${iterationCount} iterations</span><span>·</span><span>${placedCount}/${totalItems} work items on board</span><span>·</span><span>${depCount} dependency ropes</span>
+        </div>
+      </div>
+      <div class="pi-board-actions">
+        <button class="btn-sm" onclick="applyBoardSetup()">Refresh board</button>
+        <button class="btn-sm danger" onclick="clearBoardDependencies()">Clear ropes</button>
+      </div>
+    </div>
+    <div class="pi-board-wrap">
+      <div class="dependency-hint">
+        <span>Drag work items from the board backlog onto their team row.</span>
+        <span>Drag a card's small right-side dot to another card to draw a dependency rope.</span>
+        <span>Click a rope to remove it.</span>
+        <span>Drag a team label up or down to reorder PI Board rows independently of the team tabs.</span>
+      </div>
+      <div class="pi-board-scroll" id="piBoardScroll">
+        <div class="pi-board-canvas" id="piBoardCanvas" style="min-width:${minWidth}px;">
+          <div class="pi-board-grid" id="piBoardGrid" style="grid-template-columns:${colStyle};">
+            ${header}${rows}
+          </div>
+          <svg class="dependency-layer" id="dependencyLayer"></svg>
+        </div>
+      </div>
+    </div>`;
+  document.querySelectorAll('.pi-board-cell').forEach(cell=>{
+    cell.addEventListener('dragover',onBoardCellDragOver);
+    cell.addEventListener('dragleave',onBoardCellDragLeave);
+    cell.addEventListener('drop',onBoardCellDrop);
+  });
+  addBoardRowDragHandlers();
+  addBoardCardDragHandlers();
+  renderBoardBacklog();
+  requestAnimationFrame(renderBoardDependencies);
+}
+function clearBoardDependencies(){
+  if(!boardState.dependencies.length)return;
+  if(!confirm('Clear all dependency ropes from the PI board?'))return;
+  boardState.dependencies=[];saveState();renderWorkspace();
+}
+function remapBoardStateForImportedTabs(incomingState,idMap){
+  const source=normalizeBoardState(incomingState),mapped=freshBoardState();
+  mapped.name=source.name;mapped.iterationCount=source.iterationCount;mapped.iterationNames=source.iterationNames;
+  mapped.teamOrder=(source.teamOrder||[]).map(id=>idMap[+id]).filter(Boolean);
+  Object.entries(source.placements||{}).forEach(([key,pos])=>{
+    const ids=parseFeatureKey(key),newTeamId=idMap[ids.teamId];
+    if(newTeamId)mapped.placements[featureKey(newTeamId,ids.featureId)]={teamId:newTeamId,iteration:pos.iteration||0};
+  });
+  (source.dependencies||[]).forEach(dep=>{
+    const fromIds=parseFeatureKey(dep.from),toIds=parseFeatureKey(dep.to);
+    const fromTeam=idMap[fromIds.teamId],toTeam=idMap[toIds.teamId];
+    if(fromTeam&&toTeam)mapped.dependencies.push({from:featureKey(fromTeam,fromIds.featureId),to:featureKey(toTeam,toIds.featureId)});
+  });
+  return mapped;
+}
+
+function renderWorkspace(){
+  if(currentView==='board'){renderPIBoardWorkspace();return;}
+  const ws=document.getElementById('workspace'),t=tab();
+  if(!t||!t.capacity){
+    ws.innerHTML=`<div class="ws-placeholder"><p style="font-size:13px;">Fill in sprint capacity on the left<br>and click <strong>Set capacity</strong> to start.</p></div>`;
+    updateRightPanel();return;
+  }
+  reconcileUnassignedItems();
+  const cols=getGridCols(),rows=getGridRows();
+  const usedPts=Object.keys(t.placed).reduce((s,id)=>{const f=t.features.find(f=>f.id===+id);return s+(f?SIZES(f.type,f.size).pts:0);},0);
+  const pct=Math.min(100,Math.round(usedPts/t.capacity*100)),rem=t.capacity-usedPts;
+  const gridCap=cols*rows*PTS_PER_CELL;
+  const sprintLine=(t.sprintDevs&&t.sprintCount)
+    ?`Total team capacity: ${t.capacity} pts · ${t.sprintCount} sprints${t.sprintWeeks?` · ${t.sprintWeeks}wk each`:''} · ${t.sprintPtsPerDev} pts/dev/sprint`
+    :`Total team capacity: ${t.capacity} pts`;
+  let pillCls,pillTxt;
+  if(pct<70){pillCls='status-pill pill-ok';pillTxt=`${rem} pts remaining`;}
+  else if(pct<100){pillCls='status-pill pill-near';pillTxt=`⚠ ${rem} pts left`;}
+  else{pillCls='status-pill pill-over';pillTxt='At capacity';}
+  const barColor=pct<70?'#2d7d4e':pct<95?'#8a6200':'#b52020';
+  let cellsHtml='';
+  for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)cellsHtml+=`<div class="t-cell"></div>`;
+  ws.innerHTML=`
+    <div class="ws-header">
+      <div>
+        <div class="ws-title" id="wsTitle">${esc(t.quarterName||'Quarter')}</div>
+        <div class="ws-sub">
+          <span>${sprintLine}</span><span>·</span>
+          <span style="display:inline-flex;align-items:center;gap:3px;cursor:pointer;" onclick="promptGridCols()" title="Edit grid width">
+            ${cols}×${rows} grid
+            <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="opacity:.5"><path d="M11.5 2.5a1.414 1.414 0 012 2L5 13H3v-2L11.5 2.5z"/></svg>
+          </span>
+          <span>·</span><span>Grid capacity: ${gridCap} pts</span>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap;">
+        <span class="${pillCls}">${pillTxt}</span>
+        <div class="ws-stats">
+          <div class="stat-item"><div class="stat-num" style="color:#1a5fa8">${usedPts}</div><div class="stat-lbl">committed</div></div>
+          <div class="stat-item"><div class="stat-num">${t.capacity}</div><div class="stat-lbl">capacity</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="progress-wrap"><div class="progress-bar" style="width:${pct}%;background:${barColor}"></div></div>
+    <div>
+      <div class="capacity-section-head">
+        <div class="box-label">Committed grid — drag empty cells to create an item · hover a feature tile and click ✂ to split into user stories</div>
+        <div class="capacity-trash" id="capacityTrash" title="Drag a committed or parked item here to permanently delete it">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h12M5 4V2h6v2M6 7v5M10 7v5M3 4l1 9a1 1 0 001 1h6a1 1 0 001-1l1-9"/></svg>
+          Recycle bin
+        </div>
+      </div>
+      <div class="tetris-outer" id="tetrisOuter">
+        <div class="tetris-grid" id="tetrisGrid"
+          style="grid-template-columns:repeat(${cols},${CELL}px);grid-template-rows:repeat(${rows},${CELL}px);width:${cols*CELL}px;min-width:100%;height:${rows*CELL}px;">
+          ${cellsHtml}
+          <div class="drop-ghost" id="dropGhost"></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="capacity-section-head">
+        <div class="box-label">Parked items — not committed this quarter <span class="count-badge" id="parkedCount" style="display:none"></span></div>
+      </div>
+      <div class="parked-outer" id="parkedOuter"><div class="parked-chips" id="parkedChips"></div></div>
+    </div>`;
+  const outer=document.getElementById('tetrisOuter');
+  outer.addEventListener('dragover',onGridDragOver);
+  outer.addEventListener('dragleave',onGridDragLeave);
+  outer.addEventListener('drop',onGridDrop);
+  document.getElementById('tetrisGrid')?.addEventListener('pointerdown',onGridCreatePointerDown);
+  const po=document.getElementById('parkedOuter');
+  po.addEventListener('dragover',e=>{e.preventDefault();po.classList.add('drag-over');});
+  po.addEventListener('dragleave',()=>po.classList.remove('drag-over'));
+  po.addEventListener('drop',onParkedDrop);
+  setupCapacityTrash();
+  updateStats();updateParked();renderTiles();renderBacklog();updateRightPanel();
+}
+
+
+function gridCellFromPointer(e){
+  const grid=document.getElementById('tetrisGrid');if(!grid)return null;
+  const rect=grid.getBoundingClientRect(),cols=getGridCols(),rows=getGridRows();
+  const col=Math.max(0,Math.min(cols-1,Math.floor((e.clientX-rect.left)/CELL)));
+  const row=Math.max(0,Math.min(rows-1,Math.floor((e.clientY-rect.top)/CELL)));
+  return{col,row};
+}
+function getSelectedCreateCandidate(cols,rows){
+  const selected=document.querySelector('input[name="sz"]:checked');
+  if(selected){
+    const type=selected.dataset.type||'feature',size=selected.value;
+    const s=SIZES(type,size);
+    if(s&&s.cols===cols&&s.rows===rows)return{type,size,s};
+  }
+  const exact=[];
+  Object.entries(STORY_SIZES).forEach(([size,s])=>{if(s.cols===cols&&s.rows===rows)exact.push({type:'story',size,s});});
+  Object.entries(FEATURE_SIZES).forEach(([size,s])=>{if(s.cols===cols&&s.rows===rows)exact.push({type:'feature',size,s});});
+  if(exact.length)return exact[0];
+  const all=[
+    ...Object.entries(STORY_SIZES).map(([size,s])=>({type:'story',size,s})),
+    ...Object.entries(FEATURE_SIZES).map(([size,s])=>({type:'feature',size,s}))
+  ];
+  return all.find(x=>x.s.cols===cols&&x.s.rows===rows)||null;
+}
+function describeCreateCandidate(candidate){
+  if(!candidate)return'Unsupported size';
+  return`${candidate.type==='story'?'User Story':'Feature'} ${candidate.size}`;
+}
+function updateGridCreatePreview(e){
+  if(!gridCreateDrag)return;
+  const cell=gridCellFromPointer(e);if(!cell)return;
+  const col=Math.min(gridCreateDrag.startCol,cell.col),row=Math.min(gridCreateDrag.startRow,cell.row);
+  const cols=Math.abs(cell.col-gridCreateDrag.startCol)+1,rows=Math.abs(cell.row-gridCreateDrag.startRow)+1;
+  const candidate=getSelectedCreateCandidate(cols,rows),pal=candidate?PALETTES.find(p=>p.id===candidate.s.paletteId)||PALETTES[0]:PALETTES[4];
+  const ok=!!candidate&&canPlace(col,row,cols,rows,-1);
+  gridCreateDrag={...gridCreateDrag,col,row,cols,rows,candidate,ok};
+  const ghost=document.getElementById('dropGhost');
+  if(ghost){
+    ghost.style.display='flex';ghost.style.left=`${col*CELL+1}px`;ghost.style.top=`${row*CELL+1}px`;
+    ghost.style.width=`${cols*CELL-2}px`;ghost.style.height=`${rows*CELL-2}px`;
+    ghost.style.borderColor=ok?pal.border:'#b52020';
+    ghost.style.background=ok?`${pal.color}22`:'rgba(181,32,32,.1)';
+    ghost.style.color=ok?pal.color:'#b52020';
+    ghost.className='drop-ghost create-preview'+(ok?'':' blocked');
+    ghost.innerHTML=`<div>${esc(describeCreateCandidate(candidate))}<div class="preview-sub">${cols}×${rows}${candidate?` · ${candidate.s.pts}pts`:''}${ok?'':' · blocked'}</div></div>`;
+  }
+}
+function onGridCreatePointerDown(e){
+  if(currentView==='board'||e.button!==0)return;
+  if(e.target.closest('.feat-tile')||e.target.closest('.drop-ghost'))return;
+  const cell=gridCellFromPointer(e);if(!cell)return;
+  if(!canPlace(cell.col,cell.row,1,1,-1))return;
+  e.preventDefault();
+  gridCreateDrag={startCol:cell.col,startRow:cell.row,col:cell.col,row:cell.row,cols:1,rows:1,candidate:null,ok:false};
+  document.addEventListener('pointermove',onGridCreatePointerMove);
+  document.addEventListener('pointerup',onGridCreatePointerUp,{once:true});
+  updateGridCreatePreview(e);
+}
+function onGridCreatePointerMove(e){updateGridCreatePreview(e);}
+function onGridCreatePointerUp(e){
+  document.removeEventListener('pointermove',onGridCreatePointerMove);
+  const draft=gridCreateDrag;gridCreateDrag=null;hideGhost();
+  if(!draft||!draft.ok||!draft.candidate)return;
+  const t=tab();if(!t)return;
+  const candidate=draft.candidate;
+  const nameInput=document.getElementById('featureName');
+  const baseName=(nameInput?.value||'').trim();
+  const label=describeCreateCandidate(candidate);
+  const f={id:++t.idCounter,name:baseName||`New ${label}`,size:candidate.size,type:candidate.type,paletteId:candidate.s.paletteId};
+  t.features.push(f);
+  t.placed[f.id]={col:draft.col,row:draft.row};
+  if(nameInput)nameInput.value='';
+  cleanupBoardState();saveState();renderWorkspace();
+}
+
+function onGridDragOver(e){
+  e.preventDefault();if(dragId==null)return;
+  const t=tab();if(!t)return;
+  const f=t.features.find(f=>f.id===dragId);if(!f)return;
+  const s=SIZES(f.type,f.size),pal=getPalette(f);
+  const grid=document.getElementById('tetrisGrid');if(!grid)return;
+  const rect=grid.getBoundingClientRect();
+  const{col,row}=snapPosition(e.clientX,e.clientY,s.cols,s.rows,rect);
+  const ok=canPlace(col,row,s.cols,s.rows,dragFrom==='box'?dragId:-1);
+  const ghost=document.getElementById('dropGhost');
+  if(ghost){
+    ghost.style.display='block';ghost.style.left=`${col*CELL+1}px`;ghost.style.top=`${row*CELL+1}px`;
+    ghost.style.width=`${s.cols*CELL-2}px`;ghost.style.height=`${s.rows*CELL-2}px`;
+    ghost.style.borderColor=ok?pal.border:'#b52020';
+    ghost.style.background=ok?`${pal.color}22`:'rgba(181,32,32,.1)';
+    ghost.className='drop-ghost'+(ok?'':' blocked');
+  }
+  e.dataTransfer.dropEffect=ok?'move':'none';
+}
+function onGridDragLeave(e){const o=document.getElementById('tetrisOuter');if(o&&!o.contains(e.relatedTarget))hideGhost();}
+function onGridDrop(e){
+  e.preventDefault();hideGhost();if(dragId==null)return;
+  const t=tab();if(!t)return;
+  const f=t.features.find(f=>f.id===dragId);if(!f){resetDrag();return;}
+  const s=SIZES(f.type,f.size);
+  const grid=document.getElementById('tetrisGrid');if(!grid)return;
+  const rect=grid.getBoundingClientRect();
+  const{col,row}=snapPosition(e.clientX,e.clientY,s.cols,s.rows,rect);
+  if(canPlace(col,row,s.cols,s.rows,dragFrom==='box'?dragId:-1)){
+    t.parked=t.parked.filter(i=>i!==dragId);t.placed[dragId]={col,row};
+    resetDrag();saveState();renderBacklog();updateStats();renderTiles();updateParked();updateRightPanel();
+  }else{resetDrag();}
+}
+function onParkedDrop(e){
+  e.preventDefault();document.getElementById('parkedOuter')?.classList.remove('drag-over');
+  if(dragId==null)return;const t=tab();if(!t)return;
+  delete t.placed[dragId];if(!t.parked.includes(dragId))t.parked.push(dragId);
+  resetDrag();saveState();renderBacklog();updateStats();renderTiles();updateParked();updateRightPanel();
+}
+function setupCapacityTrash(){
+  const trash=document.getElementById('capacityTrash');if(!trash)return;
+  trash.addEventListener('dragover',e=>{
+    if(dragId==null)return;
+    e.preventDefault();
+    trash.classList.add('drag-over');
+    e.dataTransfer.dropEffect='move';
+  });
+  trash.addEventListener('dragleave',e=>{
+    if(!trash.contains(e.relatedTarget))trash.classList.remove('drag-over');
+  });
+  trash.addEventListener('drop',e=>{
+    e.preventDefault();
+    trash.classList.remove('drag-over');
+    deleteDraggedItem();
+  });
+}
+function deleteDraggedItem(){
+  if(dragId==null)return;
+  const t=tab();if(!t){resetDrag();return;}
+  const id=+dragId;
+  t.features=t.features.filter(f=>f.id!==id);
+  delete t.placed[id];
+  t.parked=t.parked.filter(i=>i!==id);
+  cleanupBoardState();
+  resetDrag();
+  saveState();
+  renderWorkspace();
+}
+function hideGhost(){const g=document.getElementById('dropGhost');if(g){g.style.display='none';g.className='drop-ghost';g.innerHTML='';}}
+function resetDrag(){dragId=null;dragFrom=null;}
+
+function renderTiles(){
+  const grid=document.getElementById('tetrisGrid');if(!grid)return;
+  grid.querySelectorAll('.feat-tile').forEach(el=>el.remove());
+  const t=tab();if(!t)return;
+  for(const[id,pos]of Object.entries(t.placed)){
+    const f=t.features.find(f=>f.id===+id);if(!f)continue;
+    const s=SIZES(f.type,f.size),pal=getPalette(f);
+    const isF=(f.type||'feature')==='feature';
+    const typeLbl=compactTypeLabel(f);
+    const tile=document.createElement('div');
+    tile.className='feat-tile';tile.dataset.id=id;tile.draggable=true;
+    tile.style.cssText=`left:${pos.col*CELL+1}px;top:${pos.row*CELL+1}px;width:${s.cols*CELL-2}px;height:${s.rows*CELL-2}px;background:${pal.bg};color:${pal.color};border-color:${pal.border};`;
+    const activePid=f.paletteId!=null?f.paletteId:s.paletteId;
+    const dots=PALETTES.map(p=>`<div class="colour-dot${activePid===p.id?' active':''}" style="background:${p.color}" onclick="setFeatureColour(${id},${p.id})"></div>`).join('');
+    const splitBtn=isF?`<button class="tile-split" onclick="splitFeature(${id})" title="Split into ${SPLIT_COUNT[f.size]} × XL user stories (${SPLIT_COUNT[f.size]}×20 pts)">
+      <svg width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="4.5" cy="4.5" r="2"/><circle cx="4.5" cy="11.5" r="2"/>
+        <path d="M6.5 4.5l7 7M6.5 11.5l7-7"/>
+      </svg></button>`:'';
+    tile.innerHTML=`
+      <div class="tile-colour-bar">${dots}</div>
+      <button class="tile-rm" onclick="tileRemove(${id})" title="Move to parked">✕</button>
+      ${splitBtn}
+      <div class="tile-name" id="tileName-${id}" onclick="startTileEdit(${id},event)" title="Click to rename">${esc(f.name)}</div>
+      <div class="tile-meta" style="display:flex;align-items:center;gap:4px;">
+        <span class="size-trigger" onclick="openSizeMenu(${id},event)" title="Click to resize">${f.size} · ${s.pts}pts</span>
+        ${typeLbl?`<span style="font-size:8px;font-weight:600;opacity:.7;letter-spacing:.03em">${typeLbl}</span>`:''}
+      </div>`;
+    tile.addEventListener('dragstart',e=>{
+      if(document.getElementById('tileName-'+id)?.getAttribute('contenteditable')==='true'){e.preventDefault();return;}
+      dragId=+id;dragFrom='box';e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',String(id));
+      setTimeout(()=>tile.classList.add('is-dragging'),0);
+    });
+    tile.addEventListener('dragend',()=>{tile.classList.remove('is-dragging');hideGhost();document.getElementById('capacityTrash')?.classList.remove('drag-over');resetDrag();});
+    grid.appendChild(tile);
+  }
+}
+
+
+function closeSizeMenu(){
+  document.getElementById('sizeMenu')?.remove();
+}
+function openSizeMenu(id,event){
+  event?.preventDefault?.();
+  event?.stopPropagation?.();
+  closeSizeMenu();
+  const t=tab();if(!t)return;
+  const f=t.features.find(x=>x.id===+id);if(!f)return;
+  const menu=document.createElement('div');
+  menu.className='size-menu';
+  menu.id='sizeMenu';
+  SIZE_OPTIONS.forEach(opt=>{
+    const s=SIZES(opt.type,opt.size);
+    const active=(f.type||'feature')===opt.type&&f.size===opt.size;
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.className='size-menu-item'+(active?' active':'');
+    btn.innerHTML=`<span>${opt.label}</span><span class="size-menu-meta">${s.pts} pts</span>`;
+    btn.addEventListener('click',e=>{
+      e.stopPropagation();
+      resizeWorkItem(+id,opt.type,opt.size);
+      closeSizeMenu();
+    });
+    menu.appendChild(btn);
+  });
+  document.body.appendChild(menu);
+  const r=event.currentTarget.getBoundingClientRect();
+  const mw=menu.offsetWidth,mh=menu.offsetHeight;
+  let left=Math.min(window.innerWidth-mw-8,Math.max(8,r.left));
+  let top=r.bottom+6;
+  if(top+mh>window.innerHeight-8)top=Math.max(8,r.top-mh-6);
+  menu.style.left=left+'px';
+  menu.style.top=top+'px';
+  setTimeout(()=>{
+    document.addEventListener('click',closeSizeMenu,{once:true});
+    document.addEventListener('keydown',closeSizeMenuOnEscape,{once:true});
+  },0);
+}
+function closeSizeMenuOnEscape(e){
+  if(e.key==='Escape')closeSizeMenu();
+  else document.addEventListener('keydown',closeSizeMenuOnEscape,{once:true});
+}
+function resizeWorkItem(id,type,size){
+  const t=tab();if(!t)return;
+  const f=t.features.find(x=>x.id===+id);if(!f)return;
+  const oldType=f.type||'feature',oldSize=f.size;
+  if(oldType===type&&oldSize===size)return;
+  f.type=type;f.size=size;
+  const s=SIZES(type,size);
+  const wasPlaced=!!t.placed[id];
+  const currentPos=t.placed[id];
+  t.parked=t.parked.filter(i=>i!==id);
+  if(wasPlaced&&currentPos&&canPlace(currentPos.col,currentPos.row,s.cols,s.rows,id)){
+    t.placed[id]=currentPos;
+  }else if(wasPlaced){
+    delete t.placed[id];
+    const slot=findFreeSlot(s.cols,s.rows,buildMatrix([id]));
+    if(slot)t.placed[id]=slot;
+    else t.parked.push(id);
+  }else{
+    delete t.placed[id];
+    if(!t.parked.includes(id))t.parked.push(id);
+  }
+  cleanupBoardState();
+  saveState();
+  renderBacklog();
+  updateStats();
+  renderTiles();
+  updateParked();
+  updateRightPanel();
+  renderBoardBacklog();
+  if(currentView==='board')renderWorkspace();
+}
+
+function tileRemove(id){
+  const t=tab();if(!t)return;
+  delete t.placed[id];if(!t.parked.includes(id))t.parked.push(id);
+  saveState();renderBacklog();updateStats();renderTiles();updateParked();updateRightPanel();
+}
+function setFeatureColour(id,pid){
+  const t=tab();if(!t)return;
+  const f=t.features.find(f=>f.id===id);if(!f)return;
+  f.paletteId=pid;saveState();renderTiles();renderBacklog();updateParked();updateRightPanel();if(currentView==='board')renderWorkspace();
+}
+
+function updateStats(){
+  const t=tab();if(!t||!t.capacity)return;
+  const usedPts=Object.keys(t.placed).reduce((s,id)=>{const f=t.features.find(f=>f.id===+id);return s+(f?SIZES(f.type,f.size).pts:0);},0);
+  const pct=Math.min(100,Math.round(usedPts/t.capacity*100)),rem=t.capacity-usedPts;
+  const pill=document.querySelector('.status-pill');
+  if(pill){
+    if(pct<70){pill.className='status-pill pill-ok';pill.textContent=`${rem} pts remaining`;}
+    else if(pct<100){pill.className='status-pill pill-near';pill.textContent=`⚠ ${rem} pts left`;}
+    else{pill.className='status-pill pill-over';pill.textContent='At capacity';}
+  }
+  const sc=document.querySelector('.stat-num[style*="1a5fa8"]');if(sc)sc.textContent=usedPts;
+}
+
+function updateParked(){
+  const t=tab();if(!t)return;
+  const chips=document.getElementById('parkedChips'),badge=document.getElementById('parkedCount');
+  if(!chips)return;chips.innerHTML='';
+  if(!t.parked.length){chips.innerHTML='<span class="parked-empty">Drag features here to park them for a later quarter</span>';if(badge)badge.style.display='none';return;}
+  const totalPts=t.parked.reduce((s,id)=>{const f=t.features.find(f=>f.id===id);return s+(f?SIZES(f.type,f.size).pts:0);},0);
+  if(badge){badge.textContent=totalPts+' pts';badge.style.display='inline-flex';}
+  t.parked.forEach(id=>{
+    const f=t.features.find(x=>x.id===id);if(!f)return;
+    const s=SIZES(f.type,f.size),pal=getPalette(f);
+    const chip=document.createElement('div');
+    chip.className='parked-chip';chip.draggable=true;chip.dataset.id=id;
+    chip.style.cssText=`background:${pal.bg};color:${pal.color};border-color:${pal.border}`;
+    const typeLbl=compactTypeLabel(f);
+    chip.innerHTML=`<span class="parked-name" id="parkedName-${id}" onclick="startParkedEdit(${id},event)" title="Click to rename">${esc(f.name)}</span> <span class="chip-sz size-trigger" onclick="openSizeMenu(${id},event)" title="Click to resize">${f.size} · ${s.pts}pt</span>${typeLbl?`<span class="type-badge ${f.type||'feature'}" style="margin-left:3px">${typeLbl}</span>`:''}`;
+    chip.addEventListener('dragstart',e=>{
+      if(document.getElementById('parkedName-'+id)?.getAttribute('contenteditable')==='true'){e.preventDefault();return;}
+      dragId=+chip.dataset.id;dragFrom='parked';e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',String(dragId));setTimeout(()=>chip.classList.add('is-dragging'),0);
+    });
+    chip.addEventListener('dragend',()=>{chip.classList.remove('is-dragging');document.getElementById('capacityTrash')?.classList.remove('drag-over');resetDrag();});
+    chips.appendChild(chip);
+  });
+}
+
+function renderBacklog(){
+  const t=tab(),list=document.getElementById('backlogList'),count=document.getElementById('backlogCount');
+  if(!list)return;
+  if(!t){list.innerHTML='<div class="empty-state">No team selected</div>';if(count)count.textContent='0';return;}
+  const ids=t.features.filter(f=>!t.placed[f.id]&&!t.parked.includes(f.id)).map(f=>f.id);
+  if(count)count.textContent=ids.length;
+  list.innerHTML='';
+  if(!ids.length){list.innerHTML='<div class="empty-state">No work items in backlog</div>';return;}
+  ids.forEach(id=>{
+    const f=t.features.find(x=>x.id===id),type=f.type||'feature';
+    const s=SIZES(type,f.size),pal=getPalette(f);
+    const card=document.createElement('div');
+    card.className='feature-card';card.draggable=true;card.dataset.id=id;
+    card.innerHTML=`<div class="card-dot" style="background:${pal.color}"></div><div class="card-info"><div class="card-name">${esc(f.name)}</div><div class="card-meta">${f.size} · ${s.pts} pts</div></div><span class="type-badge ${type}">${type==='story'?'US':'F'}</span><button class="card-del" onclick="removeFeature(${id})">✕</button>`;
+    card.addEventListener('dragstart',e=>{dragId=id;dragFrom='backlog';e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',String(id));setTimeout(()=>card.classList.add('is-dragging'),0);});
+    card.addEventListener('dragend',()=>card.classList.remove('is-dragging'));
+    list.appendChild(card);
+  });
+}
+
+function addFeature(){
+  const name=document.getElementById('featureName').value.trim();
+  const checked=document.querySelector('input[name="sz"]:checked');
+  const size=checked?.value,type=checked?.dataset.type||'feature';
+  if(!name){alert('Enter a name.');return;}
+  const t=tab();if(!t){alert('Select a team tab first.');return;}
+  const s=SIZES(type,size);
+  const f={id:++t.idCounter,name,size,type,paletteId:s.paletteId};
+  t.features.push(f);
+  placeFeatureOnGridOrPark(f.id);
+  document.getElementById('featureName').value='';
+  cleanupBoardState();saveState();
+  if(currentView==='capacity')renderWorkspace();else{renderBacklog();renderBoardBacklog();}
+}
+function removeFeature(id){
+  const t=tab();if(!t)return;
+  t.features=t.features.filter(f=>f.id!==id);delete t.placed[id];t.parked=t.parked.filter(i=>i!==id);
+  cleanupBoardState();saveState();renderBacklog();if(t.capacity){updateStats();renderTiles();updateParked();updateRightPanel();}
+  if(currentView==='board')renderWorkspace();
+}
+const backlogListEl=document.getElementById('backlogList');
+if(backlogListEl){
+  backlogListEl.addEventListener('dragover',e=>e.preventDefault());
+  backlogListEl.addEventListener('drop',e=>{
+    e.preventDefault();if(dragId==null)return;const t=tab();if(!t)return;
+    delete t.placed[dragId];t.parked=t.parked.filter(i=>i!==dragId);
+    resetDrag();saveState();renderBacklog();if(t.capacity){updateStats();renderTiles();updateParked();updateRightPanel();}
+  });
+}
+
+function updateRightPanel(){
+  const t=tab(),sumWrap=document.getElementById('summaryCardWrap'),bdList=document.getElementById('breakdownList');
+  if(!sumWrap||!bdList)return;
+  if(!t||!t.capacity||!t.sprintDevs||!t.sprintCount){sumWrap.innerHTML='';bdList.innerHTML='<div class="bd-empty">Set sprint capacity and place features to see the dev load breakdown.</div>';return;}
+  const placedIds=Object.keys(t.placed).map(Number);
+  if(!placedIds.length){sumWrap.innerHTML='';bdList.innerHTML='<div class="bd-empty">Place features on the grid to see per-dev breakdown.</div>';return;}
+  const devs=t.sprintDevs,sprints=t.sprintCount;
+  const totalPts=placedIds.reduce((s,id)=>{const f=t.features.find(f=>f.id===id);return s+(f?SIZES(f.type,f.size).pts:0);},0);
+  sumWrap.innerHTML='';
+  const rows=placedIds.map(id=>{
+    const f=t.features.find(f=>f.id===id);if(!f)return null;
+    const pts=SIZES(f.type,f.size).pts;
+    return{f,pts,ppds:pts/devs/sprints,pct:totalPts>0?pts/totalPts*100:0,pal:getPalette(f)};
+  }).filter(Boolean).sort((a,b)=>b.pts-a.pts);
+  bdList.innerHTML=rows.map(({f,ppds,pct,pal})=>`
+    <div class="bd-row">
+      <div class="bd-head">
+        <div class="bd-dot" style="background:${pal.color}"></div>
+        <div class="bd-name" title="${esc(f.name)}">${esc(f.name)}</div>
+        <span class="type-badge ${f.type||'feature'}">${(f.type||'feature')==='story'?'US':'F'}</span>
+        <div class="bd-size">${f.size}</div>
+      </div>
+      <div class="bd-bar-wrap"><div class="bd-bar" style="width:${pct.toFixed(1)}%;background:${pal.color}"></div></div>
+      <div style="padding-top:2px;"><div class="bd-num-val" style="color:${pal.color}">${ppds.toFixed(2)}</div><div class="bd-num-lbl">pts / dev / sprint</div></div>
+    </div>`).join('');
+}
+
+function startTileEdit(id,event){
+  if(event){event.preventDefault();event.stopPropagation();}
+  const el=document.getElementById('tileName-'+id);if(!el)return;
+  if(el.getAttribute('contenteditable')==='true')return;
+  el.setAttribute('contenteditable','true');el.focus();
+  const range=document.createRange();range.selectNodeContents(el);range.collapse(false);
+  const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);
+  function commit(){
+    el.removeAttribute('contenteditable');
+    const n=el.textContent.trim();
+    if(!n){el.textContent=tab()?.features.find(f=>f.id===id)?.name||'';return;}
+    const t=tab();if(!t)return;
+    const f=t.features.find(f=>f.id===id);
+    if(f){f.name=n;saveState();renderBacklog();updateRightPanel();}
+    updateParked();
+  }
+  el.addEventListener('blur',commit,{once:true});
+  el.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();el.blur();}if(e.key==='Escape'){el.textContent=tab()?.features.find(f=>f.id===id)?.name||'';el.blur();}});
+}
+
+
+function startParkedEdit(id,event){
+  if(event){event.preventDefault();event.stopPropagation();}
+  const el=document.getElementById('parkedName-'+id);if(!el)return;
+  if(el.getAttribute('contenteditable')==='true')return;
+  const chip=el.closest('.parked-chip');
+  if(chip)chip.draggable=false;
+  el.setAttribute('contenteditable','true');el.focus();
+  const range=document.createRange();range.selectNodeContents(el);range.collapse(false);
+  const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);
+  function commit(){
+    el.removeAttribute('contenteditable');
+    if(chip)chip.draggable=true;
+    const n=el.textContent.trim();
+    const t=tab();if(!t)return;
+    const f=t.features.find(f=>f.id===id);
+    if(!f)return;
+    if(!n){el.textContent=f.name;return;}
+    if(f.name!==n){
+      f.name=n;
+      saveState();
+      renderTiles();
+      renderBacklog();
+      updateRightPanel();
+      if(currentView==='board')renderWorkspace();
+    }
+    updateParked();
+  }
+  el.addEventListener('blur',commit,{once:true});
+  el.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){e.preventDefault();el.blur();}
+    if(e.key==='Escape'){el.textContent=tab()?.features.find(f=>f.id===id)?.name||'';el.blur();}
+  });
+}
+
+function promptGridCols(){
+  const t=tab();if(!t)return;
+  const cur=t.gridCols||12,val=prompt(`Grid width (current: ${cur} columns):`,cur);
+  if(val===null)return;const n=parseInt(val);if(!n||n<1){alert('Enter a valid number.');return;}
+  if(Object.keys(t.placed).length>0){if(!confirm('Changing the grid width will clear all placed features. Continue?'))return;t.placed={};t.parked=[];}
+  t.gridCols=n;saveState();renderWorkspace();
+}
+
+function toggleExportDropdown(){document.getElementById('exportDropdown').classList.toggle('open');}
+document.addEventListener('click',e=>{if(!document.getElementById('exportDropWrap').contains(e.target))document.getElementById('exportDropdown').classList.remove('open');});
+function downloadJSON(obj,fn){const b=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}),u=URL.createObjectURL(b),a=Object.assign(document.createElement('a'),{href:u,download:fn});a.click();URL.revokeObjectURL(u);}
+function exportCurrentTab(){document.getElementById('exportDropdown').classList.remove('open');const t=tab();if(!t)return;downloadJSON({version:6,type:'single',tab:t},`capacity-${slug(t.name)}.json`);}
+function exportAllTabs(){document.getElementById('exportDropdown').classList.remove('open');downloadJSON({version:6,type:'all',tabs,boardState},'capacity-all-teams.json');}
+function slug(s){return s.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');}
+function openImport(){
+  document.getElementById('importText').value='';
+  document.getElementById('importError').textContent='';
+  const fileInput=document.getElementById('importFile');
+  if(fileInput)fileInput.value='';
+  const fileName=document.getElementById('importFileName');
+  if(fileName)fileName.textContent='No file selected';
+  document.getElementById('importModal').classList.add('open');
+}
+function closeImport(){document.getElementById('importModal').classList.remove('open');}
+function handleImportFile(event){
+  const errEl=document.getElementById('importError'),textEl=document.getElementById('importText'),nameEl=document.getElementById('importFileName');
+  if(errEl)errEl.textContent='';
+  const file=event.target.files&&event.target.files[0];
+  if(!file){
+    if(nameEl)nameEl.textContent='No file selected';
+    return;
+  }
+  if(nameEl)nameEl.textContent=file.name;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    textEl.value=String(reader.result||'').trim();
+    try{JSON.parse(textEl.value);if(errEl)errEl.textContent='';}
+    catch(e){if(errEl)errEl.textContent='Selected file is not valid JSON.';}
+  };
+  reader.onerror=()=>{if(errEl)errEl.textContent='Could not read the selected file.';};
+  reader.readAsText(file);
+}
+function doImport(){
+  const errEl=document.getElementById('importError');errEl.textContent='';
+  try{
+    const raw=document.getElementById('importText').value.trim();
+    if(!raw)throw new Error('Choose a JSON file or paste exported JSON first.');
+    const s=JSON.parse(raw);
+    if(!s||(s.version!==5&&s.version!==6))throw new Error('Unrecognised format (expected version 5 or 6).');
+    if(s.type==='single'){
+      if(!s.tab)throw new Error('Missing tab data.');
+      const ex=tabs.find(t=>t.name===s.tab.name);
+      if(ex)Object.assign(ex,s.tab,{id:ex.id});else{const id=++tabIdSeq;tabs.push({...s.tab,id});activeTabId=id;}
+      const imported=ex||tabs.find(t=>t.id===activeTabId);
+      if(imported&&!imported.capacity){imported.capacity=240;imported.sprintDevs=4;imported.sprintCount=6;imported.sprintWeeks=2;imported.sprintPtsPerDev=10;}
+      if(imported&&!imported.quarterName)imported.quarterName=defaultQuarterName();
+    }else if(s.type==='all'){
+      if(!Array.isArray(s.tabs))throw new Error('Missing tabs array.');
+      const idMap={};
+      s.tabs.forEach(inc=>{
+        const ex=tabs.find(t=>t.name===inc.name);
+        if(ex){idMap[inc.id]=ex.id;Object.assign(ex,inc,{id:ex.id});}
+        else{const id=++tabIdSeq;idMap[inc.id]=id;tabs.push({...inc,id});}
+      });
+      tabs.forEach(t=>{if(!t.capacity){t.capacity=240;t.sprintDevs=4;t.sprintCount=6;t.sprintWeeks=2;t.sprintPtsPerDev=10;}if(!t.quarterName)t.quarterName=defaultQuarterName();});
+      if(s.version===6&&s.boardState)boardState=remapBoardStateForImportedTabs(s.boardState,idMap);
+    }else throw new Error('Unknown export type.');
+    cleanupBoardState();
+    saveState();closeImport();renderTabBar();loadTabIntoSidebar();renderWorkspace();
+  }catch(e){errEl.textContent='Error: '+(e.message||'Invalid JSON.');}
+}
+
+function clearAll(){if(!confirm('Clear all teams and start fresh?'))return;tabs=[];tabIdSeq=0;activeTabId=null;currentView='capacity';rightPanelCollapsed=false;boardState=freshBoardState();localStorage.removeItem(STORAGE_KEY);localStorage.removeItem(LEGACY_STORAGE_KEY);init();}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+document.getElementById('featureName').addEventListener('keydown',e=>{if(e.key==='Enter')addFeature();});
+document.getElementById('importModal').addEventListener('click',e=>{if(e.target===document.getElementById('importModal'))closeImport();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeImport();});
+
+function toggleSection(bodyId,chevronId){
+  const body=document.getElementById(bodyId),chevron=document.getElementById(chevronId);if(!body)return;
+  const isOpen=!body.classList.contains('closed');
+  if(isOpen){body.style.maxHeight=body.scrollHeight+'px';requestAnimationFrame(()=>{body.classList.add('closed');body.style.maxHeight='';});}
+  else{body.classList.remove('closed');body.style.maxHeight=body.scrollHeight+'px';body.addEventListener('transitionend',()=>{body.style.maxHeight='';},{once:true});}
+  if(chevron)chevron.classList.toggle('open',!isOpen);
+}
+function syncRightPanelUI(){
+  const app=document.getElementById('appBody'),panel=document.getElementById('rightPanel'),inner=document.getElementById('rightPanelInner'),chevron=document.getElementById('rightPanelChevron');
+  if(app)app.classList.toggle('right-panel-collapsed',rightPanelCollapsed);
+  if(panel)panel.classList.toggle('collapsed',rightPanelCollapsed);
+  if(inner)inner.classList.toggle('closed',rightPanelCollapsed);
+  if(chevron)chevron.classList.toggle('open',!rightPanelCollapsed);
+}
+function toggleRightPanel(){
+  rightPanelCollapsed=!rightPanelCollapsed;
+  syncRightPanelUI();
+  saveState();
+}
+
+const DEFAULT_WORK_ITEMS=[
+  {name:'User authentication',size:'M',type:'feature'},
+  {name:'Mobile app',size:'XL',type:'feature'},
+  {name:'Profile page bug',size:'L',type:'story'},
+  {name:'Dashboard redesign',size:'L',type:'feature'},
+  {name:'Email notifications',size:'S',type:'feature'},
+  {name:'API v2 migration',size:'XL',type:'feature'},
+  {name:'Dark mode',size:'S',type:'feature'},
+  {name:'Analytics integration',size:'M',type:'feature'},
+  {name:'Fix login redirect',size:'S',type:'story'},
+  {name:'Update password flow',size:'M',type:'story'},
+];
+function ensureDefaultWorkItems(t){
+  if(!t)return;
+  const existing=new Set((t.features||[]).map(f=>String(f.name||'').trim().toLowerCase()));
+  DEFAULT_WORK_ITEMS.forEach(({name,size,type})=>{
+    if(!existing.has(name.toLowerCase())){
+      t.features.push({id:++t.idCounter,name,size,type});
+      existing.add(name.toLowerCase());
+    }
+  });
+}
+function placeDefaultStartupItems(t){
+  if(!t)return;
+  t.placed=t.placed||{};
+  // Default opening layout for the fresh app, sized to the 12 × 4 starter grid.
+  const defaultPositions={
+    'mobile app':{col:0,row:0},
+    'user authentication':{col:5,row:0},
+    'profile page bug':{col:9,row:0},
+  };
+  Object.entries(defaultPositions).forEach(([name,pos])=>{
+    const f=(t.features||[]).find(item=>String(item.name||'').trim().toLowerCase()===name);
+    if(f&&!t.placed[f.id]&&!t.parked?.includes(f.id))t.placed[f.id]={...pos};
+  });
+}
+function init(){
+  if(!tabs.length){
+    const t=newTab('Team A');activeTabId=t.id;
+    ensureDefaultWorkItems(t);
+    placeDefaultStartupItems(t);
+  }
+  tabs.forEach(t=>{if(!t.quarterName)t.quarterName=defaultQuarterName();if(!t.capacity){t.capacity=240;t.sprintDevs=4;t.sprintCount=6;t.sprintWeeks=2;t.sprintPtsPerDev=10;}});
+  cleanupBoardState();syncViewUI();renderTabBar();loadTabIntoSidebar();renderWorkspace();resetUndoBaseline();
+}
+window.addEventListener('resize',()=>{if(currentView==='board')renderBoardDependencies();});
+loadState();init();
+</script>
+</body>
+</html>
