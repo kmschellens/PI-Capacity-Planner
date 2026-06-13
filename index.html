@@ -92,37 +92,11 @@
   .tile-name[contenteditable="true"]{outline:none;background:rgba(255,255,255,.62);border-radius:3px;padding:1px 3px;margin:-1px -3px;cursor:text;box-shadow:0 0 0 1px rgba(0,0,0,.08) inset;}
   .tile-meta{font-size:9px;opacity:.65;margin-top:1px;font-family:var(--mono);}
   /* ✕ top-right */
-  .tile-rm{position:absolute;top:3px;right:3px;width:15px;height:15px;border-radius:3px;background:rgba(0,0,0,.12);border:none;cursor:pointer;font-size:9px;color:inherit;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .12s;z-index:3;}
+  .tile-rm{position:absolute;top:3px;right:3px;width:15px;height:15px;border-radius:3px;background:rgba(0,0,0,.12);border:none;cursor:pointer;font-size:9px;color:inherit;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .12s;}
   .feat-tile:hover .tile-rm{opacity:1;}.tile-rm:hover{background:rgba(0,0,0,.22);}
   /* ✂ bottom-right — only rendered on feature tiles */
-  .tile-split{position:absolute;bottom:3px;right:3px;width:15px;height:15px;border-radius:3px;background:rgba(0,0,0,.12);border:none;cursor:pointer;color:inherit;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .12s,background .12s;z-index:3;}
+  .tile-split{position:absolute;bottom:3px;right:3px;width:15px;height:15px;border-radius:3px;background:rgba(0,0,0,.12);border:none;cursor:pointer;color:inherit;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .12s,background .12s;}
   .feat-tile:hover .tile-split{opacity:1;}.tile-split:hover{background:rgba(0,0,0,.26);}
-  /* ✎ description button — next to split button */
-  .tile-desc-btn{position:absolute;bottom:3px;right:21px;width:15px;height:15px;border-radius:3px;background:rgba(0,0,0,.12);border:none;cursor:pointer;color:inherit;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .12s,background .12s;z-index:3;}
-  .feat-tile:hover .tile-desc-btn{opacity:1;}.tile-desc-btn:hover{background:rgba(0,0,0,.26);}
-  .tile-desc-btn.has-desc{opacity:.55!important;}.feat-tile:hover .tile-desc-btn.has-desc{opacity:1!important;}
-  /* push tile text left so name/meta never sit on top of the bottom-right buttons */
-  .feat-tile .tile-name,.feat-tile .tile-meta{padding-right:38px;}
-  /* description tooltip */
-  .desc-tooltip{position:fixed;z-index:300;background:var(--text);color:#fff;border-radius:8px;padding:9px 12px;max-width:240px;font-size:12px;line-height:1.5;box-shadow:0 6px 24px rgba(0,0,0,.22);pointer-events:none;word-break:break-word;transition:opacity .1s;}
-  .desc-tooltip-title{font-weight:600;font-size:11px;opacity:.65;margin-bottom:4px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.04em;}
-  .desc-tooltip-empty{opacity:.5;font-style:italic;}
-  /* description modal */
-  .desc-modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:400;align-items:center;justify-content:center;}
-  .desc-modal-backdrop.open{display:flex;}
-  .desc-modal{background:var(--surface);border-radius:12px;border:1px solid var(--border);padding:1.25rem;width:420px;max-width:95vw;box-shadow:0 8px 40px rgba(0,0,0,.18);}
-  .desc-modal-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.75rem;gap:10px;}
-  .desc-modal-title{font-size:14px;font-weight:600;line-height:1.35;}
-  .desc-modal-close{background:none;border:none;cursor:pointer;color:var(--muted);font-size:18px;line-height:1;padding:0 2px;border-radius:4px;flex-shrink:0;margin-top:-1px;}
-  .desc-modal-close:hover{color:var(--text);}
-  .desc-modal textarea{height:130px;margin-bottom:.75rem;}
-  .desc-modal-actions{display:flex;gap:8px;justify-content:flex-end;}
-  .desc-modal-actions .btn{width:auto;padding:7px 16px;}
-  /* inline desc button for backlog / parked chips */
-  .desc-chip-btn{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:4px;background:rgba(0,0,0,.07);border:none;cursor:pointer;color:inherit;opacity:0;transition:opacity .12s,background .12s;flex-shrink:0;}
-  .feature-card:hover .desc-chip-btn,.parked-chip:hover .desc-chip-btn{opacity:.7;}
-  .desc-chip-btn:hover{background:rgba(0,0,0,.14);opacity:1!important;}
-  .desc-chip-btn.has-desc{opacity:.5!important;}.feature-card:hover .desc-chip-btn.has-desc,.parked-chip:hover .desc-chip-btn.has-desc{opacity:1!important;}
   .tile-colour-bar{position:absolute;top:3px;left:3px;display:flex;gap:3px;opacity:0;transition:opacity .15s;pointer-events:none;}
   .feat-tile:hover .tile-colour-bar{opacity:1;pointer-events:all;}
   .colour-dot{width:11px;height:11px;border-radius:50%;cursor:pointer;border:1.5px solid rgba(255,255,255,.6);transition:transform .1s,box-shadow .1s;flex-shrink:0;}
@@ -505,7 +479,10 @@ function boardBacklogFilterKey(f){return `${f.type||'feature'}:${f.size}`;}
 function SIZES(type,size){return(type==='story'?STORY_SIZES:FEATURE_SIZES)[size]||FEATURE_SIZES[size];}
 function compactTypeLabel(f){
   const type=(f.type||'feature');
-  return type==='feature'?'Feature':'US';
+  if(type==='feature')return'F';
+  // Hide the US badge for the smallest user stories to keep names readable on compact tiles/chips.
+  if(f.size==='S'||f.size==='M')return'';
+  return'US';
 }
 function getPalette(f){const pid=f.paletteId!=null?f.paletteId:(SIZES(f.type,f.size)?.paletteId||1);return PALETTES.find(p=>p.id===pid)||PALETTES[0];}
 function nextQuarterParts(date=new Date()){
@@ -1649,27 +1626,15 @@ function renderTiles(){
         <circle cx="4.5" cy="4.5" r="2"/><circle cx="4.5" cy="11.5" r="2"/>
         <path d="M6.5 4.5l7 7M6.5 11.5l7-7"/>
       </svg></button>`:'';
-    const hasDesc=!!(f.description&&f.description.trim());
-    // When it's a feature tile, desc button sits left of split (right:21px); for stories no split btn so right:3px
-    const descBtnRight=isF?'21px':'3px';
-    const descBtn=`<button class="tile-desc-btn${hasDesc?' has-desc':''}" style="right:${descBtnRight}" onclick="openDescModal(${id},event)" title="${hasDesc?'Edit description':'Add description'}">
-      <svg width="8" height="8" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M11.5 2.5a1.414 1.414 0 012 2L5 13H3v-2L11.5 2.5z"/>
-      </svg></button>`;
     tile.innerHTML=`
       <div class="tile-colour-bar">${dots}</div>
       <button class="tile-rm" onclick="tileRemove(${id})" title="Move to parked">✕</button>
-      ${splitBtn}${descBtn}
+      ${splitBtn}
       <div class="tile-name" id="tileName-${id}" onclick="startTileEdit(${id},event)" title="Click to rename">${esc(f.name)}</div>
       <div class="tile-meta" style="display:flex;align-items:center;gap:4px;">
-        <span class="size-trigger" onclick="openSizeMenu(${id},event)" title="Click to resize">${f.size} ${typeLbl} · ${s.pts}pts</span>
+        <span class="size-trigger" onclick="openSizeMenu(${id},event)" title="Click to resize">${f.size} · ${s.pts}pts</span>
+        ${typeLbl?`<span style="font-size:8px;font-weight:600;opacity:.7;letter-spacing:.03em">${typeLbl}</span>`:''}
       </div>`;
-    // Tooltip on the desc button
-    const dBtn=tile.querySelector('.tile-desc-btn');
-    if(dBtn){
-      dBtn.addEventListener('mouseenter',()=>showDescTooltip(id,dBtn));
-      dBtn.addEventListener('mouseleave',hideDescTooltip);
-    }
     tile.addEventListener('dragstart',e=>{
       if(document.getElementById('tileName-'+id)?.getAttribute('contenteditable')==='true'){e.preventDefault();return;}
       dragId=+id;dragFrom='box';e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',String(id));
@@ -1794,11 +1759,7 @@ function updateParked(){
     chip.className='parked-chip';chip.draggable=true;chip.dataset.id=id;
     chip.style.cssText=`background:${pal.bg};color:${pal.color};border-color:${pal.border}`;
     const typeLbl=compactTypeLabel(f);
-    const hasDesc=!!(f.description&&f.description.trim());
-    const descSvg=`<svg width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 2.5a1.414 1.414 0 012 2L5 13H3v-2L11.5 2.5z"/></svg>`;
-    chip.innerHTML=`<span class="parked-name" id="parkedName-${id}" onclick="startParkedEdit(${id},event)" title="Click to rename">${esc(f.name)}</span> <span class="chip-sz size-trigger" onclick="openSizeMenu(${id},event)" title="Click to resize">${f.size} ${typeLbl} · ${s.pts}pt</span><button class="desc-chip-btn${hasDesc?' has-desc':''}" onclick="openDescModal(${id},event)" title="${hasDesc?'Edit description':'Add description'}">${descSvg}</button>`;
-    const dBtn=chip.querySelector('.desc-chip-btn');
-    if(dBtn){dBtn.addEventListener('mouseenter',()=>showDescTooltip(id,dBtn));dBtn.addEventListener('mouseleave',hideDescTooltip);}
+    chip.innerHTML=`<span class="parked-name" id="parkedName-${id}" onclick="startParkedEdit(${id},event)" title="Click to rename">${esc(f.name)}</span> <span class="chip-sz size-trigger" onclick="openSizeMenu(${id},event)" title="Click to resize">${f.size} · ${s.pts}pt</span>${typeLbl?`<span class="type-badge ${f.type||'feature'}" style="margin-left:3px">${typeLbl}</span>`:''}`;
     chip.addEventListener('dragstart',e=>{
       if(document.getElementById('parkedName-'+id)?.getAttribute('contenteditable')==='true'){e.preventDefault();return;}
       dragId=+chip.dataset.id;dragFrom='parked';e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',String(dragId));setTimeout(()=>chip.classList.add('is-dragging'),0);
@@ -1821,12 +1782,7 @@ function renderBacklog(){
     const s=SIZES(type,f.size),pal=getPalette(f);
     const card=document.createElement('div');
     card.className='feature-card';card.draggable=true;card.dataset.id=id;
-    const hasDescB=!!(f.description&&f.description.trim());
-    const descSvgB=`<svg width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.5 2.5a1.414 1.414 0 012 2L5 13H3v-2L11.5 2.5z"/></svg>`;
-    const typeLblB=compactTypeLabel(f);
-    card.innerHTML=`<div class="card-dot" style="background:${pal.color}"></div><div class="card-info"><div class="card-name">${esc(f.name)}</div><div class="card-meta">${f.size} ${typeLblB} · ${s.pts} pts</div></div><button class="desc-chip-btn${hasDescB?' has-desc':''}" onclick="openDescModal(${id},event)" title="${hasDescB?'Edit description':'Add description'}">${descSvgB}</button><button class="card-del" onclick="removeFeature(${id})">✕</button>`;
-    const dBtnB=card.querySelector('.desc-chip-btn');
-    if(dBtnB){dBtnB.addEventListener('mouseenter',()=>showDescTooltip(id,dBtnB));dBtnB.addEventListener('mouseleave',hideDescTooltip);}
+    card.innerHTML=`<div class="card-dot" style="background:${pal.color}"></div><div class="card-info"><div class="card-name">${esc(f.name)}</div><div class="card-meta">${f.size} · ${s.pts} pts</div></div><span class="type-badge ${type}">${type==='story'?'US':'F'}</span><button class="card-del" onclick="removeFeature(${id})">✕</button>`;
     card.addEventListener('dragstart',e=>{dragId=id;dragFrom='backlog';e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',String(id));setTimeout(()=>card.classList.add('is-dragging'),0);});
     card.addEventListener('dragend',()=>card.classList.remove('is-dragging'));
     list.appendChild(card);
@@ -2019,78 +1975,6 @@ function doImport(){
 
 function clearAll(){if(!confirm('Clear all teams and start fresh?'))return;tabs=[];tabIdSeq=0;activeTabId=null;currentView='capacity';rightPanelCollapsed=false;boardState=freshBoardState();localStorage.removeItem(STORAGE_KEY);localStorage.removeItem(LEGACY_STORAGE_KEY);init();}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-
-/* ── DESCRIPTION FEATURE ─────────────────────────────────── */
-let descTooltipEl=null;
-function getDescTooltip(){
-  if(!descTooltipEl){descTooltipEl=document.createElement('div');descTooltipEl.className='desc-tooltip';descTooltipEl.style.opacity='0';document.body.appendChild(descTooltipEl);}
-  return descTooltipEl;
-}
-function showDescTooltip(id,anchorEl){
-  const t=tab();if(!t)return;
-  const f=t.features.find(f=>f.id===+id);if(!f)return;
-  const tip=getDescTooltip();
-  const desc=(f.description||'').trim();
-  tip.innerHTML=`<div class="desc-tooltip-title">${esc(f.name)}</div>`+
-    (desc?`<div>${esc(desc).replace(/\n/g,'<br>')}</div>`:`<div class="desc-tooltip-empty">No description yet — click ✎ to add one</div>`);
-  tip.style.opacity='1';
-  positionDescTooltip(anchorEl,tip);
-}
-function positionDescTooltip(anchor,tip){
-  const r=anchor.getBoundingClientRect();
-  tip.style.left='-9999px';tip.style.top='-9999px';
-  const tw=tip.offsetWidth,th=tip.offsetHeight;
-  let left=r.left+r.width/2-tw/2;
-  let top=r.top-th-8;
-  if(top<8){top=r.bottom+8;}
-  left=Math.max(8,Math.min(window.innerWidth-tw-8,left));
-  tip.style.left=left+'px';tip.style.top=top+'px';
-}
-function hideDescTooltip(){
-  const tip=getDescTooltip();tip.style.opacity='0';tip.style.left='-9999px';tip.style.top='-9999px';
-}
-function openDescModal(id,event){
-  if(event){event.preventDefault();event.stopPropagation();}
-  const t=tab();if(!t)return;
-  const f=t.features.find(f=>f.id===+id);if(!f)return;
-  hideDescTooltip();
-  let modal=document.getElementById('descModal');
-  if(!modal){
-    modal=document.createElement('div');modal.className='desc-modal-backdrop';modal.id='descModal';
-    modal.innerHTML=`<div class="desc-modal">
-      <div class="desc-modal-header">
-        <div class="desc-modal-title" id="descModalTitle"></div>
-        <button class="desc-modal-close" onclick="closeDescModal()">×</button>
-      </div>
-      <textarea id="descModalTextarea" placeholder="Add a description, acceptance criteria, or notes…"></textarea>
-      <div class="desc-modal-actions">
-        <button class="btn btn-secondary" onclick="closeDescModal()">Cancel</button>
-        <button class="btn btn-primary" onclick="saveDesc()">Save</button>
-      </div>
-    </div>`;
-    document.body.appendChild(modal);
-    modal.addEventListener('click',e=>{if(e.target===modal)closeDescModal();});
-  }
-  document.getElementById('descModalTitle').textContent=f.name;
-  document.getElementById('descModalTextarea').value=f.description||'';
-  modal._featureId=id;
-  modal.classList.add('open');
-  setTimeout(()=>document.getElementById('descModalTextarea')?.focus(),50);
-}
-function closeDescModal(){
-  document.getElementById('descModal')?.classList.remove('open');
-}
-function saveDesc(){
-  const modal=document.getElementById('descModal');if(!modal)return;
-  const id=modal._featureId;const t=tab();if(!t)return;
-  const f=t.features.find(f=>f.id===+id);if(!f)return;
-  f.description=(document.getElementById('descModalTextarea')?.value||'').trim();
-  saveState();
-  closeDescModal();
-  renderTiles();updateParked();renderBacklog();
-}
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDescModal();});
-/* ── END DESCRIPTION FEATURE ─────────────────────────────── */
 
 document.getElementById('featureName').addEventListener('keydown',e=>{if(e.key==='Enter')addFeature();});
 document.getElementById('importModal').addEventListener('click',e=>{if(e.target===document.getElementById('importModal'))closeImport();});
