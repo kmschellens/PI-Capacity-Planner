@@ -433,6 +433,7 @@
     <div class="modal-title">Edit description</div>
     <div class="modal-sub">Update the description for this work item.</div>
     <textarea id="descriptionEditor" rows="6" placeholder="Enter a short description"></textarea>
+    <div class="modal-hint" style="font-size:11px;color:var(--muted);margin-top:6px;">Press Enter to save, Shift+Enter for a new line.</div>
     <div class="modal-actions">
       <button class="btn btn-secondary" style="width:auto" onclick="closeDescriptionEditor()">Cancel</button>
       <button class="btn btn-primary" style="width:auto" onclick="saveDescriptionEditor()">Save</button>
@@ -1860,6 +1861,13 @@ function openDescriptionEditor(id){
   }
   document.getElementById('descriptionModal')?.classList.add('open');
 }
+
+function handleDescriptionKeydown(e){
+  if(e.key==='Enter'&&!e.shiftKey){
+    e.preventDefault();
+    saveDescriptionEditor();
+  }
+}
 function closeDescriptionEditor(){
   editingDescriptionId=null;
   document.getElementById('descriptionModal')?.classList.remove('open');
@@ -2072,6 +2080,7 @@ function clearAll(){if(!confirm('Clear all teams and start fresh?'))return;tabs=
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 document.getElementById('featureName').addEventListener('keydown',e=>{if(e.key==='Enter')addFeature();});
+document.getElementById('descriptionEditor')?.addEventListener('keydown',handleDescriptionKeydown);
 document.getElementById('descriptionModal').addEventListener('click',e=>{if(e.target===document.getElementById('descriptionModal'))closeDescriptionEditor();});
 document.getElementById('importModal').addEventListener('click',e=>{if(e.target===document.getElementById('importModal'))closeImport();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDescriptionEditor();closeImport();}});
