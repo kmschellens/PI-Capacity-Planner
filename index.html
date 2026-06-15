@@ -525,16 +525,22 @@ function boardBacklogFilterKey(f){return `${f.type||'feature'}:${f.size}`;}
 function SIZES(type,size){return(type==='story'?STORY_SIZES:FEATURE_SIZES)[size]||FEATURE_SIZES[size];}
 function compactSizeLabel(f){
   const s=SIZES(f.type||'feature',f.size);
+  return `${f.size} · ${s.pts}pts`;
+}
+function tileMetaLabel(f){
+  const s=SIZES(f.type||'feature',f.size);
   const type=(f.type||'feature');
-  if(type==='story'&&(f.size==='S'||f.size==='M')){
+  if(type==='feature'){
+    return `${f.size} · F · ${s.pts}pts`;
+  }
+  if(f.size==='S'||f.size==='M'){
     return `${f.size} US·${s.pts}pts`;
   }
-  return `${f.size} · ${s.pts}pts`;
+  return `${f.size} · US · ${s.pts}pts`;
 }
 function compactTypeLabel(f){
   const type=(f.type||'feature');
   if(type==='feature')return'F';
-  // Hide the US badge for the smallest user stories to keep names readable on compact tiles/chips.
   if(f.size==='S'||f.size==='M')return'';
   return'US';
 }
@@ -1721,8 +1727,7 @@ function renderTiles(){
       ${showDescription ? `<div class="tile-description" onclick="event.stopPropagation();editFeatureDescription(${id});" title="Edit description">${esc(descriptionPreview)}</div>` : ''}
       <div class="tile-name" id="tileName-${id}" onclick="startTileEdit(${id},event)" title="Click to rename">${esc(f.name)}</div>
       <div class="tile-meta" style="display:flex;align-items:center;gap:4px;">
-        <span class="size-trigger" onclick="openSizeMenu(${id},event)" title="Click to resize">${compactSizeLabel(f)}</span>
-        ${typeLbl?`<span style="font-size:8px;font-weight:600;opacity:.7;letter-spacing:.03em">${typeLbl}</span>`:''}
+        <span class="size-trigger" onclick="openSizeMenu(${id},event)" title="Click to resize">${tileMetaLabel(f)}</span>
       </div>`;
     tile.addEventListener('dragstart',e=>{
       if(document.getElementById('tileName-'+id)?.getAttribute('contenteditable')==='true'){e.preventDefault();return;}
