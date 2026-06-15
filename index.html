@@ -97,6 +97,8 @@
   .tile-meta{font-size:9px;opacity:.65;margin-top:1px;font-family:var(--mono);}
   .tile-description{display:block;max-height:56px;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-ms-overflow-style:none;font-size:9px;line-height:1.2;opacity:.55;cursor:pointer;transition:opacity .12s;word-break:break-word;white-space:pre-wrap;margin:1px 0 4px;}
   .tile-description::-webkit-scrollbar{display:none;}
+  .desc-tooltip{position:fixed;z-index:300;max-width:260px;padding:8px 10px;border-radius:8px;background:rgba(248,250,252,.96);color:#1f2937;border:1px solid rgba(148,163,184,.25);box-shadow:0 8px 18px rgba(15,23,42,.12);font-size:11px;line-height:1.35;pointer-events:none;display:none;white-space:pre-wrap;word-break:break-word;}
+  .desc-tooltip strong{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#475569;margin-bottom:2px;}
   .tile-description:hover{opacity:.85;}
   /* ✕ top-right */
   .tile-rm,.tile-edit{position:absolute;top:3px;right:3px;width:15px;height:15px;border-radius:3px;background:rgba(0,0,0,.12);border:none;cursor:pointer;font-size:9px;color:inherit;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .12s,background .12s;}
@@ -437,6 +439,18 @@
     <div class="modal-actions">
       <button class="btn btn-secondary" style="width:auto" onclick="closeDescriptionEditor()">Cancel</button>
       <button class="btn btn-primary" style="width:auto" onclick="saveDescriptionEditor()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="splitModal">
+  <div class="modal">
+    <div class="modal-title">Split feature</div>
+    <div class="modal-sub" id="splitModalText">This will split the feature into user stories. Choose whether to copy the description to each generated story.</div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" style="width:auto" onclick="cancelSplitFeature()">Cancel split</button>
+      <button class="btn btn-secondary" style="width:auto" onclick="splitFeatureWithDescription(false)">Leave out description</button>
+      <button class="btn btn-primary" style="width:auto" onclick="splitFeatureWithDescription(true)">Copy description</button>
     </div>
   </div>
 </div>
@@ -887,23 +901,38 @@ function reconcileUnassignedItems(){
 }
 
 // ── ONE-CLICK SPLIT ─────────────────────────────────────
+let pendingSplitFeatureId=null;
 function splitFeature(featureId){
   const t=tab();if(!t)return;
   const parent=t.features.find(f=>f.id===featureId);
   if(!parent||(parent.type||'feature')!=='feature')return;
-  const count=SPLIT_COUNT[parent.size];if(!count)return;
+  pendingSplitFeatureId=featureId;
+  const hasDescription=(parent.description||'').trim().length>0;
+  const text=hasDescription
+    ?'This feature has a description. Choose whether to copy it to every generated user story, or leave it out.'
+    :'This will split the feature into user stories.';
+  document.getElementById('splitModalText').textContent=text;
+  document.getElementById('splitModal')?.classList.add('open');
+}
+function cancelSplitFeature(){
+  pendingSplitFeatureId=null;
+  document.getElementById('splitModal')?.classList.remove('open');
+}
+function splitFeatureWithDescription(copyDescription){
+  if(pendingSplitFeatureId==null)return;
+  const t=tab();if(!t)return;
+  const parent=t.features.find(f=>f.id===pendingSplitFeatureId);
+  if(!parent||(parent.type||'feature')!=='feature'){cancelSplitFeature();return;}
+  const count=SPLIT_COUNT[parent.size];if(!count){cancelSplitFeature();return;}
   const paletteId=parent.paletteId!=null?parent.paletteId:(SIZES(parent.type,parent.size)?.paletteId||1);
 
-  // Remove parent
-  delete t.placed[featureId];
-  t.features=t.features.filter(f=>f.id!==featureId);
-  t.parked=t.parked.filter(i=>i!==featureId);
+  delete t.placed[pendingSplitFeatureId];
+  t.features=t.features.filter(f=>f.id!==pendingSplitFeatureId);
+  t.parked=t.parked.filter(i=>i!==pendingSplitFeatureId);
 
-  // Build shared matrix once so each child reserves its slot for the next
   const mat=buildMatrix([]);
-
   for(let i=0;i<count;i++){
-    const child={id:++t.idCounter,name:`${parent.name} – Part ${i+1}`,size:'XL',type:'story',paletteId};
+    const child={id:++t.idCounter,name:`${parent.name} – Part ${i+1}`,size:'XL',type:'story',paletteId,description:copyDescription?(parent.description||'').trim():''};
     t.features.push(child);
     const s=SIZES('story','XL');
     const slot=findFreeSlot(s.cols,s.rows,mat);
@@ -911,6 +940,7 @@ function splitFeature(featureId){
     else if(!t.parked.includes(child.id))t.parked.push(child.id);
   }
 
+  cancelSplitFeature();
   cleanupBoardState();saveState();renderWorkspace();
 }
 
@@ -1014,7 +1044,7 @@ function boardCardInnerHTML(key,team,f){
   const s=SIZES(f.type||'feature',f.size),pal=getPalette(f),type=f.type||'feature';
   return `<div class="pi-board-card" draggable="true" data-feature-key="${key}" style="background:${pal.bg};color:${pal.color};border-color:${pal.border};">
     <button class="board-rm" onclick="removeFromPIBoard('${key}')" title="Return to board backlog">✕</button>
-    <button class="board-edit" onclick="editFeatureDescription(${f.id})" title="${esc(f.description||'No description yet. Click to add one.')}" aria-label="Edit description">✎</button>
+    <button class="board-edit" onclick="editFeatureDescription(${f.id})" data-description="${esc(f.description||'No description yet. Click to add one.')}" title="" aria-label="Edit description">✎</button>
     <button class="dep-handle" onpointerdown="startDependency(event,'${key}')" title="Drag a dependency rope from here"></button>
     <div class="pi-board-card-name">${esc(f.name)}</div>
     <div class="pi-board-card-meta"><span>${esc(team.name)}</span><span>·</span><span>${compactSizeLabel(f)}</span><span class="type-badge ${type}">${type==='story'?'US':'F'}</span></div>
@@ -1118,7 +1148,7 @@ function renderBoardBacklog(){
     card.innerHTML=`<div class="card-dot" style="background:${pal.color}"></div>
       <div class="card-info"><div class="card-name">${esc(f.name)}</div><div class="board-card-team">${esc(team.name)} · ${compactSizeLabel(f)}</div></div>
       <span class="type-badge ${type}">${type==='story'?'US':'F'}</span>
-      <div class="card-actions"><button class="card-edit" onclick="editFeatureDescription(${f.id})" title="${esc(f.description||'No description yet. Click to add one.')}" aria-label="Edit description">✎</button></div>`;
+      <div class="card-actions"><button class="card-edit" onclick="editFeatureDescription(${f.id})" data-description="${esc(f.description||'No description yet. Click to add one.')}" title="" aria-label="Edit description">✎</button></div>`;
     card.addEventListener('dragstart',e=>{
       boardDragKey=key;boardDragFrom='backlog';e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',key);
       setTimeout(()=>card.classList.add('is-dragging'),0);
@@ -1686,7 +1716,7 @@ function renderTiles(){
     tile.innerHTML=`
       <div class="tile-colour-bar">${dots}</div>
       <button class="tile-rm" onclick="tileRemove(${id})" title="Move to parked">✕</button>
-      <button class="tile-edit" onclick="editFeatureDescription(${id})" title="${esc(f.description||'No description yet. Click to add one.')}" aria-label="Edit description">✎</button>
+      <button class="tile-edit" onclick="editFeatureDescription(${id})" data-description="${esc(f.description||'No description yet. Click to add one.')}" title="" aria-label="Edit description">✎</button>
       ${splitBtn}
       ${showDescription ? `<div class="tile-description" onclick="event.stopPropagation();editFeatureDescription(${id});" title="Edit description">${esc(descriptionPreview)}</div>` : ''}
       <div class="tile-name" id="tileName-${id}" onclick="startTileEdit(${id},event)" title="Click to rename">${esc(f.name)}</div>
@@ -1818,7 +1848,7 @@ function updateParked(){
     chip.className='parked-chip';chip.draggable=true;chip.dataset.id=id;
     chip.style.cssText=`background:${pal.bg};color:${pal.color};border-color:${pal.border}`;
     const typeLbl=compactTypeLabel(f);
-    chip.innerHTML=`<span class="parked-name" id="parkedName-${id}" onclick="startParkedEdit(${id},event)" title="Click to rename">${esc(f.name)}</span> <span class="chip-sz size-trigger" onclick="openSizeMenu(${id},event)" title="Click to resize">${compactSizeLabel(f)}</span>${typeLbl?`<span class="type-badge ${f.type||'feature'}" style="margin-left:3px">${typeLbl}</span>`:''}<button class="card-edit" onclick="editFeatureDescription(${id})" title="${esc(f.description||'No description yet. Click to add one.')}" aria-label="Edit description" style="margin-left:4px;">✎</button>`;
+    chip.innerHTML=`<span class="parked-name" id="parkedName-${id}" onclick="startParkedEdit(${id},event)" title="Click to rename">${esc(f.name)}</span> <span class="chip-sz size-trigger" onclick="openSizeMenu(${id},event)" title="Click to resize">${compactSizeLabel(f)}</span>${typeLbl?`<span class="type-badge ${f.type||'feature'}" style="margin-left:3px">${typeLbl}</span>`:''}<button class="card-edit" onclick="editFeatureDescription(${id})" data-description="${esc(f.description||'No description yet. Click to add one.')}" title="" aria-label="Edit description" style="margin-left:4px;">✎</button>`;
     chip.addEventListener('dragstart',e=>{
       if(document.getElementById('parkedName-'+id)?.getAttribute('contenteditable')==='true'){e.preventDefault();return;}
       dragId=+chip.dataset.id;dragFrom='parked';e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',String(dragId));setTimeout(()=>chip.classList.add('is-dragging'),0);
@@ -1841,7 +1871,7 @@ function renderBacklog(){
     const s=SIZES(type,f.size),pal=getPalette(f);
     const card=document.createElement('div');
     card.className='feature-card';card.draggable=true;card.dataset.id=id;
-    card.innerHTML=`<div class="card-dot" style="background:${pal.color}"></div><div class="card-info"><div class="card-name">${esc(f.name)}</div><div class="card-meta">${compactSizeLabel(f)}</div></div><span class="type-badge ${type}">${type==='story'?'US':'F'}</span><div class="card-actions"><button class="card-del" onclick="removeFeature(${id})" title="Remove this work item">✕</button><button class="card-edit" onclick="editFeatureDescription(${id})" title="${esc(f.description||'No description yet. Click to add one.')}" aria-label="Edit description">✎</button></div>`;
+    card.innerHTML=`<div class="card-dot" style="background:${pal.color}"></div><div class="card-info"><div class="card-name">${esc(f.name)}</div><div class="card-meta">${compactSizeLabel(f)}</div></div><span class="type-badge ${type}">${type==='story'?'US':'F'}</span><div class="card-actions"><button class="card-del" onclick="removeFeature(${id})" title="Remove this work item">✕</button><button class="card-edit" onclick="editFeatureDescription(${id})" data-description="${esc(f.description||'No description yet. Click to add one.')}" title="" aria-label="Edit description">✎</button></div>`;
     card.addEventListener('dragstart',e=>{dragId=id;dragFrom='backlog';e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',String(id));setTimeout(()=>card.classList.add('is-dragging'),0);});
     card.addEventListener('dragend',()=>card.classList.remove('is-dragging'));
     list.appendChild(card);
@@ -1871,6 +1901,36 @@ function handleDescriptionKeydown(e){
 function closeDescriptionEditor(){
   editingDescriptionId=null;
   document.getElementById('descriptionModal')?.classList.remove('open');
+}
+function createDescriptionTooltip(){
+  let tip=document.getElementById('descTooltip');
+  if(!tip){
+    tip=document.createElement('div');
+    tip.id='descTooltip';
+    tip.className='desc-tooltip';
+    document.body.appendChild(tip);
+  }
+  return tip;
+}
+function showDescriptionTooltip(e,btn){
+  const text=(btn?.getAttribute('data-description')||'').trim();
+  if(!text)return;
+  const tip=createDescriptionTooltip();
+  tip.innerHTML=`<strong>Description</strong>${esc(text).replace(/\n/g,'<br>')}`;
+  tip.style.display='block';
+  updateDescriptionTooltip(e);
+}
+function updateDescriptionTooltip(e){
+  const tip=document.getElementById('descTooltip');
+  if(!tip||tip.style.display==='none')return;
+  const x=(e?.clientX||0)+14;
+  const y=(e?.clientY||0)+14;
+  tip.style.left=`${Math.min(x, window.innerWidth-280)}px`;
+  tip.style.top=`${Math.min(y, window.innerHeight-120)}px`;
+}
+function hideDescriptionTooltip(){
+  const tip=document.getElementById('descTooltip');
+  if(tip)tip.style.display='none';
 }
 function saveDescriptionEditor(){
   if(editingDescriptionId==null)return;
@@ -2081,7 +2141,17 @@ function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 
 document.getElementById('featureName').addEventListener('keydown',e=>{if(e.key==='Enter')addFeature();});
 document.getElementById('descriptionEditor')?.addEventListener('keydown',handleDescriptionKeydown);
+document.addEventListener('mousemove',e=>{if(document.getElementById('descTooltip')?.style.display!=='none')updateDescriptionTooltip(e);});
+document.addEventListener('mouseover',e=>{
+  const btn=e.target.closest('.tile-edit, .card-edit, .board-edit');
+  if(btn)showDescriptionTooltip(e,btn);
+});
+document.addEventListener('mouseout',e=>{
+  const btn=e.target.closest('.tile-edit, .card-edit, .board-edit');
+  if(!btn)hideDescriptionTooltip();
+});
 document.getElementById('descriptionModal').addEventListener('click',e=>{if(e.target===document.getElementById('descriptionModal'))closeDescriptionEditor();});
+document.getElementById('splitModal').addEventListener('click',e=>{if(e.target===document.getElementById('splitModal'))cancelSplitFeature();});
 document.getElementById('importModal').addEventListener('click',e=>{if(e.target===document.getElementById('importModal'))closeImport();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDescriptionEditor();closeImport();}});
 
