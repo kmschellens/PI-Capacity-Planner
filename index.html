@@ -59,8 +59,12 @@
   .card-info{flex:1;min-width:0;}
   .card-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .card-meta{font-size:11px;color:var(--muted);margin-top:1px;font-family:var(--mono);}
-  .card-del{background:none;border:none;cursor:pointer;color:var(--border2);font-size:14px;padding:2px 4px;border-radius:4px;opacity:0;transition:opacity .12s,color .12s;line-height:1;}
-  .feature-card:hover .card-del{opacity:1;}.card-del:hover{color:#c0392b;}
+  .feature-card{position:relative;padding-right:42px;}
+  .card-actions{position:absolute;top:6px;right:6px;display:flex;flex-direction:column;gap:3px;}
+  .card-del,.card-edit{background:rgba(0,0,0,.08);border:none;cursor:pointer;color:inherit;font-size:11px;padding:2px 4px;border-radius:4px;opacity:0;transition:opacity .12s,background .12s,color .12s;line-height:1;display:flex;align-items:center;justify-content:center;}
+  .feature-card:hover .card-del,.feature-card:hover .card-edit{opacity:1;}
+  .card-del:hover{color:#c0392b;background:rgba(192,57,43,.14);}
+  .card-edit:hover{color:#1a5fa8;background:rgba(26,95,168,.14);} 
   .empty-state{font-size:12px;color:var(--muted);text-align:center;padding:12px 0;}
   .count-badge{display:inline-flex;align-items:center;justify-content:center;background:var(--subtle);border:1px solid var(--border);border-radius:10px;padding:0 6px;height:18px;font-size:10px;font-weight:600;color:var(--muted);font-family:var(--mono);}
   .workspace{padding:1.5rem;display:flex;flex-direction:column;gap:1.25rem;overflow-y:auto;overflow-x:auto;max-height:calc(100vh - 92px);}
@@ -91,9 +95,15 @@
   .tile-name:hover{background:rgba(255,255,255,.38);box-shadow:0 0 0 1px rgba(255,255,255,.34) inset;}
   .tile-name[contenteditable="true"]{outline:none;background:rgba(255,255,255,.62);border-radius:3px;padding:1px 3px;margin:-1px -3px;cursor:text;box-shadow:0 0 0 1px rgba(0,0,0,.08) inset;}
   .tile-meta{font-size:9px;opacity:.65;margin-top:1px;font-family:var(--mono);}
+  .tile-description{display:block;max-height:56px;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-ms-overflow-style:none;font-size:9px;line-height:1.2;opacity:.55;cursor:pointer;transition:opacity .12s;word-break:break-word;white-space:pre-wrap;margin:1px 0 4px;}
+  .tile-description::-webkit-scrollbar{display:none;}
+  .tile-description:hover{opacity:.85;}
   /* ✕ top-right */
-  .tile-rm{position:absolute;top:3px;right:3px;width:15px;height:15px;border-radius:3px;background:rgba(0,0,0,.12);border:none;cursor:pointer;font-size:9px;color:inherit;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .12s;}
-  .feat-tile:hover .tile-rm{opacity:1;}.tile-rm:hover{background:rgba(0,0,0,.22);}
+  .tile-rm,.tile-edit{position:absolute;top:3px;right:3px;width:15px;height:15px;border-radius:3px;background:rgba(0,0,0,.12);border:none;cursor:pointer;font-size:9px;color:inherit;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .12s,background .12s;}
+  .tile-edit{top:21px;right:3px;font-size:8px;}
+  .feat-tile:hover .tile-rm,.feat-tile:hover .tile-edit{opacity:1;}
+  .tile-rm:hover,.tile-edit:hover{background:rgba(0,0,0,.22);}
+  .tile-edit:hover{background:rgba(26,95,168,.16);color:#1a5fa8;}
   /* ✂ bottom-right — only rendered on feature tiles */
   .tile-split{position:absolute;bottom:3px;right:3px;width:15px;height:15px;border-radius:3px;background:rgba(0,0,0,.12);border:none;cursor:pointer;color:inherit;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .12s,background .12s;}
   .feat-tile:hover .tile-split{opacity:1;}.tile-split:hover{background:rgba(0,0,0,.26);}
@@ -220,7 +230,7 @@
   .board-filter-option input{width:auto;margin:0;accent-color:var(--text);box-shadow:none;}
   .board-filter-label{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .board-filter-pts{font-family:var(--mono);font-size:10px;color:var(--muted);}
-  .board-feature-card{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg);border:1px solid var(--border);border-radius:7px;cursor:grab;user-select:none;transition:border-color .12s,box-shadow .12s,opacity .12s;}
+  .board-feature-card{position:relative;display:flex;align-items:center;gap:8px;padding:8px 10px 8px 10px;background:var(--bg);border:1px solid var(--border);border-radius:7px;cursor:grab;user-select:none;transition:border-color .12s,box-shadow .12s,opacity .12s;padding-right:42px;}
   .board-feature-card:hover{border-color:var(--border2);box-shadow:0 1px 4px rgba(0,0,0,.08);}
   .board-feature-card.is-dragging{opacity:.35;}
   .board-card-team{font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -245,14 +255,16 @@
   .pi-board-cell.drag-over{background:#f3edfb;box-shadow:inset 0 0 0 2px #c9a8e8;}
   .pi-board-cell.blocked{background:#fceaea;box-shadow:inset 0 0 0 2px #e89090;}
   .pi-board-empty{font-size:12px;color:var(--muted);text-align:center;padding:50px 20px;background:var(--surface);border:1.5px dashed var(--border2);border-radius:10px;}
-  .pi-board-card{position:relative;border:1.5px solid;border-radius:8px;padding:8px 26px 8px 10px;min-height:46px;cursor:grab;user-select:none;box-shadow:0 1px 3px rgba(0,0,0,.04);transition:box-shadow .12s,opacity .12s,transform .12s;}
+  .pi-board-card{position:relative;border:1.5px solid;border-radius:8px;padding:8px 26px 8px 10px;min-height:46px;cursor:grab;user-select:none;box-shadow:0 1px 3px rgba(0,0,0,.04);transition:box-shadow .12s,opacity .12s,transform .12s;padding-right:42px;}
   .pi-board-card:hover{box-shadow:0 3px 12px rgba(0,0,0,.12);z-index:8;}
   .pi-board-card.is-dragging{opacity:.35;}
   .pi-board-card-name{font-size:12px;font-weight:600;line-height:1.25;word-break:break-word;padding-right:5px;}
   .pi-board-card-meta{font-size:10px;font-family:var(--mono);opacity:.72;margin-top:2px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
-  .board-rm{position:absolute;top:4px;right:4px;width:16px;height:16px;border-radius:4px;background:rgba(0,0,0,.12);border:none;cursor:pointer;font-size:10px;color:inherit;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .12s,background .12s;}
-  .pi-board-card:hover .board-rm{opacity:1;}
-  .board-rm:hover{background:rgba(0,0,0,.22);}
+  .board-rm,.board-edit{position:absolute;top:4px;right:4px;width:16px;height:16px;border-radius:4px;background:rgba(0,0,0,.12);border:none;cursor:pointer;font-size:10px;color:inherit;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .12s,background .12s;}
+  .board-edit{top:22px;right:4px;font-size:9px;}
+  .pi-board-card:hover .board-rm,.pi-board-card:hover .board-edit{opacity:1;}
+  .board-rm:hover,.board-edit:hover{background:rgba(0,0,0,.22);} 
+  .board-edit:hover{background:rgba(26,95,168,.16);color:#1a5fa8;}
   .dep-handle{position:absolute;right:-6px;top:50%;transform:translateY(-50%);width:12px;height:12px;border-radius:50%;border:2px solid currentColor;background:var(--surface);cursor:crosshair;z-index:12;box-shadow:0 1px 4px rgba(0,0,0,.15);}
   .dep-handle:hover{transform:translateY(-50%) scale(1.18);}
   body.dependency-dragging .pi-board-card{cursor:crosshair;}
@@ -335,32 +347,39 @@
           <div class="field"><label class="field-label">Wks / sprint</label><input type="number" id="sprintWeeks" placeholder="2" min="0.5" step="0.5" oninput="onSprintInput()"></div>
           <div class="field"><label class="field-label">Pts / dev / sprint</label><input type="number" id="sprintPtsPerDev" placeholder="10" min="1" oninput="onSprintInput()"></div>
         </div>
+        <div class="field" style="margin-top:4px;"><label class="field-label">Holidays (days)</label><input type="number" id="holidayDays" placeholder="0" min="0" oninput="onSprintInput()"></div>
         <div class="sprint-preview" id="sprintPreview"></div>
         <button class="btn btn-primary" onclick="applySprintCapacity()">Set capacity</button>
       </div>
     </div>
     <div class="capacity-only">
-      <div class="section-title">Add work item</div>
-      <div class="field"><label class="field-label">Name</label><input type="text" id="featureName" placeholder="e.g. User authentication"></div>
-      <div class="field">
-        <label class="field-label">Feature</label>
-        <div class="size-grid">
-          <div><input type="radio" name="sz" id="sz-f-s" class="size-radio" value="S" data-type="feature" checked><label for="sz-f-s" class="size-btn">S<span class="size-sub">40 pts</span></label></div>
-          <div><input type="radio" name="sz" id="sz-f-m" class="size-radio" value="M" data-type="feature"><label for="sz-f-m" class="size-btn">M<span class="size-sub">60 pts</span></label></div>
-          <div><input type="radio" name="sz" id="sz-f-l" class="size-radio" value="L" data-type="feature"><label for="sz-f-l" class="size-btn">L<span class="size-sub">80 pts</span></label></div>
-          <div><input type="radio" name="sz" id="sz-f-xl" class="size-radio" value="XL" data-type="feature"><label for="sz-f-xl" class="size-btn">XL<span class="size-sub">100 pts</span></label></div>
-        </div>
+      <div class="collapsible-header" onclick="toggleSection('addWorkSection','addWorkChevron')">
+        <div class="section-title" style="margin-bottom:0">Add work item</div>
+        <svg class="collapse-chevron open" id="addWorkChevron" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 4l4 4 4-4"/></svg>
       </div>
-      <div class="field">
-        <label class="field-label">User Story</label>
-        <div class="size-grid">
-          <div><input type="radio" name="sz" id="sz-us-s" class="size-radio" value="S" data-type="story"><label for="sz-us-s" class="size-btn">S<span class="size-sub">5 pts</span></label></div>
-          <div><input type="radio" name="sz" id="sz-us-m" class="size-radio" value="M" data-type="story"><label for="sz-us-m" class="size-btn">M<span class="size-sub">8 pts</span></label></div>
-          <div><input type="radio" name="sz" id="sz-us-l" class="size-radio" value="L" data-type="story"><label for="sz-us-l" class="size-btn">L<span class="size-sub">13 pts</span></label></div>
-          <div><input type="radio" name="sz" id="sz-us-xl" class="size-radio" value="XL" data-type="story"><label for="sz-us-xl" class="size-btn">XL<span class="size-sub">20 pts</span></label></div>
+      <div class="collapsible-body" id="addWorkSection" style="max-height:500px;">
+        <div class="field"><label class="field-label">Name</label><input type="text" id="featureName" placeholder="e.g. User authentication"></div>
+        <div class="field"><label class="field-label">Description</label><textarea id="featureDescription" rows="3" placeholder="Optional context for this work item"></textarea></div>
+        <div class="field">
+          <label class="field-label">Feature</label>
+          <div class="size-grid">
+            <div><input type="radio" name="sz" id="sz-f-s" class="size-radio" value="S" data-type="feature" checked><label for="sz-f-s" class="size-btn">S<span class="size-sub">40 pts</span></label></div>
+            <div><input type="radio" name="sz" id="sz-f-m" class="size-radio" value="M" data-type="feature"><label for="sz-f-m" class="size-btn">M<span class="size-sub">60 pts</span></label></div>
+            <div><input type="radio" name="sz" id="sz-f-l" class="size-radio" value="L" data-type="feature"><label for="sz-f-l" class="size-btn">L<span class="size-sub">80 pts</span></label></div>
+            <div><input type="radio" name="sz" id="sz-f-xl" class="size-radio" value="XL" data-type="feature"><label for="sz-f-xl" class="size-btn">XL<span class="size-sub">100 pts</span></label></div>
+          </div>
         </div>
+        <div class="field">
+          <label class="field-label">User Story</label>
+          <div class="size-grid">
+            <div><input type="radio" name="sz" id="sz-us-s" class="size-radio" value="S" data-type="story"><label for="sz-us-s" class="size-btn">S<span class="size-sub">5 pts</span></label></div>
+            <div><input type="radio" name="sz" id="sz-us-m" class="size-radio" value="M" data-type="story"><label for="sz-us-m" class="size-btn">M<span class="size-sub">8 pts</span></label></div>
+            <div><input type="radio" name="sz" id="sz-us-l" class="size-radio" value="L" data-type="story"><label for="sz-us-l" class="size-btn">L<span class="size-sub">13 pts</span></label></div>
+            <div><input type="radio" name="sz" id="sz-us-xl" class="size-radio" value="XL" data-type="story"><label for="sz-us-xl" class="size-btn">XL<span class="size-sub">20 pts</span></label></div>
+          </div>
+        </div>
+        <button class="btn btn-secondary" onclick="addFeature()">Add to quarter</button>
       </div>
-      <button class="btn btn-secondary" onclick="addFeature()">Add to quarter</button>
     </div>
     <div class="capacity-only" style="display:none;">
       <div class="section-title" style="display:flex;align-items:center;gap:6px;">Backlog <span class="count-badge" id="backlogCount">0</span></div>
@@ -407,6 +426,18 @@
       <div id="breakdownList"><div class="bd-empty">Place features on the grid to see the per-dev breakdown.</div></div>
     </div>
   </aside>
+</div>
+
+<div class="modal-backdrop" id="descriptionModal">
+  <div class="modal">
+    <div class="modal-title">Edit description</div>
+    <div class="modal-sub">Update the description for this work item.</div>
+    <textarea id="descriptionEditor" rows="6" placeholder="Enter a short description"></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" style="width:auto" onclick="closeDescriptionEditor()">Cancel</button>
+      <button class="btn btn-primary" style="width:auto" onclick="saveDescriptionEditor()">Save</button>
+    </div>
+  </div>
 </div>
 
 <div class="modal-backdrop" id="importModal">
@@ -477,6 +508,14 @@ function defaultBoardBacklogFilters(){
 function boardBacklogFilterKey(f){return `${f.type||'feature'}:${f.size}`;}
 
 function SIZES(type,size){return(type==='story'?STORY_SIZES:FEATURE_SIZES)[size]||FEATURE_SIZES[size];}
+function compactSizeLabel(f){
+  const s=SIZES(f.type||'feature',f.size);
+  const type=(f.type||'feature');
+  if(type==='story'&&(f.size==='S'||f.size==='M')){
+    return `${f.size} US·${s.pts}pts`;
+  }
+  return `${f.size} · ${s.pts}pts`;
+}
 function compactTypeLabel(f){
   const type=(f.type||'feature');
   if(type==='feature')return'F';
@@ -500,12 +539,19 @@ function defaultPIName(){
   return`PI ${year} Q${quarter}`;
 }
 
-let tabs=[],activeTabId=null,tabIdSeq=0,dragId=null,dragFrom=null,currentView='capacity',boardDragKey=null,boardDragFrom=null,depDrag=null,boardRowDragTeamId=null,tabDragTeamId=null,suppressNextTabClick=false,rightPanelCollapsed=false;
+let tabs=[],activeTabId=null,tabIdSeq=0,dragId=null,dragFrom=null,currentView='capacity',boardDragKey=null,boardDragFrom=null,depDrag=null,boardRowDragTeamId=null,tabDragTeamId=null,suppressNextTabClick=false,rightPanelCollapsed=true;
 function freshBoardState(){return{name:defaultPIName(),iterationCount:6,iterationNames:[],placements:{},dependencies:[],teamOrder:[],backlogFilters:defaultBoardBacklogFilters(),backlogFiltersOpen:false};}
 let boardState=freshBoardState();
 function tab(){return tabs.find(t=>t.id===activeTabId);}
 function getGridCols(){return tab()?.gridCols||12;}
-function getGridRows(){const t=tab();if(!t||!t.capacity)return 0;return Math.ceil(Math.ceil(t.capacity/PTS_PER_CELL)/getGridCols());}
+function teamCapacityPts(t){
+  const d=Number(t?.sprintDevs)||0,sp=Number(t?.sprintCount)||0,p=Number(t?.sprintPtsPerDev)||0,w=Number(t?.sprintWeeks)||1,holidays=Number(t?.holidays)||0;
+  if(!d||!sp||!p)return Number(t?.capacity)||0;
+  const base=d*sp*p;
+  const holidayPts=p/(w||1)/5;
+  return Math.round(base - holidays*holidayPts);
+}
+function getGridRows(){const t=tab();const cap=teamCapacityPts(t);if(!t||!cap)return 0;return Math.ceil(Math.ceil(cap/PTS_PER_CELL)/getGridCols());}
 
 const UNDO_LIMIT=60;
 let undoStack=[],lastStateSnapshot=null,isRestoringState=false;
@@ -596,7 +642,7 @@ function loadState(){
     if(!s||s.version!==5||!Array.isArray(s.tabs)||!s.tabs.length)return false;
     tabs=s.tabs;activeTabId=s.activeTabId;tabIdSeq=s.tabIdSeq||s.tabs.length;
     currentView='capacity';rightPanelCollapsed=false;boardState=freshBoardState();
-    tabs.forEach(t=>{if(!t.capacity){t.capacity=240;t.sprintDevs=4;t.sprintCount=6;t.sprintWeeks=2;t.sprintPtsPerDev=10;}if(!t.quarterName)t.quarterName=defaultQuarterName();});
+    tabs.forEach(t=>{if(!t.capacity){t.capacity=240;t.sprintDevs=4;t.sprintCount=6;t.sprintWeeks=2;t.sprintPtsPerDev=10;t.holidays=0;}if(!t.quarterName)t.quarterName=defaultQuarterName();});
     if(!tabs.find(t=>t.id===activeTabId))activeTabId=tabs[0].id;
     return true;
   }catch(e){return false;}
@@ -605,21 +651,26 @@ function loadState(){
 function onSprintInput(){
   const d=parseFloat(document.getElementById('sprintDevs').value),
         sp=parseFloat(document.getElementById('sprintCount').value),
-        w=parseFloat(document.getElementById('sprintWeeks').value),
+        w=parseFloat(document.getElementById('sprintWeeks').value)||1,
         p=parseFloat(document.getElementById('sprintPtsPerDev').value),
+        holidays=parseFloat(document.getElementById('holidayDays').value)||0,
         prev=document.getElementById('sprintPreview');
   if(!d||!sp||!p){prev.textContent='';return;}
-  prev.textContent=`${d} × ${sp} × ${p} = ${Math.round(d*sp*p)} pts`+(w?` · ${sp*w}wks total`:'');
+  const base=Math.round(d*sp*p);
+  const holidayPts=p/(w||1)/5;
+  const adjusted=Math.round(base - holidays*holidayPts);
+  prev.textContent=`${d} × ${sp} × ${p} = ${base} pts`+(w?` · ${sp*w}wks total`:'')+` · ${holidays} holiday day${holidays===1?'':'s'} = ${Math.round(holidays*holidayPts)} pts removed · effective capacity ${adjusted} pts`;
 }
 function applySprintCapacity(){
   const d=parseFloat(document.getElementById('sprintDevs').value),
         sp=parseFloat(document.getElementById('sprintCount').value),
         p=parseFloat(document.getElementById('sprintPtsPerDev').value),
-        w=parseFloat(document.getElementById('sprintWeeks').value)||null;
+        w=parseFloat(document.getElementById('sprintWeeks').value)||null,
+        holidays=parseFloat(document.getElementById('holidayDays').value)||0;
   if(!d||!sp||!p){alert('Fill in Developers, Sprints and Pts/dev/sprint.');return;}
   const t=tab();if(!t)return;
-  t.sprintDevs=d;t.sprintCount=sp;t.sprintWeeks=w;t.sprintPtsPerDev=p;
-  t.capacity=Math.round(d*sp*p);evictOutOfBounds();saveState();renderWorkspace();
+  t.sprintDevs=d;t.sprintCount=sp;t.sprintWeeks=w;t.sprintPtsPerDev=p;t.holidays=holidays;
+  t.capacity=teamCapacityPts(t);evictOutOfBounds();saveState();renderWorkspace();
 }
 function evictOutOfBounds(){
   const t=tab();if(!t)return;
@@ -636,13 +687,14 @@ function loadSprintInputs(){
   document.getElementById('sprintCount').value=t.sprintCount||'';
   document.getElementById('sprintWeeks').value=t.sprintWeeks||'';
   document.getElementById('sprintPtsPerDev').value=t.sprintPtsPerDev||'';
+  document.getElementById('holidayDays').value=t.holidays||0;
   onSprintInput();
 }
 
 function newTab(name){
   const id=++tabIdSeq;
   tabs.push({id,name:name||`Team ${id}`,quarterName:defaultQuarterName(),capacity:240,gridCols:12,
-    sprintDevs:4,sprintCount:6,sprintWeeks:2,sprintPtsPerDev:10,
+    sprintDevs:4,sprintCount:6,sprintWeeks:2,sprintPtsPerDev:10,holidays:0,
     features:[],idCounter:0,placed:{},parked:[]});
   return tabs[tabs.length-1];
 }
@@ -961,9 +1013,10 @@ function boardCardInnerHTML(key,team,f){
   const s=SIZES(f.type||'feature',f.size),pal=getPalette(f),type=f.type||'feature';
   return `<div class="pi-board-card" draggable="true" data-feature-key="${key}" style="background:${pal.bg};color:${pal.color};border-color:${pal.border};">
     <button class="board-rm" onclick="removeFromPIBoard('${key}')" title="Return to board backlog">✕</button>
+    <button class="board-edit" onclick="editFeatureDescription(${f.id})" title="${esc(f.description||'No description yet. Click to add one.')}" aria-label="Edit description">✎</button>
     <button class="dep-handle" onpointerdown="startDependency(event,'${key}')" title="Drag a dependency rope from here"></button>
     <div class="pi-board-card-name">${esc(f.name)}</div>
-    <div class="pi-board-card-meta"><span>${esc(team.name)}</span><span>·</span><span>${f.size} · ${s.pts}pts</span><span class="type-badge ${type}">${type==='story'?'US':'F'}</span></div>
+    <div class="pi-board-card-meta"><span>${esc(team.name)}</span><span>·</span><span>${compactSizeLabel(f)}</span><span class="type-badge ${type}">${type==='story'?'US':'F'}</span></div>
   </div>`;
 }
 function boardBacklogItemMatchesFilters(f){
@@ -1062,8 +1115,9 @@ function renderBoardBacklog(){
     const card=document.createElement('div');
     card.className='board-feature-card';card.draggable=true;card.dataset.featureKey=key;
     card.innerHTML=`<div class="card-dot" style="background:${pal.color}"></div>
-      <div class="card-info"><div class="card-name">${esc(f.name)}</div><div class="board-card-team">${esc(team.name)} · ${f.size} · ${s.pts} pts</div></div>
-      <span class="type-badge ${type}">${type==='story'?'US':'F'}</span>`;
+      <div class="card-info"><div class="card-name">${esc(f.name)}</div><div class="board-card-team">${esc(team.name)} · ${compactSizeLabel(f)}</div></div>
+      <span class="type-badge ${type}">${type==='story'?'US':'F'}</span>
+      <div class="card-actions"><button class="card-edit" onclick="editFeatureDescription(${f.id})" title="${esc(f.description||'No description yet. Click to add one.')}" aria-label="Edit description">✎</button></div>`;
     card.addEventListener('dragstart',e=>{
       boardDragKey=key;boardDragFrom='backlog';e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',key);
       setTimeout(()=>card.classList.add('is-dragging'),0);
@@ -1529,7 +1583,7 @@ function onGridCreatePointerUp(e){
   const nameInput=document.getElementById('featureName');
   const baseName=(nameInput?.value||'').trim();
   const label=describeCreateCandidate(candidate);
-  const f={id:++t.idCounter,name:baseName||`New ${label}`,size:candidate.size,type:candidate.type,paletteId:candidate.s.paletteId};
+  const f={id:++t.idCounter,name:baseName||label,size:candidate.size,type:candidate.type,paletteId:candidate.s.paletteId};
   t.features.push(f);
   t.placed[f.id]={col:draft.col,row:draft.row};
   if(nameInput)nameInput.value='';
@@ -1626,13 +1680,17 @@ function renderTiles(){
         <circle cx="4.5" cy="4.5" r="2"/><circle cx="4.5" cy="11.5" r="2"/>
         <path d="M6.5 4.5l7 7M6.5 11.5l7-7"/>
       </svg></button>`:'';
+    const descriptionPreview=(f.description||'').trim();
+    const showDescription=descriptionPreview.length>0;
     tile.innerHTML=`
       <div class="tile-colour-bar">${dots}</div>
       <button class="tile-rm" onclick="tileRemove(${id})" title="Move to parked">✕</button>
+      <button class="tile-edit" onclick="editFeatureDescription(${id})" title="${esc(f.description||'No description yet. Click to add one.')}" aria-label="Edit description">✎</button>
       ${splitBtn}
+      ${showDescription ? `<div class="tile-description" onclick="event.stopPropagation();editFeatureDescription(${id});" title="Edit description">${esc(descriptionPreview)}</div>` : ''}
       <div class="tile-name" id="tileName-${id}" onclick="startTileEdit(${id},event)" title="Click to rename">${esc(f.name)}</div>
       <div class="tile-meta" style="display:flex;align-items:center;gap:4px;">
-        <span class="size-trigger" onclick="openSizeMenu(${id},event)" title="Click to resize">${f.size} · ${s.pts}pts</span>
+        <span class="size-trigger" onclick="openSizeMenu(${id},event)" title="Click to resize">${compactSizeLabel(f)}</span>
         ${typeLbl?`<span style="font-size:8px;font-weight:600;opacity:.7;letter-spacing:.03em">${typeLbl}</span>`:''}
       </div>`;
     tile.addEventListener('dragstart',e=>{
@@ -1759,7 +1817,7 @@ function updateParked(){
     chip.className='parked-chip';chip.draggable=true;chip.dataset.id=id;
     chip.style.cssText=`background:${pal.bg};color:${pal.color};border-color:${pal.border}`;
     const typeLbl=compactTypeLabel(f);
-    chip.innerHTML=`<span class="parked-name" id="parkedName-${id}" onclick="startParkedEdit(${id},event)" title="Click to rename">${esc(f.name)}</span> <span class="chip-sz size-trigger" onclick="openSizeMenu(${id},event)" title="Click to resize">${f.size} · ${s.pts}pt</span>${typeLbl?`<span class="type-badge ${f.type||'feature'}" style="margin-left:3px">${typeLbl}</span>`:''}`;
+    chip.innerHTML=`<span class="parked-name" id="parkedName-${id}" onclick="startParkedEdit(${id},event)" title="Click to rename">${esc(f.name)}</span> <span class="chip-sz size-trigger" onclick="openSizeMenu(${id},event)" title="Click to resize">${compactSizeLabel(f)}</span>${typeLbl?`<span class="type-badge ${f.type||'feature'}" style="margin-left:3px">${typeLbl}</span>`:''}<button class="card-edit" onclick="editFeatureDescription(${id})" title="${esc(f.description||'No description yet. Click to add one.')}" aria-label="Edit description" style="margin-left:4px;">✎</button>`;
     chip.addEventListener('dragstart',e=>{
       if(document.getElementById('parkedName-'+id)?.getAttribute('contenteditable')==='true'){e.preventDefault();return;}
       dragId=+chip.dataset.id;dragFrom='parked';e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',String(dragId));setTimeout(()=>chip.classList.add('is-dragging'),0);
@@ -1782,24 +1840,61 @@ function renderBacklog(){
     const s=SIZES(type,f.size),pal=getPalette(f);
     const card=document.createElement('div');
     card.className='feature-card';card.draggable=true;card.dataset.id=id;
-    card.innerHTML=`<div class="card-dot" style="background:${pal.color}"></div><div class="card-info"><div class="card-name">${esc(f.name)}</div><div class="card-meta">${f.size} · ${s.pts} pts</div></div><span class="type-badge ${type}">${type==='story'?'US':'F'}</span><button class="card-del" onclick="removeFeature(${id})">✕</button>`;
+    card.innerHTML=`<div class="card-dot" style="background:${pal.color}"></div><div class="card-info"><div class="card-name">${esc(f.name)}</div><div class="card-meta">${compactSizeLabel(f)}</div></div><span class="type-badge ${type}">${type==='story'?'US':'F'}</span><div class="card-actions"><button class="card-del" onclick="removeFeature(${id})" title="Remove this work item">✕</button><button class="card-edit" onclick="editFeatureDescription(${id})" title="${esc(f.description||'No description yet. Click to add one.')}" aria-label="Edit description">✎</button></div>`;
     card.addEventListener('dragstart',e=>{dragId=id;dragFrom='backlog';e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',String(id));setTimeout(()=>card.classList.add('is-dragging'),0);});
     card.addEventListener('dragend',()=>card.classList.remove('is-dragging'));
     list.appendChild(card);
   });
 }
 
+let editingDescriptionId=null;
+function openDescriptionEditor(id){
+  const t=tab();if(!t)return;
+  const f=t.features.find(item=>item.id===+id);if(!f)return;
+  editingDescriptionId=+id;
+  const el=document.getElementById('descriptionEditor');
+  if(el){
+    el.value=f.description||'';
+    setTimeout(()=>el.focus(),0);
+    setTimeout(()=>{el.focus();el.select();},50);
+  }
+  document.getElementById('descriptionModal')?.classList.add('open');
+}
+function closeDescriptionEditor(){
+  editingDescriptionId=null;
+  document.getElementById('descriptionModal')?.classList.remove('open');
+}
+function saveDescriptionEditor(){
+  if(editingDescriptionId==null)return;
+  const t=tab();if(!t)return;
+  const f=t.features.find(item=>item.id===editingDescriptionId);if(!f)return;
+  const el=document.getElementById('descriptionEditor');
+  f.description=(el?.value||'').trim();
+  closeDescriptionEditor();
+  saveState();
+  renderBacklog();
+  renderTiles();
+  updateParked();
+  updateRightPanel();
+  renderBoardBacklog();
+  if(currentView==='board')renderWorkspace();
+}
+function editFeatureDescription(id){
+  openDescriptionEditor(id);
+}
 function addFeature(){
   const name=document.getElementById('featureName').value.trim();
+  const description=document.getElementById('featureDescription').value.trim();
   const checked=document.querySelector('input[name="sz"]:checked');
   const size=checked?.value,type=checked?.dataset.type||'feature';
   if(!name){alert('Enter a name.');return;}
   const t=tab();if(!t){alert('Select a team tab first.');return;}
   const s=SIZES(type,size);
-  const f={id:++t.idCounter,name,size,type,paletteId:s.paletteId};
+  const f={id:++t.idCounter,name,size,type,description,paletteId:s.paletteId};
   t.features.push(f);
   placeFeatureOnGridOrPark(f.id);
   document.getElementById('featureName').value='';
+  document.getElementById('featureDescription').value='';
   cleanupBoardState();saveState();
   if(currentView==='capacity')renderWorkspace();else{renderBacklog();renderBoardBacklog();}
 }
@@ -1955,7 +2050,7 @@ function doImport(){
       const ex=tabs.find(t=>t.name===s.tab.name);
       if(ex)Object.assign(ex,s.tab,{id:ex.id});else{const id=++tabIdSeq;tabs.push({...s.tab,id});activeTabId=id;}
       const imported=ex||tabs.find(t=>t.id===activeTabId);
-      if(imported&&!imported.capacity){imported.capacity=240;imported.sprintDevs=4;imported.sprintCount=6;imported.sprintWeeks=2;imported.sprintPtsPerDev=10;}
+      if(imported&&!imported.capacity){imported.capacity=240;imported.sprintDevs=4;imported.sprintCount=6;imported.sprintWeeks=2;imported.sprintPtsPerDev=10;imported.holidays=0;}
       if(imported&&!imported.quarterName)imported.quarterName=defaultQuarterName();
     }else if(s.type==='all'){
       if(!Array.isArray(s.tabs))throw new Error('Missing tabs array.');
@@ -1965,7 +2060,7 @@ function doImport(){
         if(ex){idMap[inc.id]=ex.id;Object.assign(ex,inc,{id:ex.id});}
         else{const id=++tabIdSeq;idMap[inc.id]=id;tabs.push({...inc,id});}
       });
-      tabs.forEach(t=>{if(!t.capacity){t.capacity=240;t.sprintDevs=4;t.sprintCount=6;t.sprintWeeks=2;t.sprintPtsPerDev=10;}if(!t.quarterName)t.quarterName=defaultQuarterName();});
+      tabs.forEach(t=>{if(!t.capacity){t.capacity=240;t.sprintDevs=4;t.sprintCount=6;t.sprintWeeks=2;t.sprintPtsPerDev=10;t.holidays=0;}if(!t.quarterName)t.quarterName=defaultQuarterName();});
       if(s.version===6&&s.boardState)boardState=remapBoardStateForImportedTabs(s.boardState,idMap);
     }else throw new Error('Unknown export type.');
     cleanupBoardState();
@@ -1973,12 +2068,13 @@ function doImport(){
   }catch(e){errEl.textContent='Error: '+(e.message||'Invalid JSON.');}
 }
 
-function clearAll(){if(!confirm('Clear all teams and start fresh?'))return;tabs=[];tabIdSeq=0;activeTabId=null;currentView='capacity';rightPanelCollapsed=false;boardState=freshBoardState();localStorage.removeItem(STORAGE_KEY);localStorage.removeItem(LEGACY_STORAGE_KEY);init();}
+function clearAll(){if(!confirm('Clear all teams and start fresh?'))return;tabs=[];tabIdSeq=0;activeTabId=null;currentView='capacity';rightPanelCollapsed=true;boardState=freshBoardState();localStorage.removeItem(STORAGE_KEY);localStorage.removeItem(LEGACY_STORAGE_KEY);init();}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 document.getElementById('featureName').addEventListener('keydown',e=>{if(e.key==='Enter')addFeature();});
+document.getElementById('descriptionModal').addEventListener('click',e=>{if(e.target===document.getElementById('descriptionModal'))closeDescriptionEditor();});
 document.getElementById('importModal').addEventListener('click',e=>{if(e.target===document.getElementById('importModal'))closeImport();});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeImport();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDescriptionEditor();closeImport();}});
 
 function toggleSection(bodyId,chevronId){
   const body=document.getElementById(bodyId),chevron=document.getElementById(chevronId);if(!body)return;
@@ -2037,16 +2133,18 @@ function placeDefaultStartupItems(t){
   });
 }
 function init(){
+  loadState();
+  rightPanelCollapsed=true;
   if(!tabs.length){
     const t=newTab('Team A');activeTabId=t.id;
     ensureDefaultWorkItems(t);
     placeDefaultStartupItems(t);
   }
-  tabs.forEach(t=>{if(!t.quarterName)t.quarterName=defaultQuarterName();if(!t.capacity){t.capacity=240;t.sprintDevs=4;t.sprintCount=6;t.sprintWeeks=2;t.sprintPtsPerDev=10;}});
-  cleanupBoardState();syncViewUI();renderTabBar();loadTabIntoSidebar();renderWorkspace();resetUndoBaseline();
+  tabs.forEach(t=>{if(!t.quarterName)t.quarterName=defaultQuarterName();if(!t.capacity){t.capacity=240;t.sprintDevs=4;t.sprintCount=6;t.sprintWeeks=2;t.sprintPtsPerDev=10;t.holidays=0;}});
+  cleanupBoardState();syncViewUI();syncRightPanelUI();renderTabBar();loadTabIntoSidebar();renderWorkspace();resetUndoBaseline();
 }
 window.addEventListener('resize',()=>{if(currentView==='board')renderBoardDependencies();});
-loadState();init();
+init();
 </script>
 </body>
 </html>
