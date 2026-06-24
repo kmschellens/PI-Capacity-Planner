@@ -1718,7 +1718,7 @@ function renderTiles(){
         <path d="M6.5 4.5l7 7M6.5 11.5l7-7"/>
       </svg></button>`:'';
     const descriptionPreview=(f.description||'').trim();
-    const showDescription=descriptionPreview.length>0;
+    const showDescription=descriptionPreview.length>0&&(isF||f.size==='XL');
     tile.innerHTML=`
       <div class="tile-colour-bar">${dots}</div>
       <button class="tile-rm" onclick="tileRemove(${id})" title="Move to parked">✕</button>
