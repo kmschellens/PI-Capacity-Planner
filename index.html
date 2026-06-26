@@ -38,7 +38,7 @@
   .section-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;font-family:var(--mono);}
   .field{margin-bottom:10px;}
   .field-label{display:block;font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;font-family:var(--mono);}
-  input[type="text"],input[type="number"]{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-family:inherit;font-size:13px;color:var(--text);outline:none;transition:border-color .15s,box-shadow .15s;}
+  input[type="text"],input[type="number"],input[type="email"],input[type="password"]{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-family:inherit;font-size:13px;color:var(--text);outline:none;transition:border-color .15s,box-shadow .15s;}
   input:focus{border-color:#6a9fd8;box-shadow:0 0 0 3px rgba(106,159,216,.15);}
   .btn{width:100%;padding:8px 14px;border-radius:6px;border:none;font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:background .15s;}
   .btn-primary{background:#1c1b19;color:#fff;}.btn-primary:hover{background:#333;}
@@ -201,6 +201,15 @@
   ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
 
   .topbar-left{display:flex;align-items:center;gap:14px;min-width:0;}
+  .auth-wrap{display:inline-flex;align-items:center;gap:7px;margin-left:4px;}
+  .auth-user{max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--muted);font-family:var(--mono);}
+  .auth-user.signed-in{color:var(--text);}
+  .auth-mode-toggle{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:3px;margin-bottom:12px;}
+  .auth-mode-toggle .btn-sm{justify-content:center;border:0;background:transparent;padding:6px 9px;}
+  .auth-mode-toggle .btn-sm.active{background:var(--surface);box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  .auth-status{font-size:12px;color:var(--muted);min-height:18px;margin-top:8px;}
+  .auth-status.error{color:#b52020;}
+  .auth-status.success{color:#2d7d4e;}
   .view-toggle{display:inline-flex;align-items:center;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:3px;}
   .view-toggle .btn-sm{border:0;background:transparent;padding:4px 9px;}
   .view-toggle .btn-sm.active{background:var(--surface);box-shadow:0 1px 4px rgba(0,0,0,.08);color:var(--text);}
@@ -314,6 +323,13 @@
       <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h12M5 4V2h6v2M6 7v5M10 7v5M3 4l1 9a1 1 0 001 1h6a1 1 0 001-1l1-9"/></svg>
       Clear all
     </button>
+    <div class="auth-wrap">
+      <span class="auth-user" id="authUser">Not signed in</span>
+      <button class="btn-sm" id="authButton" onclick="handleAuthButtonClick()">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2h3a1 1 0 011 1v10a1 1 0 01-1 1h-3"/><path d="M6 11l3-3-3-3"/><path d="M9 8H2"/></svg>
+        Login / Register
+      </button>
+    </div>
   </div>
 </div>
 
@@ -473,10 +489,31 @@
   </div>
 </div>
 
+<div class="modal-backdrop" id="authModal">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-title" id="authModalTitle">Login</div>
+    <div class="modal-sub" id="authModalSub">Use your Supabase account to sign in.</div>
+    <div class="auth-mode-toggle" role="tablist" aria-label="Authentication mode">
+      <button class="btn-sm active" id="authLoginModeBtn" type="button" onclick="setAuthMode('login')" role="tab" aria-selected="true">Login</button>
+      <button class="btn-sm" id="authRegisterModeBtn" type="button" onclick="setAuthMode('register')" role="tab" aria-selected="false">Register</button>
+    </div>
+    <div class="field"><label class="field-label" for="authEmail">Email</label><input type="email" id="authEmail" autocomplete="email" placeholder="you@example.com"></div>
+    <div class="field"><label class="field-label" for="authPassword">Password</label><input type="password" id="authPassword" autocomplete="current-password" placeholder="At least 6 characters"></div>
+    <div class="auth-status" id="authStatus"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" style="width:auto" onclick="closeAuthModal()">Cancel</button>
+      <button class="btn btn-primary" style="width:auto" id="authSubmitBtn" onclick="submitAuthForm()">Login</button>
+    </div>
+  </div>
+</div>
+
 <div class="copyright-footer">© K M Schellens</div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.108.2"></script>
 <script>
 const STORAGE_KEY='capacityPlanner_v6',LEGACY_STORAGE_KEY='capacityPlanner_v5',CELL=53,PTS_PER_CELL=5;
+const SUPABASE_URL='http://localhost:8000';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzgyNDk3NzU5LCJleHAiOjE5NDAxNzc3NTl9.gRnymGA3NI8nbzQW_HV2CQxKqJA-ZlKKFrHY_4Xgjv8';
 const PALETTES=[
   {id:1,color:'#1a5fa8',bg:'#e8f1fb',border:'#9dc0e8'},
   {id:2,color:'#2d7d4e',bg:'#eaf5ef',border:'#a8d9bc'},
@@ -561,6 +598,7 @@ function defaultPIName(){
 }
 
 let tabs=[],activeTabId=null,tabIdSeq=0,dragId=null,dragFrom=null,currentView='capacity',boardDragKey=null,boardDragFrom=null,depDrag=null,boardRowDragTeamId=null,tabDragTeamId=null,suppressNextTabClick=false,rightPanelCollapsed=true;
+let supabaseClient=null,authSession=null,authMode='login';
 function freshBoardState(){return{name:defaultPIName(),iterationCount:6,iterationNames:[],placements:{},dependencies:[],teamOrder:[],backlogFilters:defaultBoardBacklogFilters(),backlogFiltersOpen:false};}
 let boardState=freshBoardState();
 function tab(){return tabs.find(t=>t.id===activeTabId);}
@@ -582,6 +620,121 @@ function writeStateSnapshot(snapshot){try{localStorage.setItem(STORAGE_KEY,snaps
 function updateUndoButton(){
   const btn=document.getElementById('undoBtn');
   if(btn)btn.disabled=!undoStack.length;
+}
+function getSupabaseClient(){
+  if(supabaseClient)return supabaseClient;
+  if(!window.supabase?.createClient)return null;
+  supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{
+    auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
+  });
+  return supabaseClient;
+}
+function authIconSvg(type){
+  if(type==='out')return '<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3"/><path d="M10 11l3-3-3-3"/><path d="M13 8H6"/></svg>';
+  return '<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2h3a1 1 0 011 1v10a1 1 0 01-1 1h-3"/><path d="M6 11l3-3-3-3"/><path d="M9 8H2"/></svg>';
+}
+function updateAuthUI(message='',kind=''){
+  const userEl=document.getElementById('authUser'),btn=document.getElementById('authButton'),status=document.getElementById('authStatus');
+  const email=authSession?.user?.email||'';
+  if(userEl){
+    userEl.textContent=email||'Not signed in';
+    userEl.title=email||'';
+    userEl.classList.toggle('signed-in',!!email);
+  }
+  if(btn){
+    btn.innerHTML=authSession?`${authIconSvg('out')} Sign out`:`${authIconSvg('in')} Login / Register`;
+    btn.disabled=false;
+  }
+  if(status&&message){
+    status.textContent=message;
+    status.className='auth-status'+(kind?` ${kind}`:'');
+  }
+}
+async function initAuth(){
+  const client=getSupabaseClient();
+  if(!client){
+    updateAuthUI('Supabase auth is unavailable. Check the Supabase JS script.', 'error');
+    return;
+  }
+  try{
+    const {data,error}=await client.auth.getSession();
+    if(error)throw error;
+    authSession=data?.session||null;
+    updateAuthUI();
+    client.auth.onAuthStateChange((_event,session)=>{
+      authSession=session;
+      updateAuthUI();
+      if(session)closeAuthModal();
+    });
+  }catch(e){
+    updateAuthUI(e.message||'Could not load Supabase auth session.', 'error');
+  }
+}
+function setAuthMode(mode){
+  authMode=mode==='register'?'register':'login';
+  const isRegister=authMode==='register';
+  document.getElementById('authLoginModeBtn')?.classList.toggle('active',!isRegister);
+  document.getElementById('authRegisterModeBtn')?.classList.toggle('active',isRegister);
+  document.getElementById('authLoginModeBtn')?.setAttribute('aria-selected',String(!isRegister));
+  document.getElementById('authRegisterModeBtn')?.setAttribute('aria-selected',String(isRegister));
+  const title=document.getElementById('authModalTitle'),sub=document.getElementById('authModalSub'),submit=document.getElementById('authSubmitBtn'),password=document.getElementById('authPassword'),status=document.getElementById('authStatus');
+  if(title)title.textContent=isRegister?'Register':'Login';
+  if(sub)sub.textContent=isRegister?'Create a Supabase account for this planner.':'Use your Supabase account to sign in.';
+  if(submit)submit.textContent=isRegister?'Register':'Login';
+  if(password)password.autocomplete=isRegister?'new-password':'current-password';
+  if(status){status.textContent='';status.className='auth-status';}
+}
+function openAuthModal(mode='login'){
+  setAuthMode(mode);
+  const email=document.getElementById('authEmail'),password=document.getElementById('authPassword');
+  if(password)password.value='';
+  document.getElementById('authModal')?.classList.add('open');
+  setTimeout(()=>email?.focus(),0);
+}
+function closeAuthModal(){
+  document.getElementById('authModal')?.classList.remove('open');
+}
+async function handleAuthButtonClick(){
+  const client=getSupabaseClient();
+  if(!client){openAuthModal('login');updateAuthUI('Supabase auth is unavailable. Check the Supabase JS script.', 'error');return;}
+  if(!authSession){openAuthModal('login');return;}
+  const btn=document.getElementById('authButton');
+  if(btn)btn.disabled=true;
+  const {error}=await client.auth.signOut();
+  if(error)alert(error.message||'Could not sign out.');
+  else{authSession=null;updateAuthUI();}
+  if(btn)btn.disabled=false;
+}
+async function submitAuthForm(){
+  const client=getSupabaseClient(),status=document.getElementById('authStatus'),submit=document.getElementById('authSubmitBtn');
+  if(!client){if(status){status.textContent='Supabase auth is unavailable. Check the Supabase JS script.';status.className='auth-status error';}return;}
+  const email=(document.getElementById('authEmail')?.value||'').trim();
+  const password=document.getElementById('authPassword')?.value||'';
+  if(!email||!password){
+    if(status){status.textContent='Enter an email and password.';status.className='auth-status error';}
+    return;
+  }
+  if(submit)submit.disabled=true;
+  if(status){status.textContent=authMode==='register'?'Creating account...':'Signing in...';status.className='auth-status';}
+  try{
+    const options={emailRedirectTo:window.location.origin+window.location.pathname};
+    const result=authMode==='register'
+      ?await client.auth.signUp({email,password,options})
+      :await client.auth.signInWithPassword({email,password});
+    if(result.error)throw result.error;
+    if(authMode==='register'&&!result.data?.session){
+      setAuthMode('login');
+      if(status){status.textContent='Account created. Confirm the email if Supabase requires it, then log in.';status.className='auth-status success';}
+    }else{
+      authSession=result.data?.session||authSession;
+      updateAuthUI();
+      closeAuthModal();
+    }
+  }catch(e){
+    if(status){status.textContent=e.message||'Authentication failed.';status.className='auth-status error';}
+  }finally{
+    if(submit)submit.disabled=false;
+  }
 }
 function resetUndoBaseline(){
   lastStateSnapshot=currentStateSnapshot();
@@ -2158,7 +2311,10 @@ document.addEventListener('mouseout',e=>{
 document.getElementById('descriptionModal').addEventListener('click',e=>{if(e.target===document.getElementById('descriptionModal'))closeDescriptionEditor();});
 document.getElementById('splitModal').addEventListener('click',e=>{if(e.target===document.getElementById('splitModal'))cancelSplitFeature();});
 document.getElementById('importModal').addEventListener('click',e=>{if(e.target===document.getElementById('importModal'))closeImport();});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDescriptionEditor();closeImport();}});
+document.getElementById('authModal').addEventListener('click',e=>{if(e.target===document.getElementById('authModal'))closeAuthModal();});
+document.getElementById('authEmail')?.addEventListener('keydown',e=>{if(e.key==='Enter')submitAuthForm();});
+document.getElementById('authPassword')?.addEventListener('keydown',e=>{if(e.key==='Enter')submitAuthForm();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDescriptionEditor();closeImport();closeAuthModal();}});
 
 function toggleSection(bodyId,chevronId){
   const body=document.getElementById(bodyId),chevron=document.getElementById(chevronId);if(!body)return;
@@ -2226,6 +2382,7 @@ function init(){
   }
   tabs.forEach(t=>{if(!t.quarterName)t.quarterName=defaultQuarterName();if(!t.capacity){t.capacity=240;t.sprintDevs=4;t.sprintCount=6;t.sprintWeeks=2;t.sprintPtsPerDev=10;t.holidays=0;}});
   cleanupBoardState();syncViewUI();syncRightPanelUI();renderTabBar();loadTabIntoSidebar();renderWorkspace();resetUndoBaseline();
+  initAuth();
 }
 window.addEventListener('resize',()=>{if(currentView==='board')renderBoardDependencies();});
 init();
