@@ -71,7 +71,8 @@ services:
     restart: unless-stopped
     networks:
       shared_net:
-        aliases:
+      default:
+        aliases: 
           - api-gw
     healthcheck:
       test: ["CMD", "kong", "health"]
