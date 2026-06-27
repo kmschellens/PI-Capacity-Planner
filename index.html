@@ -403,11 +403,6 @@
 
 <div class="app-body" id="appBody">
   <aside class="sidebar">
-    <div class="capacity-only">
-      <div class="section-title">Quarter setup</div>
-      <div class="field"><label class="field-label">Quarter name</label><input type="text" id="quarterName" value="Q3 2026" oninput="onQuarterNameInput()"></div>
-    </div>
-
     <div class="board-only">
       <div class="section-title">PI Planning setup</div>
       <div class="field"><label class="field-label">PI name</label><input type="text" id="boardName" value="PI 2026 Q3" oninput="onBoardNameInput()"></div>
@@ -462,7 +457,7 @@
             <div><input type="radio" name="sz" id="sz-us-xl" class="size-radio" value="XL" data-type="story"><label for="sz-us-xl" class="size-btn">XL<span class="size-sub">20 pts</span></label></div>
           </div>
         </div>
-        <button class="btn btn-secondary" onclick="addFeature()">Add to quarter</button>
+        <button class="btn btn-secondary" onclick="addFeature()">Add work item</button>
       </div>
     </div>
     <div class="capacity-only" style="display:none;">
@@ -679,10 +674,6 @@ function nextQuarterParts(date=new Date()){
   if(quarter>4){quarter=1;year++;}
   return{quarter,year};
 }
-function defaultQuarterName(){
-  const{quarter,year}=nextQuarterParts();
-  return`Q${quarter} ${year}`;
-}
 function defaultPIName(){
   const{quarter,year}=nextQuarterParts();
   return`PI ${year} Q${quarter}`;
@@ -858,8 +849,6 @@ function boardNameFromSnapshot(snapshot){
     const state=JSON.parse(snapshot);
     const boardName=String(state?.boardState?.name||'').trim();
     if(boardName)return boardName;
-    const quarterName=String(state?.tabs?.[0]?.quarterName||'').trim();
-    if(quarterName)return quarterName;
     const tabName=String(state?.tabs?.[0]?.name||'').trim();
     if(tabName)return tabName;
   }catch(e){}
@@ -983,7 +972,7 @@ async function createRemoteBoard(){
   pendingRenameRemoteBoardError='';
   let trimmed='';
   for(;;){
-    const name=prompt('Name for the new board:',trimmed||currentRemoteBoardName||boardState.name||tab()?.quarterName||'PI Capacity Board');
+    const name=prompt('Name for the new board:',trimmed||currentRemoteBoardName||boardState.name||tab()?.name||'PI Capacity Board');
     if(name===null)return;
     trimmed=name.trim();
     const error=await validateUniqueBoardName(trimmed);
@@ -1184,7 +1173,7 @@ function resetPlannerToFreshDefaults(){
 }
 function normalizeLoadedPlannerState(){
   if(!tabs.length)return;
-  tabs.forEach(t=>{if(!t.quarterName)t.quarterName=defaultQuarterName();if(!t.capacity){t.capacity=240;t.sprintDevs=4;t.sprintCount=6;t.sprintWeeks=2;t.sprintPtsPerDev=10;t.holidays=0;}});
+  normalizeAllTeams();
   cleanupBoardState();
 }
 function renderPlannerState(){
@@ -1426,6 +1415,7 @@ function applyStateSnapshot(snapshot){
   rightPanelCollapsed=!!s.rightPanelCollapsed;
   boardState=normalizeBoardState(s.boardState);
   if(!tabs.find(t=>t.id===activeTabId))activeTabId=tabs[0].id;
+  normalizeAllTeams();
   cleanupBoardState();
   return true;
 }
@@ -1463,6 +1453,12 @@ function normalizeBoardState(s){
   Object.keys(filterDefaults).forEach(key=>{if(Object.prototype.hasOwnProperty.call(srcFilters,key))b.backlogFilters[key]=srcFilters[key]!==false;});
   return b;
 }
+function normalizeTeamDefaults(t){
+  if(!t||typeof t!=='object')return;
+  delete t.quarterName;
+  if(!t.capacity){t.capacity=240;t.sprintDevs=4;t.sprintCount=6;t.sprintWeeks=2;t.sprintPtsPerDev=10;t.holidays=0;}
+}
+function normalizeAllTeams(){tabs.forEach(normalizeTeamDefaults);}
 function loadState(){
   try{
     let s=JSON.parse(localStorage.getItem(STORAGE_KEY));
@@ -1472,6 +1468,7 @@ function loadState(){
       rightPanelCollapsed=!!s.rightPanelCollapsed;
       boardState=normalizeBoardState(s.boardState);
       if(!tabs.find(t=>t.id===activeTabId))activeTabId=tabs[0].id;
+      normalizeAllTeams();
       cleanupBoardState();
       return true;
     }
@@ -1479,7 +1476,7 @@ function loadState(){
     if(!s||s.version!==5||!Array.isArray(s.tabs)||!s.tabs.length)return false;
     tabs=s.tabs;activeTabId=s.activeTabId;tabIdSeq=s.tabIdSeq||s.tabs.length;
     currentView='capacity';rightPanelCollapsed=false;boardState=freshBoardState();
-    tabs.forEach(t=>{if(!t.capacity){t.capacity=240;t.sprintDevs=4;t.sprintCount=6;t.sprintWeeks=2;t.sprintPtsPerDev=10;t.holidays=0;}if(!t.quarterName)t.quarterName=defaultQuarterName();});
+    normalizeAllTeams();
     if(!tabs.find(t=>t.id===activeTabId))activeTabId=tabs[0].id;
     return true;
   }catch(e){return false;}
@@ -1530,7 +1527,7 @@ function loadSprintInputs(){
 
 function newTab(name){
   const id=++tabIdSeq;
-  tabs.push({id,name:name||`Team ${id}`,quarterName:defaultQuarterName(),capacity:240,gridCols:12,
+  tabs.push({id,name:name||`Team ${id}`,capacity:240,gridCols:12,
     sprintDevs:4,sprintCount:6,sprintWeeks:2,sprintPtsPerDev:10,holidays:0,
     features:[],idCounter:0,placed:{},parked:[]});
   return tabs[tabs.length-1];
@@ -1565,17 +1562,10 @@ function switchTab(id){
   loadTabIntoSidebar();
   renderWorkspace();
 }
-function renameTab(id,name){const t=tabs.find(t=>t.id===id);if(t){t.name=name||t.name;saveState();if(currentView==='board')renderWorkspace();}}
+function renameTab(id,name){const t=tabs.find(t=>t.id===id);if(t){t.name=name||t.name;saveState();if(currentView==='board'||id===activeTabId)renderWorkspace();}}
 function loadTabIntoSidebar(){
   const t=tab();if(!t)return;
-  if(!t.quarterName)t.quarterName=defaultQuarterName();
-  document.getElementById('quarterName').value=t.quarterName;
   loadSprintInputs();renderBacklog();loadBoardInputs();
-}
-function onQuarterNameInput(){
-  const t=tab();if(!t)return;
-  t.quarterName=document.getElementById('quarterName').value;saveState();
-  const el=document.getElementById('wsTitle');if(el)el.textContent=t.quarterName||'Quarter';
 }
 
 
@@ -2313,7 +2303,7 @@ function renderWorkspace(){
   ws.innerHTML=`
     <div class="ws-header">
       <div>
-        <div class="ws-title" id="wsTitle">${esc(t.quarterName||'Quarter')}</div>
+        <div class="ws-title" id="wsTitle">${esc(t.name||'Team')}</div>
         <div class="ws-sub">
           <span>${sprintLine}</span><span>·</span>
           <span style="display:inline-flex;align-items:center;gap:3px;cursor:pointer;" onclick="promptGridCols()" title="Edit grid width">
@@ -2350,7 +2340,7 @@ function renderWorkspace(){
     </div>
     <div>
       <div class="capacity-section-head">
-        <div class="box-label">Parked items — not committed this quarter <span class="count-badge" id="parkedCount" style="display:none"></span></div>
+        <div class="box-label">Parked items — not committed <span class="count-badge" id="parkedCount" style="display:none"></span></div>
       </div>
       <div class="parked-outer" id="parkedOuter"><div class="parked-chips" id="parkedChips"></div></div>
     </div>`;
@@ -2659,7 +2649,7 @@ function updateParked(){
   const t=tab();if(!t)return;
   const chips=document.getElementById('parkedChips'),badge=document.getElementById('parkedCount');
   if(!chips)return;chips.innerHTML='';
-  if(!t.parked.length){chips.innerHTML='<span class="parked-empty">Drag features here to park them for a later quarter</span>';if(badge)badge.style.display='none';return;}
+  if(!t.parked.length){chips.innerHTML='<span class="parked-empty">Drag work items here to keep them out of the committed grid</span>';if(badge)badge.style.display='none';return;}
   const totalPts=t.parked.reduce((s,id)=>{const f=t.features.find(f=>f.id===id);return s+(f?SIZES(f.type,f.size).pts:0);},0);
   if(badge){badge.textContent=totalPts+' pts';badge.style.display='inline-flex';}
   t.parked.forEach(id=>{
@@ -2940,8 +2930,7 @@ function doImport(){
       const ex=tabs.find(t=>t.name===s.tab.name);
       if(ex)Object.assign(ex,s.tab,{id:ex.id});else{const id=++tabIdSeq;tabs.push({...s.tab,id});activeTabId=id;}
       const imported=ex||tabs.find(t=>t.id===activeTabId);
-      if(imported&&!imported.capacity){imported.capacity=240;imported.sprintDevs=4;imported.sprintCount=6;imported.sprintWeeks=2;imported.sprintPtsPerDev=10;imported.holidays=0;}
-      if(imported&&!imported.quarterName)imported.quarterName=defaultQuarterName();
+      normalizeTeamDefaults(imported);
     }else if(s.type==='all'){
       if(!Array.isArray(s.tabs))throw new Error('Missing tabs array.');
       const idMap={};
@@ -2950,7 +2939,7 @@ function doImport(){
         if(ex){idMap[inc.id]=ex.id;Object.assign(ex,inc,{id:ex.id});}
         else{const id=++tabIdSeq;idMap[inc.id]=id;tabs.push({...inc,id});}
       });
-      tabs.forEach(t=>{if(!t.capacity){t.capacity=240;t.sprintDevs=4;t.sprintCount=6;t.sprintWeeks=2;t.sprintPtsPerDev=10;t.holidays=0;}if(!t.quarterName)t.quarterName=defaultQuarterName();});
+      normalizeAllTeams();
       if(s.version===6&&s.boardState)boardState=remapBoardStateForImportedTabs(s.boardState,idMap);
     }else throw new Error('Unknown export type.');
     cleanupBoardState();
