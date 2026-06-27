@@ -588,6 +588,7 @@
     </div>
     <div class="modal-error" id="importBoardNameError"></div>
     <div class="modal-actions import-name-actions">
+      <button class="btn btn-secondary" style="width:auto" onclick="skipImportBoardName()">Skip, don't import</button>
       <button class="btn btn-primary" style="width:auto" id="importBoardNameSubmitBtn" onclick="submitImportBoardName()">Import board</button>
     </div>
   </div>
@@ -597,7 +598,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.108.2"></script>
 <script>
-const STORAGE_KEY='capacityPlanner_v6',LEGACY_STORAGE_KEY='capacityPlanner_v5',CELL=53,PTS_PER_CELL=5;
+const STORAGE_KEY='capacityPlanner_v6',LEGACY_STORAGE_KEY='capacityPlanner_v5',EDITED_KEY='capacityPlanner_edited',CELL=53,PTS_PER_CELL=5;
 const SUPABASE_URL='http://localhost:8000';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzgyNDk3NzU5LCJleHAiOjE5NDAxNzc3NTl9.gRnymGA3NI8nbzQW_HV2CQxKqJA-ZlKKFrHY_4Xgjv8';
 const PALETTES=[
@@ -946,6 +947,12 @@ async function submitImportBoardName(){
     if(btn)btn.disabled=false;
   }
 }
+function skipImportBoardName(){
+  document.getElementById('importBoardNameModal')?.classList.remove('open');
+  const resolve=pendingImportNameResolve;
+  pendingImportNameResolve=null;
+  resolve?.(null);
+}
 async function loadRemoteBoards(force=false){
   if(!authSession||remoteBoardsLoading)return remoteBoards;
   if(remoteBoards.length&&!force){renderRemoteBoardMenu();return remoteBoards;}
@@ -1117,6 +1124,7 @@ async function importAnonymousSnapshotToSupabase(snapshot,nameOverride=''){
   }
   localStorage.removeItem(STORAGE_KEY);
   localStorage.removeItem(LEGACY_STORAGE_KEY);
+  localStorage.removeItem(EDITED_KEY);
   anonymousImportEligible=false;
   isRestoringState=true;
   try{
@@ -1186,12 +1194,13 @@ function renderPlannerState(){
 }
 function loadAnonymousPlannerState(){
   const hadAnonymousSnapshot=!!(localStorage.getItem(STORAGE_KEY)||localStorage.getItem(LEGACY_STORAGE_KEY));
+  const hadEditedMarker=!!localStorage.getItem(EDITED_KEY);
   tabs=[];activeTabId=null;tabIdSeq=0;currentView='capacity';rightPanelCollapsed=true;boardState=freshBoardState();
   loadState();
   rightPanelCollapsed=true;
   if(!tabs.length)resetPlannerToFreshDefaults();
   else normalizeLoadedPlannerState();
-  anonymousImportEligible=hadAnonymousSnapshot;
+  anonymousImportEligible=hadAnonymousSnapshot&&hadEditedMarker;
   renderPlannerState();
 }
 async function enterSupabaseBoardMode(){
@@ -1217,8 +1226,12 @@ async function handleSignedInBoardMode(snapshot=null,name=''){
     try{
       if(snapshot){
         const importName=name||await requestImportBoardName(snapshot);
-        const imported=await importAnonymousSnapshotToSupabase(snapshot,importName);
-        if(!imported)await enterSupabaseBoardMode();
+        if(importName===null){
+          await enterSupabaseBoardMode();
+        }else{
+          const imported=await importAnonymousSnapshotToSupabase(snapshot,importName);
+          if(!imported)await enterSupabaseBoardMode();
+        }
       }else{
         await enterSupabaseBoardMode();
       }
@@ -1397,7 +1410,7 @@ function saveState(){
   if(changed){
     undoStack.push(lastStateSnapshot);
     if(undoStack.length>UNDO_LIMIT)undoStack.shift();
-    if(!authSession)anonymousImportEligible=true;
+    if(!authSession){anonymousImportEligible=true;try{localStorage.setItem(EDITED_KEY,'1');}catch(e){}}
   }
   writeStateSnapshot(snapshot);
   lastStateSnapshot=snapshot;
@@ -2957,6 +2970,7 @@ function clearAll(){
   }
   localStorage.removeItem(STORAGE_KEY);
   localStorage.removeItem(LEGACY_STORAGE_KEY);
+  localStorage.removeItem(EDITED_KEY);
   loadAnonymousPlannerState();
 }
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
