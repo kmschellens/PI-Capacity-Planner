@@ -204,12 +204,68 @@
   .auth-wrap{display:inline-flex;align-items:center;gap:7px;margin-left:4px;}
   .auth-user{max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--muted);font-family:var(--mono);}
   .auth-user.signed-in{color:var(--text);}
+  .board-menu-wrap{position:relative;display:none;}
+  .board-menu-wrap.visible{display:inline-flex;}
+  .board-menu-wrap.visible:hover::after,.board-menu-wrap.visible:focus-within::after{content:"";position:absolute;left:-10px;right:-10px;top:100%;height:12px;z-index:119;}
+  .board-menu{display:none;position:absolute;top:100%;right:0;margin-top:6px;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.1);min-width:240px;z-index:120;overflow:hidden;padding:5px;}
+  .board-menu-wrap:hover .board-menu,.board-menu-wrap:focus-within .board-menu,.board-menu.open{display:block;}
+  .board-menu-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 8px 7px;border-bottom:1px solid var(--border);margin-bottom:4px;}
+  .board-menu-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);}
+  .board-menu-current{font-size:10px;color:var(--muted);font-family:var(--mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:130px;}
+  .board-menu-item{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;border:0;background:transparent;color:var(--text);font-family:inherit;font-size:13px;text-align:left;padding:8px 9px;border-radius:6px;cursor:pointer;}
+  .board-menu-item:hover{background:var(--subtle);}
+  .board-menu-item.active{background:#eaf5ef;color:#2d7d4e;}
+  .board-menu-item.confirming,.board-menu-item.confirming:hover{background:#fff4f0;color:var(--text);}
+  .board-menu-item.renaming,.board-menu-item.renaming:hover{background:#f6fbf8;color:var(--text);}
+  .board-menu-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .board-menu-name.editing{flex:1;overflow:visible;}
+  .board-menu-rename-input{width:100%;min-width:0;height:26px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text);font:inherit;font-size:12px;padding:4px 7px;outline:none;}
+  .board-menu-rename-input:focus{border-color:#79b895;box-shadow:0 0 0 2px rgba(45,125,78,.12);}
+  .board-menu-rename-input.error{border-color:#d76d6d;background:#fff8f8;}
+  .board-menu-meta{font-size:10px;color:var(--muted);font-family:var(--mono);white-space:nowrap;}
+  .board-menu-side{position:relative;display:inline-flex;align-items:center;justify-content:flex-end;min-width:84px;flex-shrink:0;}
+  .board-menu-actions{display:none;align-items:center;gap:4px;}
+  .board-menu-action{width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;border-radius:5px;color:var(--muted);cursor:pointer;}
+  .board-menu-action svg{width:14px;height:14px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+  .board-menu-action.rename:hover{background:#eaf5ef;color:#2d7d4e;}
+  .board-menu-action.delete:hover{background:#fceaea;color:#b52020;}
+  .board-menu-confirm{display:inline-flex;align-items:center;gap:4px;}
+  .board-menu-confirm-text{font-size:10px;color:#b52020;font-family:var(--mono);font-weight:600;white-space:nowrap;}
+  .board-menu-action.save{background:#eaf5ef;color:#2d7d4e;}
+  .board-menu-action.save:hover{background:#dcefe4;}
+  .board-menu-action.confirm{background:#fceaea;color:#b52020;}
+  .board-menu-action.confirm:hover{background:#f6d5d5;}
+  .board-menu-action.cancel:hover{background:var(--subtle);color:var(--text);}
+  .board-menu-item:hover .board-menu-meta{display:none;}
+  .board-menu-item:hover .board-menu-actions{display:inline-flex;}
+  .board-menu-empty{padding:12px 9px;color:var(--muted);font-size:12px;text-align:center;}
   .auth-mode-toggle{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:3px;margin-bottom:12px;}
   .auth-mode-toggle .btn-sm{justify-content:center;border:0;background:transparent;padding:6px 9px;}
   .auth-mode-toggle .btn-sm.active{background:var(--surface);box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  .auth-modal{max-width:430px;padding:0;overflow:hidden;border-radius:14px;}
+  .auth-hero{display:flex;gap:12px;align-items:flex-start;padding:18px 20px 15px;background:#faf9f6;border-bottom:1px solid var(--border);}
+  .auth-icon{width:38px;height:38px;border-radius:10px;background:var(--text);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.12);}
+  .auth-copy{min-width:0;flex:1;}
+  .auth-copy .modal-title{margin-bottom:3px;font-size:16px;}
+  .auth-copy .modal-sub{margin-bottom:0;line-height:1.45;}
+  .auth-copy .modal-sub.importing{margin-top:8px;padding:8px 10px;border:1px solid #a8d9bc;background:#eaf5ef;color:#2d7d4e;border-radius:8px;}
+  .auth-body{padding:16px 20px 18px;}
+  .auth-body .field{margin-bottom:12px;}
+  .auth-body input{padding:9px 11px;background:#fbfaf8;}
+  .auth-body .modal-actions{margin-top:14px;}
+  .auth-body .modal-actions .btn{padding:8px 16px;}
   .auth-status{font-size:12px;color:var(--muted);min-height:18px;margin-top:8px;}
   .auth-status.error{color:#b52020;}
   .auth-status.success{color:#2d7d4e;}
+  .import-name-modal{max-width:430px;}
+  .import-name-modal .modal-sub{line-height:1.45;}
+  .existing-board-wrap{margin-top:10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 10px;}
+  .existing-board-title{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);margin-bottom:6px;}
+  .existing-board-list{display:flex;flex-wrap:wrap;gap:5px;max-height:92px;overflow:auto;}
+  .existing-board-chip{display:inline-flex;max-width:100%;border:1px solid var(--border);background:var(--surface);border-radius:999px;padding:3px 8px;font-size:11px;color:var(--text);}
+  .existing-board-chip.taken{background:#ececec;border-color:#d2d2d2;color:#8a8a8a;text-decoration:line-through;}
+  .existing-board-empty{font-size:12px;color:var(--muted);}
+  .import-name-actions{justify-content:flex-end;}
   .view-toggle{display:inline-flex;align-items:center;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:3px;}
   .view-toggle .btn-sm{border:0;background:transparent;padding:4px 9px;}
   .view-toggle .btn-sm.active{background:var(--surface);box-shadow:0 1px 4px rgba(0,0,0,.08);color:var(--text);}
@@ -325,6 +381,16 @@
     </button>
     <div class="auth-wrap">
       <span class="auth-user" id="authUser">Not signed in</span>
+      <div class="board-menu-wrap" id="boardMenuWrap" onmouseenter="loadRemoteBoards()">
+        <button class="btn-sm" id="boardMenuBtn" type="button" onclick="toggleBoardMenu(event)">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h10v10H3z"/><path d="M6 3v10M3 7h10"/></svg>
+          Boards
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 3.5l3 3 3-3"/></svg>
+        </button>
+        <div class="board-menu" id="boardMenu">
+          <div class="board-menu-empty">Sign in to load boards</div>
+        </div>
+      </div>
       <button class="btn-sm" id="authButton" onclick="handleAuthButtonClick()">
         <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2h3a1 1 0 011 1v10a1 1 0 01-1 1h-3"/><path d="M6 11l3-3-3-3"/><path d="M9 8H2"/></svg>
         Login / Register
@@ -490,19 +556,44 @@
 </div>
 
 <div class="modal-backdrop" id="authModal">
-  <div class="modal" style="max-width:420px;">
-    <div class="modal-title" id="authModalTitle">Login</div>
-    <div class="modal-sub" id="authModalSub">Use your Supabase account to sign in.</div>
-    <div class="auth-mode-toggle" role="tablist" aria-label="Authentication mode">
-      <button class="btn-sm active" id="authLoginModeBtn" type="button" onclick="setAuthMode('login')" role="tab" aria-selected="true">Login</button>
-      <button class="btn-sm" id="authRegisterModeBtn" type="button" onclick="setAuthMode('register')" role="tab" aria-selected="false">Register</button>
+  <div class="modal auth-modal">
+    <div class="auth-hero">
+      <div class="auth-icon">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 8a3 3 0 100-6 3 3 0 000 6z"/><path d="M3 14a5 5 0 0110 0"/></svg>
+      </div>
+      <div class="auth-copy">
+        <div class="modal-title" id="authModalTitle">Login</div>
+        <div class="modal-sub" id="authModalSub">Use your Supabase account to sign in.</div>
+      </div>
     </div>
-    <div class="field"><label class="field-label" for="authEmail">Email</label><input type="email" id="authEmail" autocomplete="email" placeholder="you@example.com"></div>
-    <div class="field"><label class="field-label" for="authPassword">Password</label><input type="password" id="authPassword" autocomplete="current-password" placeholder="At least 6 characters"></div>
-    <div class="auth-status" id="authStatus"></div>
-    <div class="modal-actions">
-      <button class="btn btn-secondary" style="width:auto" onclick="closeAuthModal()">Cancel</button>
-      <button class="btn btn-primary" style="width:auto" id="authSubmitBtn" onclick="submitAuthForm()">Login</button>
+    <div class="auth-body">
+      <div class="auth-mode-toggle" role="tablist" aria-label="Authentication mode">
+        <button class="btn-sm active" id="authLoginModeBtn" type="button" onclick="setAuthMode('login')" role="tab" aria-selected="true">Login</button>
+        <button class="btn-sm" id="authRegisterModeBtn" type="button" onclick="setAuthMode('register')" role="tab" aria-selected="false">Register</button>
+      </div>
+      <div class="field"><label class="field-label" for="authEmail">Email</label><input type="email" id="authEmail" name="username" autocomplete="username" inputmode="email" placeholder="you@example.com"></div>
+      <div class="field"><label class="field-label" for="authPassword">Password</label><input type="password" id="authPassword" name="password" autocomplete="current-password" placeholder="At least 6 characters"></div>
+      <div class="auth-status" id="authStatus"></div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" style="width:auto" onclick="closeAuthModal()">Cancel</button>
+        <button class="btn btn-primary" style="width:auto" id="authSubmitBtn" onclick="submitAuthForm()">Login</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="importBoardNameModal">
+  <div class="modal import-name-modal">
+    <div class="modal-title">Name imported board</div>
+    <div class="modal-sub">Choose a unique name for the anonymous board that will be moved into your Supabase account.</div>
+    <div class="field"><label class="field-label" for="importBoardNameInput">Board name</label><input type="text" id="importBoardNameInput" autocomplete="off" placeholder="Board name"></div>
+    <div class="existing-board-wrap">
+      <div class="existing-board-title">Existing boards</div>
+      <div class="existing-board-list" id="existingBoardNames"><span class="existing-board-empty">Loading boards...</span></div>
+    </div>
+    <div class="modal-error" id="importBoardNameError"></div>
+    <div class="modal-actions import-name-actions">
+      <button class="btn btn-primary" style="width:auto" id="importBoardNameSubmitBtn" onclick="submitImportBoardName()">Import board</button>
     </div>
   </div>
 </div>
@@ -598,7 +689,7 @@ function defaultPIName(){
 }
 
 let tabs=[],activeTabId=null,tabIdSeq=0,dragId=null,dragFrom=null,currentView='capacity',boardDragKey=null,boardDragFrom=null,depDrag=null,boardRowDragTeamId=null,tabDragTeamId=null,suppressNextTabClick=false,rightPanelCollapsed=true;
-let supabaseClient=null,authSession=null,authMode='login';
+let supabaseClient=null,authSession=null,authMode='login',remoteBoards=[],remoteBoardsLoading=false,currentRemoteBoardId=null,currentRemoteBoardName='',remoteSaveTimer=null,isSavingRemoteBoard=false,pendingAnonymousImportSnapshot=null,signedInModePromise=null,signedInUserModeReadyFor=null,anonymousImportEligible=false,pendingImportNameResolve=null,pendingDeleteRemoteBoardId=null,pendingRenameRemoteBoardId=null,pendingRenameRemoteBoardValue=null,pendingRenameRemoteBoardError='';
 function freshBoardState(){return{name:defaultPIName(),iterationCount:6,iterationNames:[],placements:{},dependencies:[],teamOrder:[],backlogFilters:defaultBoardBacklogFilters(),backlogFiltersOpen:false};}
 let boardState=freshBoardState();
 function tab(){return tabs.find(t=>t.id===activeTabId);}
@@ -616,7 +707,10 @@ const UNDO_LIMIT=60;
 let undoStack=[],lastStateSnapshot=null,isRestoringState=false;
 function statePayload(){return{version:6,tabs,activeTabId,tabIdSeq,currentView,boardState,rightPanelCollapsed};}
 function currentStateSnapshot(){return JSON.stringify(statePayload());}
-function writeStateSnapshot(snapshot){try{localStorage.setItem(STORAGE_KEY,snapshot);}catch(e){}}
+function writeStateSnapshot(snapshot){
+  if(authSession)return;
+  try{localStorage.setItem(STORAGE_KEY,snapshot);}catch(e){}
+}
 function updateUndoButton(){
   const btn=document.getElementById('undoBtn');
   if(btn)btn.disabled=!undoStack.length;
@@ -645,9 +739,545 @@ function updateAuthUI(message='',kind=''){
     btn.innerHTML=authSession?`${authIconSvg('out')} Sign out`:`${authIconSvg('in')} Login / Register`;
     btn.disabled=false;
   }
+  const boardWrap=document.getElementById('boardMenuWrap');
+  if(boardWrap)boardWrap.classList.toggle('visible',!!authSession);
+  if(!authSession){
+    remoteBoards=[];
+    currentRemoteBoardId=null;
+    currentRemoteBoardName='';
+    pendingDeleteRemoteBoardId=null;
+    pendingRenameRemoteBoardId=null;
+    pendingRenameRemoteBoardValue=null;
+    pendingRenameRemoteBoardError='';
+    renderRemoteBoardMenu();
+  }
   if(status&&message){
     status.textContent=message;
     status.className='auth-status'+(kind?` ${kind}`:'');
+  }
+}
+function remoteBoardDateLabel(value){
+  if(!value)return'';
+  const d=new Date(value);
+  if(Number.isNaN(d.getTime()))return'';
+  return d.toLocaleDateString(undefined,{month:'short',day:'numeric'});
+}
+function renderRemoteBoardMenu(){
+  const menu=document.getElementById('boardMenu');
+  const btn=document.getElementById('boardMenuBtn');
+  if(btn)btn.title=currentRemoteBoardName?`Current board: ${currentRemoteBoardName}`:'Open or create a board';
+  if(!menu)return;
+  if(!authSession){
+    menu.innerHTML='<div class="board-menu-empty">Sign in to load boards</div>';
+    return;
+  }
+  const current=currentRemoteBoardName||'No board open';
+  let html=`<div class="board-menu-head"><span class="board-menu-title">Boards</span><span class="board-menu-current" title="${esc(current)}">${esc(current)}</span></div>
+    <button class="board-menu-item" type="button" onclick="createRemoteBoard()">
+      <span class="board-menu-name">New board...</span>
+      <span class="board-menu-meta">create</span>
+    </button>`;
+  if(remoteBoardsLoading){
+    html+='<div class="board-menu-empty">Loading boards...</div>';
+  }else if(!remoteBoards.length){
+    html+='<div class="board-menu-empty">No saved boards yet</div>';
+  }else{
+    html+=remoteBoards.map(board=>{
+      const active=board.id===currentRemoteBoardId;
+      const confirming=board.id===pendingDeleteRemoteBoardId;
+      const renaming=board.id===pendingRenameRemoteBoardId;
+      const rowClick=(confirming||renaming)?'event.stopPropagation()':`openRemoteBoard('${board.id}')`;
+      const rowKeydown=confirming
+        ?"if(event.key==='Escape')cancelDeleteRemoteBoard(event)"
+        :renaming
+          ?"if(event.key==='Escape')cancelRenameRemoteBoard(event)"
+          :`if(event.key==='Enter'||event.key===' '){event.preventDefault();openRemoteBoard('${board.id}')}`;
+      const renameValue=pendingRenameRemoteBoardValue!==null?pendingRenameRemoteBoardValue:board.name;
+      const renameErrorLabel=pendingRenameRemoteBoardError
+        ?(pendingRenameRemoteBoardError.includes('already')?'Taken':'Name?')
+        :'';
+      const nameCell=renaming
+        ?`<span class="board-menu-name editing">
+            <input class="board-menu-rename-input${pendingRenameRemoteBoardError?' error':''}" id="boardRenameInput" type="text" value="${esc(renameValue)}" title="${esc(pendingRenameRemoteBoardError)}" onclick="event.stopPropagation()" oninput="pendingRenameRemoteBoardValue=this.value;pendingRenameRemoteBoardError='';this.classList.remove('error')" onkeydown="if(event.key==='Enter')confirmRenameRemoteBoard(event,'${board.id}');else if(event.key==='Escape')cancelRenameRemoteBoard(event)">
+          </span>`
+        :`<span class="board-menu-name" title="${esc(board.name)}">${esc(board.name)}</span>`;
+      const side=renaming
+        ?`<span class="board-menu-confirm" onclick="event.stopPropagation()">
+            ${renameErrorLabel?`<span class="board-menu-confirm-text">${renameErrorLabel}</span>`:''}
+            <span class="board-menu-action save" role="button" tabindex="0" title="Save name" aria-label="Save board name" onclick="confirmRenameRemoteBoard(event,'${board.id}')" onkeydown="if(event.key==='Enter'||event.key===' ')confirmRenameRemoteBoard(event,'${board.id}')">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+            </span>
+            <span class="board-menu-action cancel" role="button" tabindex="0" title="Cancel rename" aria-label="Cancel rename" onclick="cancelRenameRemoteBoard(event)" onkeydown="if(event.key==='Enter'||event.key===' ')cancelRenameRemoteBoard(event)">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </span>
+          </span>`
+        :confirming
+        ?`<span class="board-menu-confirm" onclick="event.stopPropagation()">
+            <span class="board-menu-confirm-text">Delete?</span>
+            <span class="board-menu-action confirm" role="button" tabindex="0" title="Confirm delete" aria-label="Confirm delete ${esc(board.name)}" onclick="confirmDeleteRemoteBoard(event,'${board.id}')" onkeydown="if(event.key==='Enter'||event.key===' ')confirmDeleteRemoteBoard(event,'${board.id}')">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+            </span>
+            <span class="board-menu-action cancel" role="button" tabindex="0" title="Cancel delete" aria-label="Cancel delete" onclick="cancelDeleteRemoteBoard(event)" onkeydown="if(event.key==='Enter'||event.key===' ')cancelDeleteRemoteBoard(event)">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </span>
+          </span>`
+        :`<span class="board-menu-meta">${active?'open':esc(remoteBoardDateLabel(board.updated_at||board.created_at))}</span>
+          <span class="board-menu-actions" aria-label="Board actions">
+            <span class="board-menu-action rename" role="button" tabindex="0" title="Rename board" aria-label="Rename ${esc(board.name)}" onclick="requestRenameRemoteBoard(event,'${board.id}')" onkeydown="if(event.key==='Enter'||event.key===' ')requestRenameRemoteBoard(event,'${board.id}')">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+            </span>
+            <span class="board-menu-action delete" role="button" tabindex="0" title="Delete board" aria-label="Delete ${esc(board.name)}" onclick="requestDeleteRemoteBoard(event,'${board.id}')" onkeydown="if(event.key==='Enter'||event.key===' ')requestDeleteRemoteBoard(event,'${board.id}')">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+            </span>
+          </span>`;
+      return `<div class="board-menu-item${active?' active':''}${confirming?' confirming':''}${renaming?' renaming':''}" role="button" tabindex="0" onclick="${rowClick}" onkeydown="${rowKeydown}">
+        ${nameCell}
+        <span class="board-menu-side">${side}</span>
+      </div>`;
+    }).join('');
+  }
+  menu.innerHTML=html;
+}
+function toggleBoardMenu(event){
+  event?.stopPropagation?.();
+  if(!authSession)return;
+  document.getElementById('boardMenu')?.classList.toggle('open');
+  loadRemoteBoards();
+}
+function anonymousStateSnapshotForImport(){
+  if(authSession||!tabs.length||!anonymousImportEligible)return null;
+  const snapshot=currentStateSnapshot();
+  try{
+    const state=JSON.parse(snapshot);
+    if(state&&Array.isArray(state.tabs)&&state.tabs.length)return snapshot;
+  }catch(e){}
+  return null;
+}
+function boardNameFromSnapshot(snapshot){
+  try{
+    const state=JSON.parse(snapshot);
+    const boardName=String(state?.boardState?.name||'').trim();
+    if(boardName)return boardName;
+    const quarterName=String(state?.tabs?.[0]?.quarterName||'').trim();
+    if(quarterName)return quarterName;
+    const tabName=String(state?.tabs?.[0]?.name||'').trim();
+    if(tabName)return tabName;
+  }catch(e){}
+  return'Imported anonymous board';
+}
+function authModeDescription(){
+  const hasAnonymous=!!anonymousStateSnapshotForImport();
+  if(authMode==='register'){
+    return hasAnonymous
+      ?'Create a Supabase account. Your current anonymous board will be imported and then only be available when logged in.'
+      :'Create a Supabase account for this planner.';
+  }
+  return hasAnonymous
+    ?'Your current anonymous board will be imported to Supabase and then only be available when logged in.'
+    :'Use your Supabase account to sign in.';
+}
+function authModeHasAnonymousImportNotice(){return!!anonymousStateSnapshotForImport();}
+function normalizeBoardName(name){return String(name||'').trim().toLowerCase();}
+function updateRemoteBoardInPlace(row,appendIfMissing=false){
+  const meta={id:row.id,name:row.name,created_at:row.created_at,updated_at:row.updated_at};
+  const index=remoteBoards.findIndex(board=>board.id===row.id);
+  if(index>=0){
+    remoteBoards=remoteBoards.map(board=>board.id===row.id?{...board,...meta}:board);
+  }else if(appendIfMissing){
+    remoteBoards=[...remoteBoards,meta];
+  }
+  return meta;
+}
+async function findBoardByName(name,excludeId=null){
+  if(!authSession)return null;
+  const target=normalizeBoardName(name);
+  if(!target)return null;
+  const cached=remoteBoards.find(board=>normalizeBoardName(board.name)===target&&board.id!==excludeId);
+  if(cached)return cached;
+  const client=getSupabaseClient();if(!client)return null;
+  const {data,error}=await client.from('boards').select('id,name,created_at,updated_at').order('updated_at',{ascending:false});
+  if(error)throw error;
+  remoteBoards=Array.isArray(data)
+    ?data.map(row=>{
+      const existing=remoteBoards.find(board=>board.id===row.id);
+      return existing?{...existing,name:row.name}:{...row};
+    })
+    :remoteBoards;
+  return (data||[]).find(board=>normalizeBoardName(board.name)===target&&board.id!==excludeId)||null;
+}
+async function validateUniqueBoardName(name,excludeId=null){
+  const trimmed=String(name||'').trim();
+  if(!trimmed)return'Enter a board name.';
+  const existing=await findBoardByName(trimmed,excludeId);
+  if(existing)return'A board with this name already exists.';
+  return'';
+}
+function renderExistingBoardNames(candidateName=''){
+  const el=document.getElementById('existingBoardNames');
+  if(!el)return;
+  const candidate=normalizeBoardName(candidateName||document.getElementById('importBoardNameInput')?.value||'');
+  const boards=[...remoteBoards].sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')));
+  if(!boards.length){
+    el.innerHTML='<span class="existing-board-empty">No saved boards yet</span>';
+    return;
+  }
+  el.innerHTML=boards.map(board=>{
+    const taken=candidate&&normalizeBoardName(board.name)===candidate;
+    return `<span class="existing-board-chip${taken?' taken':''}" title="${esc(board.name)}">${esc(board.name)}</span>`;
+  }).join('');
+}
+async function requestImportBoardName(snapshot){
+  await loadRemoteBoards(true);
+  return new Promise(resolve=>{
+    pendingImportNameResolve=resolve;
+    const input=document.getElementById('importBoardNameInput');
+    const err=document.getElementById('importBoardNameError');
+    if(input)input.value=boardNameFromSnapshot(snapshot);
+    if(err)err.textContent='';
+    renderExistingBoardNames(input?.value||'');
+    document.getElementById('importBoardNameModal')?.classList.add('open');
+    setTimeout(()=>{input?.focus();input?.select();},0);
+  });
+}
+async function submitImportBoardName(){
+  const input=document.getElementById('importBoardNameInput'),err=document.getElementById('importBoardNameError'),btn=document.getElementById('importBoardNameSubmitBtn');
+  const name=(input?.value||'').trim();
+  if(btn)btn.disabled=true;
+  try{
+    const error=await validateUniqueBoardName(name);
+    renderExistingBoardNames(name);
+    if(error){if(err)err.textContent=error;return;}
+    document.getElementById('importBoardNameModal')?.classList.remove('open');
+    const resolve=pendingImportNameResolve;
+    pendingImportNameResolve=null;
+    resolve?.(name);
+  }catch(e){
+    if(err)err.textContent=e.message||'Could not validate board name.';
+  }finally{
+    if(btn)btn.disabled=false;
+  }
+}
+async function loadRemoteBoards(force=false){
+  if(!authSession||remoteBoardsLoading)return remoteBoards;
+  if(remoteBoards.length&&!force){renderRemoteBoardMenu();return remoteBoards;}
+  const client=getSupabaseClient();if(!client)return;
+  remoteBoardsLoading=true;renderRemoteBoardMenu();
+  try{
+    const {data,error}=await client.from('boards').select('id,name,created_at,updated_at').order('updated_at',{ascending:false});
+    if(error)throw error;
+    remoteBoards=Array.isArray(data)?data:[];
+  }catch(e){
+    remoteBoards=[];
+    console.warn('Could not load boards',e);
+  }finally{
+    remoteBoardsLoading=false;
+    renderRemoteBoardMenu();
+  }
+  return remoteBoards;
+}
+async function createRemoteBoard(){
+  if(!authSession){openAuthModal('login');return;}
+  pendingDeleteRemoteBoardId=null;
+  pendingRenameRemoteBoardId=null;
+  pendingRenameRemoteBoardValue=null;
+  pendingRenameRemoteBoardError='';
+  let trimmed='';
+  for(;;){
+    const name=prompt('Name for the new board:',trimmed||currentRemoteBoardName||boardState.name||tab()?.quarterName||'PI Capacity Board');
+    if(name===null)return;
+    trimmed=name.trim();
+    const error=await validateUniqueBoardName(trimmed);
+    if(!error)break;
+    alert(error);
+  }
+  const client=getSupabaseClient();if(!client)return;
+  const {data,error}=await client.from('boards').insert({
+    user_id:authSession.user.id,
+    name:trimmed,
+    state:statePayload()
+  }).select('id,name,created_at,updated_at').single();
+  if(error){alert(error.message||'Could not create board.');return;}
+  currentRemoteBoardId=data.id;
+  currentRemoteBoardName=data.name;
+  updateRemoteBoardInPlace(data,true);
+  renderRemoteBoardMenu();
+}
+function focusRemoteBoardRenameInput(){
+  setTimeout(()=>{
+    const input=document.getElementById('boardRenameInput');
+    input?.focus();
+    input?.select();
+  },0);
+}
+function requestRenameRemoteBoard(event,id){
+  event?.preventDefault?.();
+  event?.stopPropagation?.();
+  if(!authSession||!id)return;
+  pendingDeleteRemoteBoardId=null;
+  pendingRenameRemoteBoardId=id;
+  pendingRenameRemoteBoardValue=remoteBoards.find(item=>item.id===id)?.name||'';
+  pendingRenameRemoteBoardError='';
+  document.getElementById('boardMenu')?.classList.add('open');
+  renderRemoteBoardMenu();
+  focusRemoteBoardRenameInput();
+}
+function cancelRenameRemoteBoard(event){
+  event?.preventDefault?.();
+  event?.stopPropagation?.();
+  pendingRenameRemoteBoardId=null;
+  pendingRenameRemoteBoardValue=null;
+  pendingRenameRemoteBoardError='';
+  renderRemoteBoardMenu();
+}
+async function confirmRenameRemoteBoard(event,id){
+  event?.preventDefault?.();
+  event?.stopPropagation?.();
+  if(!authSession||!id||pendingRenameRemoteBoardId!==id)return;
+  const board=remoteBoards.find(item=>item.id===id);
+  const input=document.getElementById('boardRenameInput');
+  const trimmed=(input?.value||pendingRenameRemoteBoardValue||'').trim();
+  pendingRenameRemoteBoardValue=input?.value||pendingRenameRemoteBoardValue||'';
+  try{
+    const validationError=await validateUniqueBoardName(trimmed,id);
+    if(validationError){
+      pendingRenameRemoteBoardError=validationError;
+      renderRemoteBoardMenu();
+      focusRemoteBoardRenameInput();
+      return;
+    }
+  }catch(e){
+    pendingRenameRemoteBoardError=e.message||'Could not validate board name.';
+    renderRemoteBoardMenu();
+    focusRemoteBoardRenameInput();
+    return;
+  }
+  const client=getSupabaseClient();if(!client)return;
+  const {data,error}=await client.from('boards').update({
+    name:trimmed,
+    updated_at:new Date().toISOString()
+  }).eq('id',id).select('id,name,created_at,updated_at').single();
+  if(error){
+    pendingRenameRemoteBoardError=error.message||'Could not rename board.';
+    renderRemoteBoardMenu();
+    focusRemoteBoardRenameInput();
+    return;
+  }
+  if(id===currentRemoteBoardId)currentRemoteBoardName=data.name;
+  updateRemoteBoardInPlace(data,true);
+  pendingRenameRemoteBoardId=null;
+  pendingRenameRemoteBoardValue=null;
+  pendingRenameRemoteBoardError='';
+  renderRemoteBoardMenu();
+}
+function requestDeleteRemoteBoard(event,id){
+  event?.preventDefault?.();
+  event?.stopPropagation?.();
+  if(!authSession||!id)return;
+  pendingDeleteRemoteBoardId=id;
+  pendingRenameRemoteBoardId=null;
+  pendingRenameRemoteBoardValue=null;
+  pendingRenameRemoteBoardError='';
+  document.getElementById('boardMenu')?.classList.add('open');
+  renderRemoteBoardMenu();
+}
+function cancelDeleteRemoteBoard(event){
+  event?.preventDefault?.();
+  event?.stopPropagation?.();
+  pendingDeleteRemoteBoardId=null;
+  renderRemoteBoardMenu();
+}
+async function confirmDeleteRemoteBoard(event,id){
+  event?.preventDefault?.();
+  event?.stopPropagation?.();
+  if(!authSession||!id||pendingDeleteRemoteBoardId!==id)return;
+  const client=getSupabaseClient();if(!client)return;
+  const {error}=await client.from('boards').delete().eq('id',id);
+  if(error){alert(error.message||'Could not delete board.');return;}
+  pendingDeleteRemoteBoardId=null;
+  const wasCurrent=id===currentRemoteBoardId;
+  remoteBoards=remoteBoards.filter(item=>item.id!==id);
+  if(wasCurrent){
+    currentRemoteBoardId=null;
+    currentRemoteBoardName='';
+    clearTimeout(remoteSaveTimer);
+    remoteSaveTimer=null;
+    const next=remoteBoards[0];
+    if(next)await openRemoteBoard(next.id,{skipFlush:true});
+    else{
+      resetPlannerToFreshDefaults();
+      renderPlannerState();
+    }
+  }
+  renderRemoteBoardMenu();
+}
+async function importAnonymousSnapshotToSupabase(snapshot,nameOverride=''){
+  if(!authSession||!snapshot)return false;
+  let state;
+  try{state=JSON.parse(snapshot);}catch(e){return false;}
+  if(!state||!Array.isArray(state.tabs)||!state.tabs.length)return false;
+  const client=getSupabaseClient();if(!client)return false;
+  const name=(nameOverride||'').trim()||boardNameFromSnapshot(snapshot);
+  const {data,error}=await client.from('boards').insert({
+    user_id:authSession.user.id,
+    name,
+    state
+  }).select('id,name,created_at,updated_at').single();
+  if(error){
+    alert((error.message||'Could not import anonymous board.')+' Your anonymous board is still stored locally.');
+    return false;
+  }
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(LEGACY_STORAGE_KEY);
+  anonymousImportEligible=false;
+  isRestoringState=true;
+  try{
+    if(!applyStateSnapshot(snapshot))throw new Error('Imported board state could not be loaded.');
+    currentRemoteBoardId=data.id;
+    currentRemoteBoardName=data.name;
+    updateRemoteBoardInPlace(data,true);
+    renderPlannerState();
+    renderRemoteBoardMenu();
+  }catch(e){
+    alert(e.message||'The anonymous board was imported, but could not be opened.');
+  }finally{
+    isRestoringState=false;
+  }
+  return true;
+}
+async function openRemoteBoard(id,options={}){
+  if(!authSession||!id)return;
+  pendingDeleteRemoteBoardId=null;
+  pendingRenameRemoteBoardId=null;
+  pendingRenameRemoteBoardValue=null;
+  pendingRenameRemoteBoardError='';
+  if(!options.skipFlush)await flushRemoteBoardSave();
+  const client=getSupabaseClient();if(!client)return;
+  const {data,error}=await client.from('boards').select('id,name,state,created_at,updated_at').eq('id',id).single();
+  if(error){alert(error.message||'Could not open board.');return;}
+  const snapshot=JSON.stringify(data.state||{});
+  isRestoringState=true;
+  try{
+    if(!applyStateSnapshot(snapshot))throw new Error('The selected board state could not be loaded.');
+    currentRemoteBoardId=data.id;
+    currentRemoteBoardName=data.name;
+    updateRemoteBoardInPlace(data,true);
+    syncViewUI();
+    syncRightPanelUI();
+    renderTabBar();
+    loadTabIntoSidebar();
+    renderWorkspace();
+    resetUndoBaseline();
+    renderRemoteBoardMenu();
+    document.getElementById('boardMenu')?.classList.remove('open');
+  }catch(e){
+    alert(e.message||'Could not open board.');
+  }finally{
+    isRestoringState=false;
+  }
+}
+function resetPlannerToFreshDefaults(){
+  tabs=[];activeTabId=null;tabIdSeq=0;currentView='capacity';rightPanelCollapsed=true;boardState=freshBoardState();
+  const t=newTab('Team A');activeTabId=t.id;
+  ensureDefaultWorkItems(t);
+  placeDefaultStartupItems(t);
+  normalizeLoadedPlannerState();
+}
+function normalizeLoadedPlannerState(){
+  if(!tabs.length)return;
+  tabs.forEach(t=>{if(!t.quarterName)t.quarterName=defaultQuarterName();if(!t.capacity){t.capacity=240;t.sprintDevs=4;t.sprintCount=6;t.sprintWeeks=2;t.sprintPtsPerDev=10;t.holidays=0;}});
+  cleanupBoardState();
+}
+function renderPlannerState(){
+  syncViewUI();
+  syncRightPanelUI();
+  renderTabBar();
+  loadTabIntoSidebar();
+  renderWorkspace();
+  resetUndoBaseline();
+}
+function loadAnonymousPlannerState(){
+  const hadAnonymousSnapshot=!!(localStorage.getItem(STORAGE_KEY)||localStorage.getItem(LEGACY_STORAGE_KEY));
+  tabs=[];activeTabId=null;tabIdSeq=0;currentView='capacity';rightPanelCollapsed=true;boardState=freshBoardState();
+  loadState();
+  rightPanelCollapsed=true;
+  if(!tabs.length)resetPlannerToFreshDefaults();
+  else normalizeLoadedPlannerState();
+  anonymousImportEligible=hadAnonymousSnapshot;
+  renderPlannerState();
+}
+async function enterSupabaseBoardMode(){
+  clearTimeout(remoteSaveTimer);
+  remoteSaveTimer=null;
+  currentRemoteBoardId=null;
+  currentRemoteBoardName='';
+  const boards=await loadRemoteBoards(true)||[];
+  if(boards.length){
+    await openRemoteBoard(boards[0].id,{skipFlush:true});
+  }else{
+    resetPlannerToFreshDefaults();
+    renderPlannerState();
+    renderRemoteBoardMenu();
+  }
+}
+async function handleSignedInBoardMode(snapshot=null,name=''){
+  const userId=authSession?.user?.id||null;
+  if(!userId)return;
+  if(signedInModePromise)return signedInModePromise;
+  if(signedInUserModeReadyFor===userId)return;
+  signedInModePromise=(async()=>{
+    try{
+      if(snapshot){
+        const importName=name||await requestImportBoardName(snapshot);
+        const imported=await importAnonymousSnapshotToSupabase(snapshot,importName);
+        if(!imported)await enterSupabaseBoardMode();
+      }else{
+        await enterSupabaseBoardMode();
+      }
+      signedInUserModeReadyFor=userId;
+    }finally{
+      signedInModePromise=null;
+    }
+  })();
+  return signedInModePromise;
+}
+function enterAnonymousBoardMode(){
+  clearTimeout(remoteSaveTimer);
+  remoteSaveTimer=null;
+  currentRemoteBoardId=null;
+  currentRemoteBoardName='';
+  remoteBoards=[];
+  signedInUserModeReadyFor=null;
+  loadAnonymousPlannerState();
+  renderRemoteBoardMenu();
+}
+function scheduleRemoteBoardSave(){
+  if(!authSession||!currentRemoteBoardId||isRestoringState)return;
+  clearTimeout(remoteSaveTimer);
+  remoteSaveTimer=setTimeout(()=>{flushRemoteBoardSave();},700);
+}
+async function flushRemoteBoardSave(){
+  if(!authSession||!currentRemoteBoardId||isSavingRemoteBoard)return;
+  clearTimeout(remoteSaveTimer);
+  remoteSaveTimer=null;
+  const client=getSupabaseClient();if(!client)return;
+  isSavingRemoteBoard=true;
+  const updatedAt=new Date().toISOString();
+  const boardId=currentRemoteBoardId;
+  try{
+    const {data,error}=await client.from('boards').update({
+      state:statePayload(),
+      updated_at:updatedAt
+    }).eq('id',boardId).select('id,name,created_at,updated_at').single();
+    if(error)throw error;
+    if(data){
+      currentRemoteBoardName=data.name;
+      updateRemoteBoardInPlace(data,true);
+      renderRemoteBoardMenu();
+    }
+  }catch(e){
+    console.warn('Could not save board',e);
+  }finally{
+    isSavingRemoteBoard=false;
   }
 }
 async function initAuth(){
@@ -661,11 +1291,22 @@ async function initAuth(){
     if(error)throw error;
     authSession=data?.session||null;
     updateAuthUI();
-    client.auth.onAuthStateChange((_event,session)=>{
+    client.auth.onAuthStateChange(async(_event,session)=>{
+      const previousUserId=authSession?.user?.id||null;
       authSession=session;
       updateAuthUI();
-      if(session)closeAuthModal();
+      if(session){
+        closeAuthModal();
+        if(session.user?.id!==previousUserId){
+          const snapshot=pendingAnonymousImportSnapshot;
+          pendingAnonymousImportSnapshot=null;
+          await handleSignedInBoardMode(snapshot);
+        }
+      }else if(previousUserId){
+        enterAnonymousBoardMode();
+      }
     });
+    if(authSession)await handleSignedInBoardMode();
   }catch(e){
     updateAuthUI(e.message||'Could not load Supabase auth session.', 'error');
   }
@@ -679,7 +1320,10 @@ function setAuthMode(mode){
   document.getElementById('authRegisterModeBtn')?.setAttribute('aria-selected',String(isRegister));
   const title=document.getElementById('authModalTitle'),sub=document.getElementById('authModalSub'),submit=document.getElementById('authSubmitBtn'),password=document.getElementById('authPassword'),status=document.getElementById('authStatus');
   if(title)title.textContent=isRegister?'Register':'Login';
-  if(sub)sub.textContent=isRegister?'Create a Supabase account for this planner.':'Use your Supabase account to sign in.';
+  if(sub){
+    sub.textContent=authModeDescription();
+    sub.classList.toggle('importing',authModeHasAnonymousImportNotice());
+  }
   if(submit)submit.textContent=isRegister?'Register':'Login';
   if(password)password.autocomplete=isRegister?'new-password':'current-password';
   if(status){status.textContent='';status.className='auth-status';}
@@ -700,9 +1344,19 @@ async function handleAuthButtonClick(){
   if(!authSession){openAuthModal('login');return;}
   const btn=document.getElementById('authButton');
   if(btn)btn.disabled=true;
+  await flushRemoteBoardSave();
   const {error}=await client.auth.signOut();
   if(error)alert(error.message||'Could not sign out.');
-  else{authSession=null;updateAuthUI();}
+  else{
+    currentRemoteBoardId=null;
+    currentRemoteBoardName='';
+    remoteBoards=[];
+    pendingAnonymousImportSnapshot=null;
+    signedInUserModeReadyFor=null;
+    authSession=null;
+    updateAuthUI();
+    enterAnonymousBoardMode();
+  }
   if(btn)btn.disabled=false;
 }
 async function submitAuthForm(){
@@ -715,6 +1369,7 @@ async function submitAuthForm(){
     return;
   }
   if(submit)submit.disabled=true;
+  pendingAnonymousImportSnapshot=anonymousStateSnapshotForImport();
   if(status){status.textContent=authMode==='register'?'Creating account...':'Signing in...';status.className='auth-status';}
   try{
     const options={emailRedirectTo:window.location.origin+window.location.pathname};
@@ -723,14 +1378,19 @@ async function submitAuthForm(){
       :await client.auth.signInWithPassword({email,password});
     if(result.error)throw result.error;
     if(authMode==='register'&&!result.data?.session){
+      pendingAnonymousImportSnapshot=null;
       setAuthMode('login');
       if(status){status.textContent='Account created. Confirm the email if Supabase requires it, then log in.';status.className='auth-status success';}
     }else{
       authSession=result.data?.session||authSession;
       updateAuthUI();
       closeAuthModal();
+      const snapshot=pendingAnonymousImportSnapshot;
+      pendingAnonymousImportSnapshot=null;
+      await handleSignedInBoardMode(snapshot);
     }
   }catch(e){
+    pendingAnonymousImportSnapshot=null;
     if(status){status.textContent=e.message||'Authentication failed.';status.className='auth-status error';}
   }finally{
     if(submit)submit.disabled=false;
@@ -744,13 +1404,16 @@ function resetUndoBaseline(){
 }
 function saveState(){
   const snapshot=currentStateSnapshot();
-  if(!isRestoringState&&lastStateSnapshot&&snapshot!==lastStateSnapshot){
+  const changed=!isRestoringState&&lastStateSnapshot&&snapshot!==lastStateSnapshot;
+  if(changed){
     undoStack.push(lastStateSnapshot);
     if(undoStack.length>UNDO_LIMIT)undoStack.shift();
+    if(!authSession)anonymousImportEligible=true;
   }
   writeStateSnapshot(snapshot);
   lastStateSnapshot=snapshot;
   updateUndoButton();
+  scheduleRemoteBoardSave();
 }
 function applyStateSnapshot(snapshot){
   let s;
@@ -2232,6 +2895,7 @@ function promptGridCols(){
 
 function toggleExportDropdown(){document.getElementById('exportDropdown').classList.toggle('open');}
 document.addEventListener('click',e=>{if(!document.getElementById('exportDropWrap').contains(e.target))document.getElementById('exportDropdown').classList.remove('open');});
+document.addEventListener('click',e=>{if(!document.getElementById('boardMenuWrap')?.contains(e.target))document.getElementById('boardMenu')?.classList.remove('open');});
 function downloadJSON(obj,fn){const b=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}),u=URL.createObjectURL(b),a=Object.assign(document.createElement('a'),{href:u,download:fn});a.click();URL.revokeObjectURL(u);}
 function exportCurrentTab(){document.getElementById('exportDropdown').classList.remove('open');const t=tab();if(!t)return;downloadJSON({version:6,type:'single',tab:t},`capacity-${slug(t.name)}.json`);}
 function exportAllTabs(){document.getElementById('exportDropdown').classList.remove('open');downloadJSON({version:6,type:'all',tabs,boardState},'capacity-all-teams.json');}
@@ -2294,7 +2958,18 @@ function doImport(){
   }catch(e){errEl.textContent='Error: '+(e.message||'Invalid JSON.');}
 }
 
-function clearAll(){if(!confirm('Clear all teams and start fresh?'))return;tabs=[];tabIdSeq=0;activeTabId=null;currentView='capacity';rightPanelCollapsed=true;boardState=freshBoardState();localStorage.removeItem(STORAGE_KEY);localStorage.removeItem(LEGACY_STORAGE_KEY);init();}
+function clearAll(){
+  if(!confirm('Clear all teams and start fresh?'))return;
+  if(authSession){
+    resetPlannerToFreshDefaults();
+    renderPlannerState();
+    saveState();
+    return;
+  }
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(LEGACY_STORAGE_KEY);
+  loadAnonymousPlannerState();
+}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 document.getElementById('featureName').addEventListener('keydown',e=>{if(e.key==='Enter')addFeature();});
@@ -2312,6 +2987,8 @@ document.getElementById('descriptionModal').addEventListener('click',e=>{if(e.ta
 document.getElementById('splitModal').addEventListener('click',e=>{if(e.target===document.getElementById('splitModal'))cancelSplitFeature();});
 document.getElementById('importModal').addEventListener('click',e=>{if(e.target===document.getElementById('importModal'))closeImport();});
 document.getElementById('authModal').addEventListener('click',e=>{if(e.target===document.getElementById('authModal'))closeAuthModal();});
+document.getElementById('importBoardNameInput')?.addEventListener('input',e=>renderExistingBoardNames(e.target.value));
+document.getElementById('importBoardNameInput')?.addEventListener('keydown',e=>{if(e.key==='Enter')submitImportBoardName();});
 document.getElementById('authEmail')?.addEventListener('keydown',e=>{if(e.key==='Enter')submitAuthForm();});
 document.getElementById('authPassword')?.addEventListener('keydown',e=>{if(e.key==='Enter')submitAuthForm();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDescriptionEditor();closeImport();closeAuthModal();}});
@@ -2372,17 +3049,9 @@ function placeDefaultStartupItems(t){
     if(f&&!t.placed[f.id]&&!t.parked?.includes(f.id))t.placed[f.id]={...pos};
   });
 }
-function init(){
-  loadState();
-  rightPanelCollapsed=true;
-  if(!tabs.length){
-    const t=newTab('Team A');activeTabId=t.id;
-    ensureDefaultWorkItems(t);
-    placeDefaultStartupItems(t);
-  }
-  tabs.forEach(t=>{if(!t.quarterName)t.quarterName=defaultQuarterName();if(!t.capacity){t.capacity=240;t.sprintDevs=4;t.sprintCount=6;t.sprintWeeks=2;t.sprintPtsPerDev=10;t.holidays=0;}});
-  cleanupBoardState();syncViewUI();syncRightPanelUI();renderTabBar();loadTabIntoSidebar();renderWorkspace();resetUndoBaseline();
-  initAuth();
+async function init(){
+  await initAuth();
+  if(!authSession)loadAnonymousPlannerState();
 }
 window.addEventListener('resize',()=>{if(currentView==='board')renderBoardDependencies();});
 init();

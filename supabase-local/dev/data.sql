@@ -24,12 +24,45 @@ create policy "Users can update own profile."
   on profiles for update
   using ( auth.uid() = id );
 
+create table boards (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users not null default auth.uid(),
+  name text not null,
+  state jsonb not null,
+  created_at timestamp with time zone not null default now(),
+  updated_at timestamp with time zone not null default now(),
+  constraint board_name_length check (char_length(trim(name)) >= 1)
+);
+
+create unique index boards_user_name_unique
+  on boards (user_id, lower(trim(name)));
+
+alter table boards enable row level security;
+
+create policy "Users can view their own boards."
+  on boards for select
+  using ( auth.uid() = user_id );
+
+create policy "Users can insert their own boards."
+  on boards for insert
+  with check ( auth.uid() = user_id );
+
+create policy "Users can update their own boards."
+  on boards for update
+  using ( auth.uid() = user_id )
+  with check ( auth.uid() = user_id );
+
+create policy "Users can delete their own boards."
+  on boards for delete
+  using ( auth.uid() = user_id );
+
 -- Set up Realtime
 begin;
   drop publication if exists supabase_realtime;
   create publication supabase_realtime;
 commit;
 alter publication supabase_realtime add table profiles;
+alter publication supabase_realtime add table boards;
 
 -- Set up Storage
 insert into storage.buckets (id, name)
