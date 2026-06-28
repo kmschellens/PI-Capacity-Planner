@@ -38,8 +38,8 @@
   .section-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;font-family:var(--mono);}
   .field{margin-bottom:10px;}
   .field-label{display:block;font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;font-family:var(--mono);}
-  input[type="text"],input[type="number"],input[type="email"],input[type="password"]{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-family:inherit;font-size:13px;color:var(--text);outline:none;transition:border-color .15s,box-shadow .15s;}
-  input:focus{border-color:#6a9fd8;box-shadow:0 0 0 3px rgba(106,159,216,.15);}
+  input[type="text"],input[type="number"],input[type="email"],input[type="password"],select{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-family:inherit;font-size:13px;color:var(--text);outline:none;transition:border-color .15s,box-shadow .15s;}
+  input:focus,select:focus{border-color:#6a9fd8;box-shadow:0 0 0 3px rgba(106,159,216,.15);}
   .btn{width:100%;padding:8px 14px;border-radius:6px;border:none;font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:background .15s;}
   .btn-primary{background:#1c1b19;color:#fff;}.btn-primary:hover{background:#333;}
   .btn-secondary{background:var(--subtle);color:var(--text);border:1px solid var(--border);}.btn-secondary:hover{background:var(--border);}
@@ -223,11 +223,12 @@
   .board-menu-rename-input:focus{border-color:#79b895;box-shadow:0 0 0 2px rgba(45,125,78,.12);}
   .board-menu-rename-input.error{border-color:#d76d6d;background:#fff8f8;}
   .board-menu-meta{font-size:10px;color:var(--muted);font-family:var(--mono);white-space:nowrap;}
-  .board-menu-side{position:relative;display:inline-flex;align-items:center;justify-content:flex-end;min-width:84px;flex-shrink:0;}
+  .board-menu-side{position:relative;display:inline-flex;align-items:center;justify-content:flex-end;min-width:112px;flex-shrink:0;}
   .board-menu-actions{display:none;align-items:center;gap:4px;}
   .board-menu-action{width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;border-radius:5px;color:var(--muted);cursor:pointer;}
   .board-menu-action svg{width:14px;height:14px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;}
   .board-menu-action.rename:hover{background:#eaf5ef;color:#2d7d4e;}
+  .board-menu-action.settings:hover{background:#eef5fc;color:#1a5fa8;}
   .board-menu-action.delete:hover{background:#fceaea;color:#b52020;}
   .board-menu-confirm{display:inline-flex;align-items:center;gap:4px;}
   .board-menu-confirm-text{font-size:10px;color:#b52020;font-family:var(--mono);font-weight:600;white-space:nowrap;}
@@ -265,6 +266,17 @@
   .existing-board-chip{display:inline-flex;max-width:100%;border:1px solid var(--border);background:var(--surface);border-radius:999px;padding:3px 8px;font-size:11px;color:var(--text);}
   .existing-board-chip.taken{background:#ececec;border-color:#d2d2d2;color:#8a8a8a;text-decoration:line-through;}
   .existing-board-empty{font-size:12px;color:var(--muted);}
+  .share-modal{max-width:560px;}
+  .share-owner{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 10px;margin-bottom:10px;}
+  .share-owner-email,.share-user-email{font-size:12px;font-family:var(--mono);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .share-permission-pill{font-size:10px;font-weight:600;font-family:var(--mono);text-transform:uppercase;letter-spacing:.04em;background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:2px 7px;color:var(--muted);white-space:nowrap;}
+  .share-add-row{display:grid;grid-template-columns:minmax(0,1fr) 118px auto;gap:8px;align-items:end;margin-bottom:12px;}
+  .share-list{display:flex;flex-direction:column;gap:6px;max-height:230px;overflow:auto;}
+  .share-row{display:grid;grid-template-columns:minmax(0,1fr) 118px 28px;gap:8px;align-items:center;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px;}
+  .share-row select,.share-add-row select{padding:6px 8px;font-size:12px;}
+  .share-remove{width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:6px;background:transparent;color:var(--muted);cursor:pointer;font-size:16px;line-height:1;}
+  .share-remove:hover{background:#fceaea;color:#b52020;}
+  .share-empty{font-size:12px;color:var(--muted);text-align:center;padding:14px;background:var(--bg);border:1px dashed var(--border2);border-radius:8px;}
   .import-name-actions{justify-content:flex-end;}
   .view-toggle{display:inline-flex;align-items:center;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:3px;}
   .view-toggle .btn-sm{border:0;background:transparent;padding:4px 9px;}
@@ -594,6 +606,27 @@
   </div>
 </div>
 
+<div class="modal-backdrop" id="boardShareModal">
+  <div class="modal share-modal">
+    <div class="modal-title" id="boardShareTitle">Board settings</div>
+    <div class="modal-sub" id="boardShareSub">Add users by email and choose whether they can read or write this board.</div>
+    <div class="share-owner">
+      <span class="share-owner-email" id="boardShareOwnerEmail">Owner</span>
+      <span class="share-permission-pill">Owner</span>
+    </div>
+    <div class="share-add-row">
+      <div class="field" style="margin-bottom:0;"><label class="field-label" for="boardShareEmail">User email</label><input type="email" id="boardShareEmail" placeholder="teammate@example.com" autocomplete="off"></div>
+      <div class="field" style="margin-bottom:0;"><label class="field-label" for="boardSharePermission">Permission</label><select id="boardSharePermission"><option value="read">Read</option><option value="write">Write</option></select></div>
+      <button class="btn btn-secondary" style="width:auto;padding:7px 12px;" id="boardShareAddBtn" onclick="addBoardCollaborator()">Add</button>
+    </div>
+    <div class="share-list" id="boardShareList"></div>
+    <div class="modal-error" id="boardShareError"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" style="width:auto" onclick="closeBoardShareModal()">Done</button>
+    </div>
+  </div>
+</div>
+
 <div class="copyright-footer">© K M Schellens</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.108.2"></script>
@@ -681,7 +714,7 @@ function defaultPIName(){
 }
 
 let tabs=[],activeTabId=null,tabIdSeq=0,dragId=null,dragFrom=null,currentView='capacity',boardDragKey=null,boardDragFrom=null,depDrag=null,boardRowDragTeamId=null,tabDragTeamId=null,suppressNextTabClick=false,rightPanelCollapsed=true;
-let supabaseClient=null,authSession=null,authMode='login',remoteBoards=[],remoteBoardsLoading=false,currentRemoteBoardId=null,currentRemoteBoardName='',remoteSaveTimer=null,isSavingRemoteBoard=false,pendingAnonymousImportSnapshot=null,signedInModePromise=null,signedInUserModeReadyFor=null,anonymousImportEligible=false,pendingImportNameResolve=null,pendingDeleteRemoteBoardId=null,pendingRenameRemoteBoardId=null,pendingRenameRemoteBoardValue=null,pendingRenameRemoteBoardError='';
+let supabaseClient=null,authSession=null,authMode='login',remoteBoards=[],remoteBoardsLoading=false,currentRemoteBoardId=null,currentRemoteBoardName='',currentRemoteBoardPermission='owner',remoteSaveTimer=null,isSavingRemoteBoard=false,remoteBoardChannel=null,remoteBoardChannelId=null,pendingAnonymousImportSnapshot=null,signedInModePromise=null,signedInUserModeReadyFor=null,anonymousImportEligible=false,pendingImportNameResolve=null,pendingDeleteRemoteBoardId=null,pendingRenameRemoteBoardId=null,pendingRenameRemoteBoardValue=null,pendingRenameRemoteBoardError='',boardShareBoardId=null,boardShareEntries=[],boardShareLoading=false,boardShareSaving=false,readOnlyWarningShown=false;
 function freshBoardState(){return{name:defaultPIName(),iterationCount:6,iterationNames:[],placements:{},dependencies:[],teamOrder:[],backlogFilters:defaultBoardBacklogFilters(),backlogFiltersOpen:false};}
 let boardState=freshBoardState();
 function tab(){return tabs.find(t=>t.id===activeTabId);}
@@ -698,7 +731,17 @@ function getGridRows(){const t=tab();const cap=teamCapacityPts(t);if(!t||!cap)re
 const UNDO_LIMIT=60;
 let undoStack=[],lastStateSnapshot=null,isRestoringState=false;
 function statePayload(){return{version:6,tabs,activeTabId,tabIdSeq,currentView,boardState,rightPanelCollapsed};}
+function syncedStatePayload(){return{version:6,tabs,tabIdSeq,boardState};}
 function currentStateSnapshot(){return JSON.stringify(statePayload());}
+function currentSyncedStateSnapshot(){return JSON.stringify(syncedStatePayload());}
+function syncedStateSnapshotFromSnapshot(snapshot){
+  if(!snapshot)return'';
+  try{
+    const s=JSON.parse(snapshot);
+    if(!s||!Array.isArray(s.tabs))return'';
+    return JSON.stringify({version:6,tabs:s.tabs,tabIdSeq:s.tabIdSeq||s.tabs.length,boardState:s.boardState});
+  }catch(e){return'';}
+}
 function writeStateSnapshot(snapshot){
   if(authSession)return;
   try{localStorage.setItem(STORAGE_KEY,snapshot);}catch(e){}
@@ -734,9 +777,11 @@ function updateAuthUI(message='',kind=''){
   const boardWrap=document.getElementById('boardMenuWrap');
   if(boardWrap)boardWrap.classList.toggle('visible',!!authSession);
   if(!authSession){
+    clearRemoteBoardSubscription();
     remoteBoards=[];
     currentRemoteBoardId=null;
     currentRemoteBoardName='';
+    currentRemoteBoardPermission='owner';
     pendingDeleteRemoteBoardId=null;
     pendingRenameRemoteBoardId=null;
     pendingRenameRemoteBoardValue=null;
@@ -754,6 +799,110 @@ function remoteBoardDateLabel(value){
   if(Number.isNaN(d.getTime()))return'';
   return d.toLocaleDateString(undefined,{month:'short',day:'numeric'});
 }
+function normalizeUserEmail(email){return String(email||'').trim().toLowerCase();}
+function boardPermissionLabel(permission){
+  if(permission==='owner')return'owner';
+  if(permission==='write')return'write';
+  return'read';
+}
+function currentBoardCanWrite(){
+  return !authSession||!currentRemoteBoardId||currentRemoteBoardPermission==='owner'||currentRemoteBoardPermission==='write';
+}
+function boardPermissionFromRow(row,collabMap=null){
+  if(row?.user_id&&authSession?.user?.id&&row.user_id===authSession.user.id)return'owner';
+  const shared=collabMap?.get?.(row?.id)||row?.permission;
+  return shared==='write'?'write':'read';
+}
+async function hydrateRemoteBoardPermissions(rows){
+  const list=Array.isArray(rows)?rows:[];
+  const email=normalizeUserEmail(authSession?.user?.email);
+  const collabMap=new Map();
+  if(email&&list.some(row=>row.user_id!==authSession?.user?.id)){
+    const client=getSupabaseClient();
+    try{
+      const {data,error}=await client.from('board_collaborators').select('board_id,permission').eq('user_email',email);
+      if(error)throw error;
+      (data||[]).forEach(item=>collabMap.set(item.board_id,item.permission==='write'?'write':'read'));
+    }catch(e){
+      console.warn('Could not load board collaborator permissions',e);
+    }
+  }
+  return list.map(row=>({...row,permission:boardPermissionFromRow(row,collabMap)}));
+}
+function showReadOnlyBoardWarning(){
+  if(readOnlyWarningShown)return;
+  readOnlyWarningShown=true;
+  alert('This board is read-only for your account. Ask the owner for write access to make changes.');
+  setTimeout(()=>{readOnlyWarningShown=false;},1200);
+}
+function clearRemoteBoardSubscription(){
+  if(!remoteBoardChannel)return;
+  const client=getSupabaseClient();
+  const channel=remoteBoardChannel;
+  remoteBoardChannel=null;
+  remoteBoardChannelId=null;
+  const removal=client?.removeChannel?.(channel);
+  removal?.catch?.(e=>console.warn('Could not remove realtime channel',e));
+}
+function applyRemoteBoardSnapshot(snapshot){
+  const previousActiveTabId=activeTabId;
+  const previousView=currentView;
+  const previousRightPanelCollapsed=rightPanelCollapsed;
+  isRestoringState=true;
+  try{
+    if(!applyStateSnapshot(snapshot))return false;
+    if(tabs.find(t=>t.id===previousActiveTabId))activeTabId=previousActiveTabId;
+    currentView=previousView;
+    rightPanelCollapsed=previousRightPanelCollapsed;
+    cleanupBoardState();
+    renderPlannerState();
+    return true;
+  }finally{
+    isRestoringState=false;
+  }
+}
+function handleRemoteBoardPayload(payload){
+  const row=payload?.new||{};
+  if(!row.id||row.id!==currentRemoteBoardId)return;
+  currentRemoteBoardName=row.name||currentRemoteBoardName;
+  updateRemoteBoardInPlace(row,true);
+  renderRemoteBoardMenu();
+  const snapshot=JSON.stringify(row.state||{});
+  if(syncedStateSnapshotFromSnapshot(snapshot)===currentSyncedStateSnapshot())return;
+  if(remoteSaveTimer&&currentBoardCanWrite())return;
+  if(!applyRemoteBoardSnapshot(snapshot)){
+    console.warn('Received realtime board update that could not be applied.');
+  }
+}
+async function handleRemoteBoardDelete(payload){
+  const deletedId=payload?.old?.id||payload?.new?.id;
+  if(!deletedId||deletedId!==currentRemoteBoardId)return;
+  clearRemoteBoardSubscription();
+  currentRemoteBoardId=null;
+  currentRemoteBoardName='';
+  currentRemoteBoardPermission='owner';
+  remoteBoards=remoteBoards.filter(board=>board.id!==deletedId);
+  const next=remoteBoards[0];
+  if(next)await openRemoteBoard(next.id,{skipFlush:true});
+  else{
+    resetPlannerToFreshDefaults();
+    renderPlannerState();
+    renderRemoteBoardMenu();
+  }
+}
+function subscribeToRemoteBoard(id){
+  if(!authSession||!id)return;
+  if(remoteBoardChannel&&remoteBoardChannelId===id)return;
+  clearRemoteBoardSubscription();
+  const client=getSupabaseClient();if(!client?.channel)return;
+  remoteBoardChannelId=id;
+  remoteBoardChannel=client.channel(`board:${id}`)
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'boards',filter:`id=eq.${id}`},handleRemoteBoardPayload)
+    .on('postgres_changes',{event:'DELETE',schema:'public',table:'boards',filter:`id=eq.${id}`},payload=>{handleRemoteBoardDelete(payload);})
+    .subscribe(status=>{
+      if(status==='CHANNEL_ERROR'||status==='TIMED_OUT')console.warn('Realtime board channel status:',status);
+    });
+}
 function renderRemoteBoardMenu(){
   const menu=document.getElementById('boardMenu');
   const btn=document.getElementById('boardMenuBtn');
@@ -763,7 +912,9 @@ function renderRemoteBoardMenu(){
     menu.innerHTML='<div class="board-menu-empty">Sign in to load boards</div>';
     return;
   }
-  const current=currentRemoteBoardName||'No board open';
+  const current=currentRemoteBoardName
+    ?`${currentRemoteBoardName} (${boardPermissionLabel(currentRemoteBoardPermission)})`
+    :'No board open';
   let html=`<div class="board-menu-head"><span class="board-menu-title">Boards</span><span class="board-menu-current" title="${esc(current)}">${esc(current)}</span></div>
     <button class="board-menu-item" type="button" onclick="createRemoteBoard()">
       <span class="board-menu-name">New board...</span>
@@ -776,6 +927,7 @@ function renderRemoteBoardMenu(){
   }else{
     html+=remoteBoards.map(board=>{
       const active=board.id===currentRemoteBoardId;
+      const owner=board.permission==='owner';
       const confirming=board.id===pendingDeleteRemoteBoardId;
       const renaming=board.id===pendingRenameRemoteBoardId;
       const rowClick=(confirming||renaming)?'event.stopPropagation()':`openRemoteBoard('${board.id}')`;
@@ -813,15 +965,18 @@ function renderRemoteBoardMenu(){
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
             </span>
           </span>`
-        :`<span class="board-menu-meta">${active?'open':esc(remoteBoardDateLabel(board.updated_at||board.created_at))}</span>
-          <span class="board-menu-actions" aria-label="Board actions">
+        :`<span class="board-menu-meta">${active?boardPermissionLabel(board.permission):owner?esc(remoteBoardDateLabel(board.updated_at||board.created_at)):boardPermissionLabel(board.permission)}</span>
+          ${owner?`<span class="board-menu-actions" aria-label="Board actions">
             <span class="board-menu-action rename" role="button" tabindex="0" title="Rename board" aria-label="Rename ${esc(board.name)}" onclick="requestRenameRemoteBoard(event,'${board.id}')" onkeydown="if(event.key==='Enter'||event.key===' ')requestRenameRemoteBoard(event,'${board.id}')">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+            </span>
+            <span class="board-menu-action settings" role="button" tabindex="0" title="Board settings" aria-label="Board settings for ${esc(board.name)}" onclick="openBoardShareModal(event,'${board.id}')" onkeydown="if(event.key==='Enter'||event.key===' ')openBoardShareModal(event,'${board.id}')">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a1.8 1.8 0 0 0 .36 1.98l.04.04a2.1 2.1 0 1 1-2.98 2.98l-.04-.04A1.8 1.8 0 0 0 14.8 19.6a1.8 1.8 0 0 0-1.08 1.65V21.3a2.1 2.1 0 1 1-4.2 0v-.06A1.8 1.8 0 0 0 8.45 19.6a1.8 1.8 0 0 0-1.98.36l-.04.04a2.1 2.1 0 1 1-2.98-2.98l.04-.04A1.8 1.8 0 0 0 3.85 15a1.8 1.8 0 0 0-1.65-1.08H2.1a2.1 2.1 0 1 1 0-4.2h.1a1.8 1.8 0 0 0 1.65-1.08 1.8 1.8 0 0 0-.36-1.98l-.04-.04a2.1 2.1 0 1 1 2.98-2.98l.04.04a1.8 1.8 0 0 0 1.98.36 1.8 1.8 0 0 0 1.08-1.65V2.1a2.1 2.1 0 1 1 4.2 0v.29a1.8 1.8 0 0 0 1.08 1.65 1.8 1.8 0 0 0 1.98-.36l.04-.04a2.1 2.1 0 1 1 2.98 2.98l-.04.04A1.8 1.8 0 0 0 19.4 8.6a1.8 1.8 0 0 0 1.65 1.08h.15a2.1 2.1 0 1 1 0 4.2h-.15A1.8 1.8 0 0 0 19.4 15Z"/></svg>
             </span>
             <span class="board-menu-action delete" role="button" tabindex="0" title="Delete board" aria-label="Delete ${esc(board.name)}" onclick="requestDeleteRemoteBoard(event,'${board.id}')" onkeydown="if(event.key==='Enter'||event.key===' ')requestDeleteRemoteBoard(event,'${board.id}')">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
             </span>
-          </span>`;
+          </span>`:''}`;
       return `<div class="board-menu-item${active?' active':''}${confirming?' confirming':''}${renaming?' renaming':''}" role="button" tabindex="0" onclick="${rowClick}" onkeydown="${rowKeydown}">
         ${nameCell}
         <span class="board-menu-side">${side}</span>
@@ -869,7 +1024,15 @@ function authModeDescription(){
 function authModeHasAnonymousImportNotice(){return!!anonymousStateSnapshotForImport();}
 function normalizeBoardName(name){return String(name||'').trim().toLowerCase();}
 function updateRemoteBoardInPlace(row,appendIfMissing=false){
-  const meta={id:row.id,name:row.name,created_at:row.created_at,updated_at:row.updated_at};
+  const existing=remoteBoards.find(board=>board.id===row.id);
+  const meta={
+    id:row.id,
+    name:row.name,
+    user_id:row.user_id||existing?.user_id||authSession?.user?.id||null,
+    permission:row.permission||boardPermissionFromRow({...existing,...row}),
+    created_at:row.created_at,
+    updated_at:row.updated_at
+  };
   const index=remoteBoards.findIndex(board=>board.id===row.id);
   if(index>=0){
     remoteBoards=remoteBoards.map(board=>board.id===row.id?{...board,...meta}:board);
@@ -882,17 +1045,20 @@ async function findBoardByName(name,excludeId=null){
   if(!authSession)return null;
   const target=normalizeBoardName(name);
   if(!target)return null;
-  const cached=remoteBoards.find(board=>normalizeBoardName(board.name)===target&&board.id!==excludeId);
+  const cached=remoteBoards.find(board=>board.permission==='owner'&&normalizeBoardName(board.name)===target&&board.id!==excludeId);
   if(cached)return cached;
   const client=getSupabaseClient();if(!client)return null;
-  const {data,error}=await client.from('boards').select('id,name,created_at,updated_at').order('updated_at',{ascending:false});
+  const {data,error}=await client.from('boards').select('id,name,user_id,created_at,updated_at').eq('user_id',authSession.user.id).order('updated_at',{ascending:false});
   if(error)throw error;
-  remoteBoards=Array.isArray(data)
-    ?data.map(row=>{
+  if(Array.isArray(data)){
+    const ownedIds=new Set(data.map(row=>row.id));
+    const shared=remoteBoards.filter(board=>!ownedIds.has(board.id)&&board.permission!=='owner');
+    const owned=data.map(row=>{
       const existing=remoteBoards.find(board=>board.id===row.id);
-      return existing?{...existing,name:row.name}:{...row};
-    })
-    :remoteBoards;
+      return existing?{...existing,name:row.name,user_id:row.user_id,permission:'owner'}:{...row,permission:'owner'};
+    });
+    remoteBoards=[...owned,...shared];
+  }
   return (data||[]).find(board=>normalizeBoardName(board.name)===target&&board.id!==excludeId)||null;
 }
 async function validateUniqueBoardName(name,excludeId=null){
@@ -959,9 +1125,9 @@ async function loadRemoteBoards(force=false){
   const client=getSupabaseClient();if(!client)return;
   remoteBoardsLoading=true;renderRemoteBoardMenu();
   try{
-    const {data,error}=await client.from('boards').select('id,name,created_at,updated_at').order('updated_at',{ascending:false});
+    const {data,error}=await client.from('boards').select('id,name,user_id,created_at,updated_at').order('updated_at',{ascending:false});
     if(error)throw error;
-    remoteBoards=Array.isArray(data)?data:[];
+    remoteBoards=await hydrateRemoteBoardPermissions(data||[]);
   }catch(e){
     remoteBoards=[];
     console.warn('Could not load boards',e);
@@ -990,12 +1156,14 @@ async function createRemoteBoard(){
   const {data,error}=await client.from('boards').insert({
     user_id:authSession.user.id,
     name:trimmed,
-    state:statePayload()
-  }).select('id,name,created_at,updated_at').single();
+    state:syncedStatePayload()
+  }).select('id,name,user_id,created_at,updated_at').single();
   if(error){alert(error.message||'Could not create board.');return;}
   currentRemoteBoardId=data.id;
   currentRemoteBoardName=data.name;
+  currentRemoteBoardPermission='owner';
   updateRemoteBoardInPlace(data,true);
+  subscribeToRemoteBoard(data.id);
   renderRemoteBoardMenu();
 }
 function focusRemoteBoardRenameInput(){
@@ -1051,7 +1219,7 @@ async function confirmRenameRemoteBoard(event,id){
   const {data,error}=await client.from('boards').update({
     name:trimmed,
     updated_at:new Date().toISOString()
-  }).eq('id',id).select('id,name,created_at,updated_at').single();
+  }).eq('id',id).select('id,name,user_id,created_at,updated_at').single();
   if(error){
     pendingRenameRemoteBoardError=error.message||'Could not rename board.';
     renderRemoteBoardMenu();
@@ -1093,8 +1261,10 @@ async function confirmDeleteRemoteBoard(event,id){
   const wasCurrent=id===currentRemoteBoardId;
   remoteBoards=remoteBoards.filter(item=>item.id!==id);
   if(wasCurrent){
+    clearRemoteBoardSubscription();
     currentRemoteBoardId=null;
     currentRemoteBoardName='';
+    currentRemoteBoardPermission='owner';
     clearTimeout(remoteSaveTimer);
     remoteSaveTimer=null;
     const next=remoteBoards[0];
@@ -1106,6 +1276,168 @@ async function confirmDeleteRemoteBoard(event,id){
   }
   renderRemoteBoardMenu();
 }
+function selectedBoardForShare(){
+  return remoteBoards.find(board=>board.id===boardShareBoardId)||null;
+}
+function renderBoardShareModal(){
+  const board=selectedBoardForShare();
+  const title=document.getElementById('boardShareTitle');
+  const sub=document.getElementById('boardShareSub');
+  const owner=document.getElementById('boardShareOwnerEmail');
+  const list=document.getElementById('boardShareList');
+  const err=document.getElementById('boardShareError');
+  const addBtn=document.getElementById('boardShareAddBtn');
+  if(title)title.textContent=board?`Board settings: ${board.name}`:'Board settings';
+  if(sub)sub.textContent=boardShareLoading?'Loading shared users...':'Add users by email and choose whether they can read or write this board.';
+  if(owner)owner.textContent=authSession?.user?.email||'Owner';
+  if(addBtn)addBtn.disabled=boardShareLoading||boardShareSaving;
+  if(err&&!boardShareSaving)err.textContent=err.textContent||'';
+  if(!list)return;
+  if(boardShareLoading){
+    list.innerHTML='<div class="share-empty">Loading users...</div>';
+    return;
+  }
+  if(!boardShareEntries.length){
+    list.innerHTML='<div class="share-empty">Only you have access right now</div>';
+    return;
+  }
+  list.innerHTML=boardShareEntries.map(item=>`
+    <div class="share-row">
+      <span class="share-user-email" title="${esc(item.user_email)}">${esc(item.user_email)}</span>
+      <select aria-label="Permission for ${esc(item.user_email)}" onchange="updateBoardCollaboratorPermission('${item.id}',this.value)" ${boardShareSaving?'disabled':''}>
+        <option value="read"${item.permission==='read'?' selected':''}>Read</option>
+        <option value="write"${item.permission==='write'?' selected':''}>Write</option>
+      </select>
+      <button class="share-remove" type="button" title="Remove access" aria-label="Remove ${esc(item.user_email)}" onclick="removeBoardCollaborator('${item.id}')" ${boardShareSaving?'disabled':''}>×</button>
+    </div>
+  `).join('');
+}
+async function loadBoardCollaborators(){
+  if(!authSession||!boardShareBoardId)return;
+  const client=getSupabaseClient();if(!client)return;
+  boardShareLoading=true;
+  renderBoardShareModal();
+  try{
+    const {data,error}=await client.from('board_collaborators').select('id,user_email,permission,created_at').eq('board_id',boardShareBoardId).order('created_at',{ascending:true});
+    if(error)throw error;
+    boardShareEntries=(data||[]).map(item=>({...item,permission:item.permission==='write'?'write':'read'}));
+    const err=document.getElementById('boardShareError');
+    if(err)err.textContent='';
+  }catch(e){
+    const err=document.getElementById('boardShareError');
+    if(err)err.textContent=e.message||'Could not load shared users.';
+  }finally{
+    boardShareLoading=false;
+    renderBoardShareModal();
+  }
+}
+async function openBoardShareModal(event,id){
+  event?.preventDefault?.();
+  event?.stopPropagation?.();
+  if(!authSession||!id)return;
+  const board=remoteBoards.find(item=>item.id===id);
+  if(board?.permission!=='owner'){
+    alert('Only the board owner can manage sharing settings.');
+    return;
+  }
+  pendingDeleteRemoteBoardId=null;
+  pendingRenameRemoteBoardId=null;
+  pendingRenameRemoteBoardValue=null;
+  pendingRenameRemoteBoardError='';
+  boardShareBoardId=id;
+  boardShareEntries=[];
+  const email=document.getElementById('boardShareEmail');
+  const permission=document.getElementById('boardSharePermission');
+  const err=document.getElementById('boardShareError');
+  if(email)email.value='';
+  if(permission)permission.value='read';
+  if(err)err.textContent='';
+  document.getElementById('boardMenu')?.classList.remove('open');
+  document.getElementById('boardShareModal')?.classList.add('open');
+  renderBoardShareModal();
+  await loadBoardCollaborators();
+  setTimeout(()=>email?.focus(),0);
+}
+function closeBoardShareModal(){
+  document.getElementById('boardShareModal')?.classList.remove('open');
+  boardShareBoardId=null;
+  boardShareEntries=[];
+}
+async function addBoardCollaborator(){
+  if(!authSession||!boardShareBoardId||boardShareSaving)return;
+  const emailInput=document.getElementById('boardShareEmail');
+  const permissionInput=document.getElementById('boardSharePermission');
+  const err=document.getElementById('boardShareError');
+  const email=normalizeUserEmail(emailInput?.value);
+  const permission=permissionInput?.value==='write'?'write':'read';
+  if(err)err.textContent='';
+  if(!email||!email.includes('@')){
+    if(err)err.textContent='Enter a valid email address.';
+    return;
+  }
+  if(email===normalizeUserEmail(authSession.user?.email)){
+    if(err)err.textContent='You are already the owner of this board.';
+    return;
+  }
+  const client=getSupabaseClient();if(!client)return;
+  boardShareSaving=true;
+  renderBoardShareModal();
+  try{
+    const {data,error}=await client.from('board_collaborators').upsert({
+      board_id:boardShareBoardId,
+      user_email:email,
+      permission
+    },{onConflict:'board_id,user_email'}).select('id,user_email,permission,created_at').single();
+    if(error)throw error;
+    boardShareEntries=boardShareEntries.filter(item=>item.user_email!==email);
+    boardShareEntries.push({...data,permission:data.permission==='write'?'write':'read'});
+    boardShareEntries.sort((a,b)=>String(a.user_email).localeCompare(String(b.user_email)));
+    if(emailInput)emailInput.value='';
+  }catch(e){
+    if(err)err.textContent=e.message||'Could not add user.';
+  }finally{
+    boardShareSaving=false;
+    renderBoardShareModal();
+  }
+}
+async function updateBoardCollaboratorPermission(id,permission){
+  if(!authSession||!boardShareBoardId||boardShareSaving)return;
+  permission=permission==='write'?'write':'read';
+  const client=getSupabaseClient();if(!client)return;
+  boardShareSaving=true;
+  renderBoardShareModal();
+  const err=document.getElementById('boardShareError');
+  if(err)err.textContent='';
+  try{
+    const {data,error}=await client.from('board_collaborators').update({permission}).eq('id',id).eq('board_id',boardShareBoardId).select('id,user_email,permission,created_at').single();
+    if(error)throw error;
+    boardShareEntries=boardShareEntries.map(item=>item.id===id?{...data,permission:data.permission==='write'?'write':'read'}:item);
+  }catch(e){
+    if(err)err.textContent=e.message||'Could not update permission.';
+    await loadBoardCollaborators();
+  }finally{
+    boardShareSaving=false;
+    renderBoardShareModal();
+  }
+}
+async function removeBoardCollaborator(id){
+  if(!authSession||!boardShareBoardId||boardShareSaving)return;
+  const client=getSupabaseClient();if(!client)return;
+  boardShareSaving=true;
+  renderBoardShareModal();
+  const err=document.getElementById('boardShareError');
+  if(err)err.textContent='';
+  try{
+    const {error}=await client.from('board_collaborators').delete().eq('id',id).eq('board_id',boardShareBoardId);
+    if(error)throw error;
+    boardShareEntries=boardShareEntries.filter(item=>item.id!==id);
+  }catch(e){
+    if(err)err.textContent=e.message||'Could not remove access.';
+  }finally{
+    boardShareSaving=false;
+    renderBoardShareModal();
+  }
+}
 async function importAnonymousSnapshotToSupabase(snapshot,nameOverride=''){
   if(!authSession||!snapshot)return false;
   let state;
@@ -1116,8 +1448,8 @@ async function importAnonymousSnapshotToSupabase(snapshot,nameOverride=''){
   const {data,error}=await client.from('boards').insert({
     user_id:authSession.user.id,
     name,
-    state
-  }).select('id,name,created_at,updated_at').single();
+    state:{version:6,tabs:state.tabs,tabIdSeq:state.tabIdSeq||state.tabs.length,boardState:state.boardState}
+  }).select('id,name,user_id,created_at,updated_at').single();
   if(error){
     alert((error.message||'Could not import anonymous board.')+' Your anonymous board is still stored locally.');
     return false;
@@ -1131,7 +1463,9 @@ async function importAnonymousSnapshotToSupabase(snapshot,nameOverride=''){
     if(!applyStateSnapshot(snapshot))throw new Error('Imported board state could not be loaded.');
     currentRemoteBoardId=data.id;
     currentRemoteBoardName=data.name;
+    currentRemoteBoardPermission='owner';
     updateRemoteBoardInPlace(data,true);
+    subscribeToRemoteBoard(data.id);
     renderPlannerState();
     renderRemoteBoardMenu();
   }catch(e){
@@ -1149,7 +1483,7 @@ async function openRemoteBoard(id,options={}){
   pendingRenameRemoteBoardError='';
   if(!options.skipFlush)await flushRemoteBoardSave();
   const client=getSupabaseClient();if(!client)return;
-  const {data,error}=await client.from('boards').select('id,name,state,created_at,updated_at').eq('id',id).single();
+  const {data,error}=await client.from('boards').select('id,name,user_id,state,created_at,updated_at').eq('id',id).single();
   if(error){alert(error.message||'Could not open board.');return;}
   const snapshot=JSON.stringify(data.state||{});
   isRestoringState=true;
@@ -1157,7 +1491,10 @@ async function openRemoteBoard(id,options={}){
     if(!applyStateSnapshot(snapshot))throw new Error('The selected board state could not be loaded.');
     currentRemoteBoardId=data.id;
     currentRemoteBoardName=data.name;
+    currentRemoteBoardPermission=boardPermissionFromRow(data,new Map(remoteBoards.map(board=>[board.id,board.permission])));
+    readOnlyWarningShown=false;
     updateRemoteBoardInPlace(data,true);
+    subscribeToRemoteBoard(data.id);
     syncViewUI();
     syncRightPanelUI();
     renderTabBar();
@@ -1206,8 +1543,10 @@ function loadAnonymousPlannerState(){
 async function enterSupabaseBoardMode(){
   clearTimeout(remoteSaveTimer);
   remoteSaveTimer=null;
+  clearRemoteBoardSubscription();
   currentRemoteBoardId=null;
   currentRemoteBoardName='';
+  currentRemoteBoardPermission='owner';
   const boards=await loadRemoteBoards(true)||[];
   if(boards.length){
     await openRemoteBoard(boards[0].id,{skipFlush:true});
@@ -1245,20 +1584,22 @@ async function handleSignedInBoardMode(snapshot=null,name=''){
 function enterAnonymousBoardMode(){
   clearTimeout(remoteSaveTimer);
   remoteSaveTimer=null;
+  clearRemoteBoardSubscription();
   currentRemoteBoardId=null;
   currentRemoteBoardName='';
+  currentRemoteBoardPermission='owner';
   remoteBoards=[];
   signedInUserModeReadyFor=null;
   loadAnonymousPlannerState();
   renderRemoteBoardMenu();
 }
 function scheduleRemoteBoardSave(){
-  if(!authSession||!currentRemoteBoardId||isRestoringState)return;
+  if(!authSession||!currentRemoteBoardId||isRestoringState||!currentBoardCanWrite())return;
   clearTimeout(remoteSaveTimer);
   remoteSaveTimer=setTimeout(()=>{flushRemoteBoardSave();},700);
 }
 async function flushRemoteBoardSave(){
-  if(!authSession||!currentRemoteBoardId||isSavingRemoteBoard)return;
+  if(!authSession||!currentRemoteBoardId||isSavingRemoteBoard||!currentBoardCanWrite())return;
   clearTimeout(remoteSaveTimer);
   remoteSaveTimer=null;
   const client=getSupabaseClient();if(!client)return;
@@ -1267,9 +1608,9 @@ async function flushRemoteBoardSave(){
   const boardId=currentRemoteBoardId;
   try{
     const {data,error}=await client.from('boards').update({
-      state:statePayload(),
+      state:syncedStatePayload(),
       updated_at:updatedAt
-    }).eq('id',boardId).select('id,name,created_at,updated_at').single();
+    }).eq('id',boardId).select('id,name,user_id,created_at,updated_at').single();
     if(error)throw error;
     if(data){
       currentRemoteBoardName=data.name;
@@ -1352,6 +1693,7 @@ async function handleAuthButtonClick(){
   else{
     currentRemoteBoardId=null;
     currentRemoteBoardName='';
+    clearRemoteBoardSubscription();
     remoteBoards=[];
     pendingAnonymousImportSnapshot=null;
     signedInUserModeReadyFor=null;
@@ -1406,27 +1748,48 @@ function resetUndoBaseline(){
 }
 function saveState(){
   const snapshot=currentStateSnapshot();
+  const syncedSnapshot=currentSyncedStateSnapshot();
+  const previousSyncedSnapshot=syncedStateSnapshotFromSnapshot(lastStateSnapshot);
+  if(authSession&&currentRemoteBoardId&&!currentBoardCanWrite()){
+    if(previousSyncedSnapshot===syncedSnapshot){
+      lastStateSnapshot=snapshot;
+      updateUndoButton();
+      return;
+    }
+    showReadOnlyBoardWarning();
+    if(lastStateSnapshot){
+      isRestoringState=true;
+      try{applyStateSnapshot(lastStateSnapshot);}
+      finally{isRestoringState=false;}
+      renderPlannerState();
+    }
+    return;
+  }
   const changed=!isRestoringState&&lastStateSnapshot&&snapshot!==lastStateSnapshot;
+  const syncedChanged=!isRestoringState&&lastStateSnapshot&&previousSyncedSnapshot!==syncedSnapshot;
   if(changed){
-    undoStack.push(lastStateSnapshot);
-    if(undoStack.length>UNDO_LIMIT)undoStack.shift();
+    if(syncedChanged){
+      undoStack.push(lastStateSnapshot);
+      if(undoStack.length>UNDO_LIMIT)undoStack.shift();
+    }
     if(!authSession){anonymousImportEligible=true;try{localStorage.setItem(EDITED_KEY,'1');}catch(e){}}
   }
   writeStateSnapshot(snapshot);
   lastStateSnapshot=snapshot;
   updateUndoButton();
-  scheduleRemoteBoardSave();
+  if(syncedChanged)scheduleRemoteBoardSave();
 }
 function applyStateSnapshot(snapshot){
   let s;
   try{s=JSON.parse(snapshot);}catch(e){return false;}
   if(!s||!Array.isArray(s.tabs)||!s.tabs.length)return false;
   tabs=s.tabs;
-  activeTabId=s.activeTabId;
+  const incomingActiveTabId=s.activeTabId;
   tabIdSeq=s.tabIdSeq||tabs.length;
-  currentView=s.currentView==='board'?'board':'capacity';
-  rightPanelCollapsed=!!s.rightPanelCollapsed;
+  if(s.currentView==='board'||s.currentView==='capacity')currentView=s.currentView;
+  if(Object.prototype.hasOwnProperty.call(s,'rightPanelCollapsed'))rightPanelCollapsed=!!s.rightPanelCollapsed;
   boardState=normalizeBoardState(s.boardState);
+  if(tabs.find(t=>t.id===incomingActiveTabId))activeTabId=incomingActiveTabId;
   if(!tabs.find(t=>t.id===activeTabId))activeTabId=tabs[0].id;
   normalizeAllTeams();
   cleanupBoardState();
@@ -2990,11 +3353,13 @@ document.getElementById('descriptionModal').addEventListener('click',e=>{if(e.ta
 document.getElementById('splitModal').addEventListener('click',e=>{if(e.target===document.getElementById('splitModal'))cancelSplitFeature();});
 document.getElementById('importModal').addEventListener('click',e=>{if(e.target===document.getElementById('importModal'))closeImport();});
 document.getElementById('authModal').addEventListener('click',e=>{if(e.target===document.getElementById('authModal'))closeAuthModal();});
+document.getElementById('boardShareModal').addEventListener('click',e=>{if(e.target===document.getElementById('boardShareModal'))closeBoardShareModal();});
 document.getElementById('importBoardNameInput')?.addEventListener('input',e=>renderExistingBoardNames(e.target.value));
 document.getElementById('importBoardNameInput')?.addEventListener('keydown',e=>{if(e.key==='Enter')submitImportBoardName();});
+document.getElementById('boardShareEmail')?.addEventListener('keydown',e=>{if(e.key==='Enter')addBoardCollaborator();});
 document.getElementById('authEmail')?.addEventListener('keydown',e=>{if(e.key==='Enter')submitAuthForm();});
 document.getElementById('authPassword')?.addEventListener('keydown',e=>{if(e.key==='Enter')submitAuthForm();});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDescriptionEditor();closeImport();closeAuthModal();}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDescriptionEditor();closeImport();closeAuthModal();closeBoardShareModal();}});
 
 function toggleSection(bodyId,chevronId){
   const body=document.getElementById(bodyId),chevron=document.getElementById(chevronId);if(!body)return;
