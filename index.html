@@ -169,6 +169,9 @@
   .dropdown-menu.open{display:block;}
   .dropdown-item{display:flex;align-items:center;gap:8px;padding:8px 14px;font-size:13px;cursor:pointer;transition:background .1s;white-space:nowrap;border:none;background:none;width:100%;text-align:left;font-family:inherit;color:var(--text);}
   .dropdown-item:hover{background:var(--subtle);}
+  .dropdown-item.danger{color:#b52020;}
+  .dropdown-item.danger:hover{background:#fceaea;}
+  .dropdown-item svg{flex-shrink:0;}
   .dropdown-divider{height:1px;background:var(--border);margin:4px 0;}
   .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;align-items:center;justify-content:center;}
   .modal-backdrop.open{display:flex;}
@@ -201,13 +204,39 @@
   ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
 
   .topbar-left{display:flex;align-items:center;gap:14px;min-width:0;}
+  .storage-status{display:inline-flex;align-items:center;justify-content:center;gap:7px;width:88px;height:30px;padding:0 9px;box-sizing:border-box;border:1px solid rgba(226,224,219,.88);border-radius:999px;background:rgba(255,255,255,.78);color:#5f5c55;font-size:12px;font-weight:600;font-family:var(--sans);white-space:nowrap;cursor:default;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.035),inset 0 1px 0 rgba(255,255,255,.82);transition:background .16s,border-color .16s,color .16s,box-shadow .16s;}
+  .storage-status-mark{position:relative;width:16px;height:16px;border-radius:50%;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;background:#8a8880;color:#fff;box-shadow:0 0 0 3px rgba(138,136,128,.1);transition:background .16s,box-shadow .16s,border-color .16s;}
+  .storage-status-mark::after{content:"";width:7px;height:4px;border-left:1.8px solid currentColor;border-bottom:1.8px solid currentColor;transform:translateY(-1px) rotate(-45deg);opacity:0;}
+  .storage-status-text{display:inline-block;min-width:46px;text-align:left;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;}
+  .storage-status.local{color:#6b665d;}
+  .storage-status.local .storage-status-mark{background:#8a8880;}
+  .storage-status.local .storage-status-mark::after{width:4px;height:4px;border:0;border-radius:50%;background:currentColor;transform:none;opacity:.9;}
+  .storage-status.ready{color:#1f5f91;border-color:#c8ddef;background:#f8fbfe;}
+  .storage-status.ready .storage-status-mark{background:#dcebf8;color:#1f5f91;box-shadow:0 0 0 3px rgba(31,95,145,.1);}
+  .storage-status.ready .storage-status-mark::after{width:7px;height:7px;border:1.8px solid currentColor;border-left-color:transparent;border-bottom-color:transparent;border-radius:50%;transform:none;opacity:1;}
+  .storage-status.online{color:#246b45;border-color:#b9dbc7;background:#f7fcf9;}
+  .storage-status.online .storage-status-mark{background:#2d7d4e;box-shadow:0 0 0 3px rgba(45,125,78,.12);}
+  .storage-status.online .storage-status-mark::after{opacity:1;}
+  .storage-status.saving{color:#1a5fa8;border-color:#bfd8ef;background:#f7fbff;}
+  .storage-status.saving .storage-status-mark{background:transparent;border:2px solid #c9dff2;border-top-color:#1a5fa8;box-shadow:none;animation:storage-spin .8s linear infinite;}
+  .storage-status.saving .storage-status-mark::after{display:none;}
+  .storage-status.readonly{color:#7a5a00;border-color:#e5d28a;background:#fffaf0;}
+  .storage-status.readonly .storage-status-mark{background:#8a6200;box-shadow:0 0 0 3px rgba(138,98,0,.1);}
+  .storage-status.readonly .storage-status-mark::after{width:6px;height:6px;border:1.8px solid currentColor;border-radius:1px;border-top-left-radius:0;border-top-right-radius:0;transform:translateY(2px);opacity:1;}
+  .storage-status.error{color:#a51d1d;border-color:#edb5b5;background:#fff8f8;}
+  .storage-status.error .storage-status-mark{background:#b52020;box-shadow:0 0 0 3px rgba(181,32,32,.1);}
+  .storage-status.error .storage-status-mark::before,.storage-status.error .storage-status-mark::after{content:"";position:absolute;width:8px;height:1.8px;border:0;background:currentColor;border-radius:999px;opacity:1;transform:rotate(45deg);}
+  .storage-status.error .storage-status-mark::before{transform:rotate(-45deg);}
+  @keyframes storage-spin{to{transform:rotate(360deg);}}
   .auth-wrap{display:inline-flex;align-items:center;gap:7px;margin-left:4px;}
-  .auth-user{max-width:190px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:var(--muted);font-family:var(--mono);}
-  .auth-user.signed-in{color:var(--text);}
-  .board-menu-wrap{position:relative;display:none;}
+  .account-menu-btn{max-width:230px;}
+  .account-menu-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .board-menu-wrap{position:relative;display:inline-flex;}
   .board-menu-wrap.visible{display:inline-flex;}
   .board-menu-wrap.visible:hover::after,.board-menu-wrap.visible:focus-within::after{content:"";position:absolute;left:-10px;right:-10px;top:100%;height:12px;z-index:119;}
   .board-menu{display:none;position:absolute;top:100%;right:0;margin-top:6px;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.1);min-width:240px;z-index:120;overflow:hidden;padding:5px;}
+  .account-menu{min-width:270px;}
+  .account-menu-email{padding:7px 8px 4px;color:var(--text);font-size:12px;font-weight:600;font-family:var(--mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .board-menu-wrap:hover .board-menu,.board-menu-wrap:focus-within .board-menu,.board-menu.open{display:block;}
   .board-menu-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 8px 7px;border-bottom:1px solid var(--border);margin-bottom:4px;}
   .board-menu-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);}
@@ -373,40 +402,40 @@
     </button>
     <div class="dropdown-wrap" id="exportDropWrap">
       <button class="btn-sm" onclick="toggleExportDropdown()">
-        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1v9M4 7l4 4 4-4"/><path d="M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1"/></svg>
-        Export
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h10v3H3z"/><path d="M3 10h10v3H3z"/><path d="M5 6v4M11 6v4"/></svg>
+        Data
         <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 3.5l3 3 3-3"/></svg>
       </button>
       <div class="dropdown-menu" id="exportDropdown">
         <button class="dropdown-item" onclick="exportCurrentTab()">Export current team</button>
-        <div class="dropdown-divider"></div>
         <button class="dropdown-item" onclick="exportAllTabs()">Export all teams</button>
+        <div class="dropdown-divider"></div>
+        <button class="dropdown-item" onclick="openImport()">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 11V2M4 5l4-4 4 4"/><path d="M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1"/></svg>
+          Import
+        </button>
+        <div class="dropdown-divider"></div>
+        <button class="dropdown-item danger" onclick="clearAll()">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h12M5 4V2h6v2M6 7v5M10 7v5M3 4l1 9a1 1 0 001 1h6a1 1 0 001-1l1-9"/></svg>
+          Clear all
+        </button>
       </div>
     </div>
-    <button class="btn-sm" onclick="openImport()">
-      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 11V2M4 5l4-4 4 4"/><path d="M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1"/></svg>
-      Import
-    </button>
-    <button class="btn-sm danger" onclick="clearAll()">
-      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h12M5 4V2h6v2M6 7v5M10 7v5M3 4l1 9a1 1 0 001 1h6a1 1 0 001-1l1-9"/></svg>
-      Clear all
-    </button>
+    <div class="storage-status local" id="storageStatus" role="status" aria-live="polite" title="You are not signed in. Changes are saved in this browser only and are not shared.">
+      <span class="storage-status-mark" aria-hidden="true"></span>
+      <span class="storage-status-text" id="storageStatusText">Local</span>
+    </div>
     <div class="auth-wrap">
-      <span class="auth-user" id="authUser">Not signed in</span>
-      <div class="board-menu-wrap" id="boardMenuWrap" onmouseenter="loadRemoteBoards()">
-        <button class="btn-sm" id="boardMenuBtn" type="button" onclick="toggleBoardMenu(event)">
-          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h10v10H3z"/><path d="M6 3v10M3 7h10"/></svg>
-          Boards
+      <div class="board-menu-wrap visible" id="boardMenuWrap" onmouseenter="if(authSession)loadRemoteBoards()">
+        <button class="btn-sm account-menu-btn" id="boardMenuBtn" type="button" onclick="toggleBoardMenu(event)">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M2.5 14a5.5 5.5 0 0 1 11 0"/></svg>
+          <span class="account-menu-label" id="accountMenuLabel">Login / Register</span>
           <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 3.5l3 3 3-3"/></svg>
         </button>
-        <div class="board-menu" id="boardMenu">
+        <div class="board-menu account-menu" id="boardMenu">
           <div class="board-menu-empty">Sign in to load boards</div>
         </div>
       </div>
-      <button class="btn-sm" id="authButton" onclick="handleAuthButtonClick()">
-        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2h3a1 1 0 011 1v10a1 1 0 01-1 1h-3"/><path d="M6 11l3-3-3-3"/><path d="M9 8H2"/></svg>
-        Login / Register
-      </button>
     </div>
   </div>
 </div>
@@ -714,7 +743,7 @@ function defaultPIName(){
 }
 
 let tabs=[],activeTabId=null,tabIdSeq=0,dragId=null,dragFrom=null,currentView='capacity',boardDragKey=null,boardDragFrom=null,depDrag=null,boardRowDragTeamId=null,tabDragTeamId=null,suppressNextTabClick=false,rightPanelCollapsed=true;
-let supabaseClient=null,authSession=null,authMode='login',remoteBoards=[],remoteBoardsLoading=false,currentRemoteBoardId=null,currentRemoteBoardName='',currentRemoteBoardPermission='owner',remoteSaveTimer=null,isSavingRemoteBoard=false,remoteBoardChannel=null,remoteBoardChannelId=null,pendingAnonymousImportSnapshot=null,signedInModePromise=null,signedInUserModeReadyFor=null,anonymousImportEligible=false,pendingImportNameResolve=null,pendingDeleteRemoteBoardId=null,pendingRenameRemoteBoardId=null,pendingRenameRemoteBoardValue=null,pendingRenameRemoteBoardError='',boardShareBoardId=null,boardShareEntries=[],boardShareLoading=false,boardShareSaving=false,readOnlyWarningShown=false;
+let supabaseClient=null,authSession=null,authMode='login',remoteBoards=[],remoteBoardsLoading=false,currentRemoteBoardId=null,currentRemoteBoardName='',currentRemoteBoardPermission='owner',remoteSaveTimer=null,isSavingRemoteBoard=false,remoteSaveStatus='saved',remoteBoardChannel=null,remoteBoardChannelId=null,pendingAnonymousImportSnapshot=null,signedInModePromise=null,signedInUserModeReadyFor=null,anonymousImportEligible=false,pendingImportNameResolve=null,pendingDeleteRemoteBoardId=null,pendingRenameRemoteBoardId=null,pendingRenameRemoteBoardValue=null,pendingRenameRemoteBoardError='',boardShareBoardId=null,boardShareEntries=[],boardShareLoading=false,boardShareSaving=false,readOnlyWarningShown=false;
 function freshBoardState(){return{name:defaultPIName(),iterationCount:6,iterationNames:[],placements:{},dependencies:[],teamOrder:[],backlogFilters:defaultBoardBacklogFilters(),backlogFiltersOpen:false};}
 let boardState=freshBoardState();
 function tab(){return tabs.find(t=>t.id===activeTabId);}
@@ -750,6 +779,36 @@ function updateUndoButton(){
   const btn=document.getElementById('undoBtn');
   if(btn)btn.disabled=!undoStack.length;
 }
+function setStorageStatus(kind,text,title){
+  const el=document.getElementById('storageStatus'),label=document.getElementById('storageStatusText');
+  if(!el||!label)return;
+  el.className=`storage-status ${kind}`;
+  label.textContent=text;
+  el.title=title;
+}
+function updateStorageStatus(){
+  if(!authSession){
+    setStorageStatus('local','Local','You are not signed in. Changes are saved in this browser only and are not shared.');
+    return;
+  }
+  if(!currentRemoteBoardId){
+    setStorageStatus('ready','Ready','You are signed in. Open or create a board to save changes in the shared online database.');
+    return;
+  }
+  if(!currentBoardCanWrite()){
+    setStorageStatus('readonly','Read-only','Connected to the shared online database. You can view this board, but board edits are not saved unless the owner grants write access.');
+    return;
+  }
+  if(remoteSaveStatus==='error'){
+    setStorageStatus('error','Error','Connected to the shared online database, but the last save failed. Your latest board change may not be saved yet.');
+    return;
+  }
+  if(remoteSaveTimer||isSavingRemoteBoard||remoteSaveStatus==='saving'){
+    setStorageStatus('saving','Saving','Connected to the shared online database. Board changes are being saved and shared with users who have access.');
+    return;
+  }
+  setStorageStatus('online','Saved','Connected to the shared online database. Board changes are saved and shared with users who have access.');
+}
 function getSupabaseClient(){
   if(supabaseClient)return supabaseClient;
   if(!window.supabase?.createClient)return null;
@@ -763,19 +822,18 @@ function authIconSvg(type){
   return '<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2h3a1 1 0 011 1v10a1 1 0 01-1 1h-3"/><path d="M6 11l3-3-3-3"/><path d="M9 8H2"/></svg>';
 }
 function updateAuthUI(message='',kind=''){
-  const userEl=document.getElementById('authUser'),btn=document.getElementById('authButton'),status=document.getElementById('authStatus');
+  const accountLabel=document.getElementById('accountMenuLabel'),btn=document.getElementById('boardMenuBtn'),status=document.getElementById('authStatus');
   const email=authSession?.user?.email||'';
-  if(userEl){
-    userEl.textContent=email||'Not signed in';
-    userEl.title=email||'';
-    userEl.classList.toggle('signed-in',!!email);
-  }
+  if(accountLabel)accountLabel.textContent=email||'Login / Register';
   if(btn){
-    btn.innerHTML=authSession?`${authIconSvg('out')} Sign out`:`${authIconSvg('in')} Login / Register`;
     btn.disabled=false;
+    btn.title=authSession
+      ?`${email}${currentRemoteBoardName?` - ${currentRemoteBoardName}`:''}`
+      :'Login or register';
+    btn.setAttribute('aria-label',authSession?`Account and boards for ${email}`:'Login or register');
   }
   const boardWrap=document.getElementById('boardMenuWrap');
-  if(boardWrap)boardWrap.classList.toggle('visible',!!authSession);
+  if(boardWrap)boardWrap.classList.add('visible');
   if(!authSession){
     clearRemoteBoardSubscription();
     remoteBoards=[];
@@ -792,6 +850,7 @@ function updateAuthUI(message='',kind=''){
     status.textContent=message;
     status.className='auth-status'+(kind?` ${kind}`:'');
   }
+  updateStorageStatus();
 }
 function remoteBoardDateLabel(value){
   if(!value)return'';
@@ -866,6 +925,7 @@ function handleRemoteBoardPayload(payload){
   if(!row.id||row.id!==currentRemoteBoardId)return;
   currentRemoteBoardName=row.name||currentRemoteBoardName;
   updateRemoteBoardInPlace(row,true);
+  if(!remoteSaveTimer&&!isSavingRemoteBoard)remoteSaveStatus='saved';
   renderRemoteBoardMenu();
   const snapshot=JSON.stringify(row.state||{});
   if(syncedStateSnapshotFromSnapshot(snapshot)===currentSyncedStateSnapshot())return;
@@ -873,6 +933,7 @@ function handleRemoteBoardPayload(payload){
   if(!applyRemoteBoardSnapshot(snapshot)){
     console.warn('Received realtime board update that could not be applied.');
   }
+  updateStorageStatus();
 }
 async function handleRemoteBoardDelete(payload){
   const deletedId=payload?.old?.id||payload?.new?.id;
@@ -881,6 +942,7 @@ async function handleRemoteBoardDelete(payload){
   currentRemoteBoardId=null;
   currentRemoteBoardName='';
   currentRemoteBoardPermission='owner';
+  remoteSaveStatus='saved';
   remoteBoards=remoteBoards.filter(board=>board.id!==deletedId);
   const next=remoteBoards[0];
   if(next)await openRemoteBoard(next.id,{skipFlush:true});
@@ -906,16 +968,24 @@ function subscribeToRemoteBoard(id){
 function renderRemoteBoardMenu(){
   const menu=document.getElementById('boardMenu');
   const btn=document.getElementById('boardMenuBtn');
-  if(btn)btn.title=currentRemoteBoardName?`Current board: ${currentRemoteBoardName}`:'Open or create a board';
   if(!menu)return;
   if(!authSession){
-    menu.innerHTML='<div class="board-menu-empty">Sign in to load boards</div>';
+    if(btn)btn.title='Login or register';
+    menu.innerHTML=`<button class="board-menu-item" type="button" onclick="openAuthModal('login')">
+      <span class="board-menu-name">Login / Register</span>
+      <span class="board-menu-meta">account</span>
+    </button>`;
+    updateStorageStatus();
     return;
   }
+  const email=authSession?.user?.email||'';
+  if(btn)btn.title=`${email}${currentRemoteBoardName?` - ${currentRemoteBoardName}`:' - Open or create a board'}`;
   const current=currentRemoteBoardName
     ?`${currentRemoteBoardName} (${boardPermissionLabel(currentRemoteBoardPermission)})`
     :'No board open';
-  let html=`<div class="board-menu-head"><span class="board-menu-title">Boards</span><span class="board-menu-current" title="${esc(current)}">${esc(current)}</span></div>
+  let html=`<div class="account-menu-email" title="${esc(email)}">${esc(email)}</div>
+    <div class="dropdown-divider"></div>
+    <div class="board-menu-head"><span class="board-menu-title">Boards</span><span class="board-menu-current" title="${esc(current)}">${esc(current)}</span></div>
     <button class="board-menu-item" type="button" onclick="createRemoteBoard()">
       <span class="board-menu-name">New board...</span>
       <span class="board-menu-meta">create</span>
@@ -983,13 +1053,20 @@ function renderRemoteBoardMenu(){
       </div>`;
     }).join('');
   }
+  html+=`<div class="dropdown-divider"></div>
+    <button class="board-menu-item" type="button" onclick="handleAuthButtonClick()">
+      <span class="board-menu-name">Sign out</span>
+      <span class="board-menu-meta">account</span>
+    </button>`;
   menu.innerHTML=html;
+  updateStorageStatus();
 }
 function toggleBoardMenu(event){
   event?.stopPropagation?.();
-  if(!authSession)return;
-  document.getElementById('boardMenu')?.classList.toggle('open');
-  loadRemoteBoards();
+  if(!authSession){openAuthModal('login');return;}
+  const menu=document.getElementById('boardMenu');
+  menu?.classList.toggle('open');
+  if(menu?.classList.contains('open'))loadRemoteBoards();
 }
 function anonymousStateSnapshotForImport(){
   if(authSession||!tabs.length||!anonymousImportEligible)return null;
@@ -1162,9 +1239,11 @@ async function createRemoteBoard(){
   currentRemoteBoardId=data.id;
   currentRemoteBoardName=data.name;
   currentRemoteBoardPermission='owner';
+  remoteSaveStatus='saved';
   updateRemoteBoardInPlace(data,true);
   subscribeToRemoteBoard(data.id);
   renderRemoteBoardMenu();
+  updateStorageStatus();
 }
 function focusRemoteBoardRenameInput(){
   setTimeout(()=>{
@@ -1464,6 +1543,7 @@ async function importAnonymousSnapshotToSupabase(snapshot,nameOverride=''){
     currentRemoteBoardId=data.id;
     currentRemoteBoardName=data.name;
     currentRemoteBoardPermission='owner';
+    remoteSaveStatus='saved';
     updateRemoteBoardInPlace(data,true);
     subscribeToRemoteBoard(data.id);
     renderPlannerState();
@@ -1492,6 +1572,7 @@ async function openRemoteBoard(id,options={}){
     currentRemoteBoardId=data.id;
     currentRemoteBoardName=data.name;
     currentRemoteBoardPermission=boardPermissionFromRow(data,new Map(remoteBoards.map(board=>[board.id,board.permission])));
+    remoteSaveStatus='saved';
     readOnlyWarningShown=false;
     updateRemoteBoardInPlace(data,true);
     subscribeToRemoteBoard(data.id);
@@ -1547,6 +1628,7 @@ async function enterSupabaseBoardMode(){
   currentRemoteBoardId=null;
   currentRemoteBoardName='';
   currentRemoteBoardPermission='owner';
+  remoteSaveStatus='saved';
   const boards=await loadRemoteBoards(true)||[];
   if(boards.length){
     await openRemoteBoard(boards[0].id,{skipFlush:true});
@@ -1596,14 +1678,19 @@ function enterAnonymousBoardMode(){
 function scheduleRemoteBoardSave(){
   if(!authSession||!currentRemoteBoardId||isRestoringState||!currentBoardCanWrite())return;
   clearTimeout(remoteSaveTimer);
+  remoteSaveStatus='saving';
+  updateStorageStatus();
   remoteSaveTimer=setTimeout(()=>{flushRemoteBoardSave();},700);
 }
 async function flushRemoteBoardSave(){
   if(!authSession||!currentRemoteBoardId||isSavingRemoteBoard||!currentBoardCanWrite())return;
   clearTimeout(remoteSaveTimer);
   remoteSaveTimer=null;
-  const client=getSupabaseClient();if(!client)return;
+  const client=getSupabaseClient();
+  if(!client){remoteSaveStatus='error';updateStorageStatus();return;}
   isSavingRemoteBoard=true;
+  remoteSaveStatus='saving';
+  updateStorageStatus();
   const updatedAt=new Date().toISOString();
   const boardId=currentRemoteBoardId;
   try{
@@ -1614,13 +1701,16 @@ async function flushRemoteBoardSave(){
     if(error)throw error;
     if(data){
       currentRemoteBoardName=data.name;
+      remoteSaveStatus='saved';
       updateRemoteBoardInPlace(data,true);
       renderRemoteBoardMenu();
     }
   }catch(e){
+    remoteSaveStatus='error';
     console.warn('Could not save board',e);
   }finally{
     isSavingRemoteBoard=false;
+    updateStorageStatus();
   }
 }
 async function initAuth(){
@@ -1672,6 +1762,7 @@ function setAuthMode(mode){
   if(status){status.textContent='';status.className='auth-status';}
 }
 function openAuthModal(mode='login'){
+  document.getElementById('boardMenu')?.classList.remove('open');
   setAuthMode(mode);
   const email=document.getElementById('authEmail'),password=document.getElementById('authPassword');
   if(password)password.value='';
@@ -1682,10 +1773,11 @@ function closeAuthModal(){
   document.getElementById('authModal')?.classList.remove('open');
 }
 async function handleAuthButtonClick(){
+  document.getElementById('boardMenu')?.classList.remove('open');
   const client=getSupabaseClient();
   if(!client){openAuthModal('login');updateAuthUI('Supabase auth is unavailable. Check the Supabase JS script.', 'error');return;}
   if(!authSession){openAuthModal('login');return;}
-  const btn=document.getElementById('authButton');
+  const btn=document.getElementById('boardMenuBtn');
   if(btn)btn.disabled=true;
   await flushRemoteBoardSave();
   const {error}=await client.auth.signOut();
@@ -1754,6 +1846,7 @@ function saveState(){
     if(previousSyncedSnapshot===syncedSnapshot){
       lastStateSnapshot=snapshot;
       updateUndoButton();
+      updateStorageStatus();
       return;
     }
     showReadOnlyBoardWarning();
@@ -1763,6 +1856,7 @@ function saveState(){
       finally{isRestoringState=false;}
       renderPlannerState();
     }
+    updateStorageStatus();
     return;
   }
   const changed=!isRestoringState&&lastStateSnapshot&&snapshot!==lastStateSnapshot;
@@ -1778,6 +1872,7 @@ function saveState(){
   lastStateSnapshot=snapshot;
   updateUndoButton();
   if(syncedChanged)scheduleRemoteBoardSave();
+  else updateStorageStatus();
 }
 function applyStateSnapshot(snapshot){
   let s;
@@ -3267,6 +3362,7 @@ function exportCurrentTab(){document.getElementById('exportDropdown').classList.
 function exportAllTabs(){document.getElementById('exportDropdown').classList.remove('open');downloadJSON({version:6,type:'all',tabs,boardState},'capacity-all-teams.json');}
 function slug(s){return s.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');}
 function openImport(){
+  document.getElementById('exportDropdown')?.classList.remove('open');
   document.getElementById('importText').value='';
   document.getElementById('importError').textContent='';
   const fileInput=document.getElementById('importFile');
@@ -3324,6 +3420,7 @@ function doImport(){
 }
 
 function clearAll(){
+  document.getElementById('exportDropdown')?.classList.remove('open');
   if(!confirm('Clear all teams and start fresh?'))return;
   if(authSession){
     resetPlannerToFreshDefaults();
@@ -3420,6 +3517,7 @@ function placeDefaultStartupItems(t){
 async function init(){
   await initAuth();
   if(!authSession)loadAnonymousPlannerState();
+  updateStorageStatus();
 }
 window.addEventListener('resize',()=>{if(currentView==='board')renderBoardDependencies();});
 init();
