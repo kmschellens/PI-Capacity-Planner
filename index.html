@@ -34,12 +34,22 @@
   .tab-add{display:flex;align-items:center;padding:0 12px;cursor:pointer;color:var(--muted);font-size:20px;font-weight:300;transition:color .12s;min-height:40px;border-bottom:2px solid transparent;}
   .tab-add:hover{color:var(--text);}
   .app-body{display:grid;grid-template-columns:290px minmax(0,1fr) 270px;min-height:calc(100vh - 92px);}
+  .app-body.sidebar-collapsed{grid-template-columns:38px minmax(0,1fr) 270px;}
+  .app-body.sidebar-collapsed.right-panel-collapsed{grid-template-columns:38px minmax(0,1fr) 38px;}
   .sidebar{background:var(--surface);border-right:1px solid var(--border);padding:1.25rem;display:flex;flex-direction:column;gap:1.25rem;overflow-y:auto;max-height:calc(100vh - 92px);}
+  .sidebar.collapsed{padding:0;gap:0;overflow:hidden;}
+  .sidebar.collapsed .sidebar-inner{display:none!important;}
+  .sidebar.collapsed .sidebar-toggle{height:100%;padding:10px 0;align-items:center;justify-content:flex-start;flex-direction:column;gap:8px;}
+  .sidebar.collapsed .sidebar-toggle .panel-title{display:none;}
+  .sidebar-collapsed-label{display:none;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;}
+  .sidebar.collapsed .sidebar-collapsed-label{display:block;}
+  .sidebar.collapsed .collapse-chevron{transform:rotate(-90deg);}
+  .sidebar-inner{display:flex;flex-direction:column;gap:1.25rem;min-width:0;}
   .section-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;font-family:var(--mono);}
   .field{margin-bottom:10px;}
   .field-label{display:block;font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;font-family:var(--mono);}
-  input[type="text"],input[type="number"]{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-family:inherit;font-size:13px;color:var(--text);outline:none;transition:border-color .15s,box-shadow .15s;}
-  input:focus{border-color:#6a9fd8;box-shadow:0 0 0 3px rgba(106,159,216,.15);}
+  input[type="text"],input[type="number"],input[type="email"],input[type="password"],select{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:7px 10px;font-family:inherit;font-size:13px;color:var(--text);outline:none;transition:border-color .15s,box-shadow .15s;}
+  input:focus,select:focus{border-color:#6a9fd8;box-shadow:0 0 0 3px rgba(106,159,216,.15);}
   .btn{width:100%;padding:8px 14px;border-radius:6px;border:none;font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:background .15s;}
   .btn-primary{background:#1c1b19;color:#fff;}.btn-primary:hover{background:#333;}
   .btn-secondary{background:var(--subtle);color:var(--text);border:1px solid var(--border);}.btn-secondary:hover{background:var(--border);}
@@ -106,9 +116,19 @@
   .feat-tile:hover .tile-rm,.feat-tile:hover .tile-edit{opacity:1;}
   .tile-rm:hover,.tile-edit:hover{background:rgba(0,0,0,.22);}
   .tile-edit:hover{background:rgba(26,95,168,.16);color:#1a5fa8;}
-  /* ✂ bottom-right — only rendered on feature tiles */
-  .tile-split{position:absolute;bottom:3px;right:3px;width:15px;height:15px;border-radius:3px;background:rgba(0,0,0,.12);border:none;cursor:pointer;color:inherit;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .12s,background .12s;}
-  .feat-tile:hover .tile-split{opacity:1;}.tile-split:hover{background:rgba(0,0,0,.26);}
+  /* Split button: larger hit target, compact visual. */
+  .tile-split{position:absolute;bottom:3px;right:24px;width:22px;height:22px;border-radius:5px;background:transparent;border:none;cursor:pointer;color:inherit;display:flex;align-items:center;justify-content:center;opacity:0;z-index:14;transition:opacity .12s,background .12s,color .12s;}
+  .tile-split::before{content:"";position:absolute;inset:3px;border-radius:3px;background:rgba(0,0,0,.12);transition:background .12s,box-shadow .12s;}
+  .tile-split svg{position:relative;z-index:1;}
+  .feat-tile:hover .tile-split,.tile-split:focus-visible{opacity:1;}
+  .tile-split:hover::before,.tile-split:focus-visible::before{background:rgba(26,95,168,.16);box-shadow:0 0 0 1px rgba(26,95,168,.12) inset;}
+  .tile-split:hover,.tile-split:focus-visible{color:#1a5fa8;outline:none;}
+  .tile-resize{position:absolute;right:1px;bottom:1px;width:20px;height:20px;border:0;background:transparent;color:inherit;cursor:nwse-resize;opacity:0;z-index:15;display:flex;align-items:flex-end;justify-content:flex-end;padding:4px;border-radius:5px;transition:opacity .12s,background .12s,color .12s;}
+  .tile-resize::before,.tile-resize::after{content:"";position:absolute;right:4px;bottom:4px;border-right:1.8px solid currentColor;border-bottom:1.8px solid currentColor;border-radius:1px;opacity:.55;}
+  .tile-resize::before{width:10px;height:10px;}
+  .tile-resize::after{width:5px;height:5px;opacity:.78;}
+  .feat-tile:hover .tile-resize,.tile-resize:focus-visible,.feat-tile.is-resizing .tile-resize{opacity:1;}
+  .tile-resize:hover,.tile-resize:focus-visible{background:rgba(255,255,255,.28);color:#1a5fa8;outline:none;}
   .tile-colour-bar{position:absolute;top:3px;left:3px;display:flex;gap:3px;opacity:0;transition:opacity .15s;pointer-events:none;}
   .feat-tile:hover .tile-colour-bar{opacity:1;pointer-events:all;}
   .colour-dot{width:11px;height:11px;border-radius:50%;cursor:pointer;border:1.5px solid rgba(255,255,255,.6);transition:transform .1s,box-shadow .1s;flex-shrink:0;}
@@ -169,6 +189,9 @@
   .dropdown-menu.open{display:block;}
   .dropdown-item{display:flex;align-items:center;gap:8px;padding:8px 14px;font-size:13px;cursor:pointer;transition:background .1s;white-space:nowrap;border:none;background:none;width:100%;text-align:left;font-family:inherit;color:var(--text);}
   .dropdown-item:hover{background:var(--subtle);}
+  .dropdown-item.danger{color:#b52020;}
+  .dropdown-item.danger:hover{background:#fceaea;}
+  .dropdown-item svg{flex-shrink:0;}
   .dropdown-divider{height:1px;background:var(--border);margin:4px 0;}
   .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;align-items:center;justify-content:center;}
   .modal-backdrop.open{display:flex;}
@@ -194,13 +217,117 @@
   .collapsible-body.closed{max-height:0!important;opacity:0;}
   .right-panel-inner{overflow:hidden;transition:max-height .25s ease,opacity .2s;opacity:1;}
   .right-panel-inner.closed{max-height:0!important;opacity:0;}
-  .right-panel-toggle{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;padding-bottom:2px;}
+  .sidebar-toggle,.right-panel-toggle{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;padding-bottom:2px;}
+  .sidebar-toggle:hover .collapse-chevron,
   .right-panel-toggle:hover .collapse-chevron{color:var(--text);}
   ::-webkit-scrollbar{width:5px;height:5px;}
   ::-webkit-scrollbar-track{background:transparent;}
   ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
 
   .topbar-left{display:flex;align-items:center;gap:14px;min-width:0;}
+  .storage-status{display:inline-flex;align-items:center;justify-content:center;gap:7px;width:88px;height:30px;padding:0 9px;box-sizing:border-box;border:1px solid rgba(226,224,219,.88);border-radius:999px;background:rgba(255,255,255,.78);color:#5f5c55;font-size:12px;font-weight:600;font-family:var(--sans);white-space:nowrap;cursor:default;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.035),inset 0 1px 0 rgba(255,255,255,.82);transition:background .16s,border-color .16s,color .16s,box-shadow .16s;}
+  .storage-status-mark{position:relative;width:16px;height:16px;border-radius:50%;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;background:#8a8880;color:#fff;box-shadow:0 0 0 3px rgba(138,136,128,.1);transition:background .16s,box-shadow .16s,border-color .16s;}
+  .storage-status-mark::after{content:"";width:7px;height:4px;border-left:1.8px solid currentColor;border-bottom:1.8px solid currentColor;transform:translateY(-1px) rotate(-45deg);opacity:0;}
+  .storage-status-text{display:inline-block;min-width:46px;text-align:left;overflow:hidden;text-overflow:ellipsis;letter-spacing:0;}
+  .storage-status.local{color:#6b665d;}
+  .storage-status.local .storage-status-mark{background:#8a8880;}
+  .storage-status.local .storage-status-mark::after{width:4px;height:4px;border:0;border-radius:50%;background:currentColor;transform:none;opacity:.9;}
+  .storage-status.ready{color:#1f5f91;border-color:#c8ddef;background:#f8fbfe;}
+  .storage-status.ready .storage-status-mark{background:#dcebf8;color:#1f5f91;box-shadow:0 0 0 3px rgba(31,95,145,.1);}
+  .storage-status.ready .storage-status-mark::after{width:7px;height:7px;border:1.8px solid currentColor;border-left-color:transparent;border-bottom-color:transparent;border-radius:50%;transform:none;opacity:1;}
+  .storage-status.online{color:#246b45;border-color:#b9dbc7;background:#f7fcf9;}
+  .storage-status.online .storage-status-mark{background:#2d7d4e;box-shadow:0 0 0 3px rgba(45,125,78,.12);}
+  .storage-status.online .storage-status-mark::after{opacity:1;}
+  .storage-status.saving{color:#1a5fa8;border-color:#bfd8ef;background:#f7fbff;}
+  .storage-status.saving .storage-status-mark{background:transparent;border:2px solid #c9dff2;border-top-color:#1a5fa8;box-shadow:none;animation:storage-spin .8s linear infinite;}
+  .storage-status.saving .storage-status-mark::after{display:none;}
+  .storage-status.readonly{color:#7a5a00;border-color:#e5d28a;background:#fffaf0;}
+  .storage-status.readonly .storage-status-mark{background:#8a6200;box-shadow:0 0 0 3px rgba(138,98,0,.1);}
+  .storage-status.readonly .storage-status-mark::after{width:6px;height:6px;border:1.8px solid currentColor;border-radius:1px;border-top-left-radius:0;border-top-right-radius:0;transform:translateY(2px);opacity:1;}
+  .storage-status.error{color:#a51d1d;border-color:#edb5b5;background:#fff8f8;}
+  .storage-status.error .storage-status-mark{background:#b52020;box-shadow:0 0 0 3px rgba(181,32,32,.1);}
+  .storage-status.error .storage-status-mark::before,.storage-status.error .storage-status-mark::after{content:"";position:absolute;width:8px;height:1.8px;border:0;background:currentColor;border-radius:999px;opacity:1;transform:rotate(45deg);}
+  .storage-status.error .storage-status-mark::before{transform:rotate(-45deg);}
+  @keyframes storage-spin{to{transform:rotate(360deg);}}
+  .auth-wrap{display:inline-flex;align-items:center;gap:7px;margin-left:4px;}
+  .account-menu-btn{max-width:230px;}
+  .account-menu-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .board-menu-wrap{position:relative;display:inline-flex;}
+  .board-menu-wrap.visible{display:inline-flex;}
+  .board-menu-wrap.visible:hover::after,.board-menu-wrap.visible:focus-within::after{content:"";position:absolute;left:-10px;right:-10px;top:100%;height:12px;z-index:119;}
+  .board-menu{display:none;position:absolute;top:100%;right:0;margin-top:6px;background:var(--surface);border:1px solid var(--border);border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.1);min-width:240px;z-index:120;overflow:hidden;padding:5px;}
+  .account-menu{min-width:270px;}
+  .account-menu-email{padding:7px 8px 4px;color:var(--text);font-size:12px;font-weight:600;font-family:var(--mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .board-menu-wrap:hover .board-menu,.board-menu-wrap:focus-within .board-menu,.board-menu.open{display:block;}
+  .board-menu-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 8px 7px;border-bottom:1px solid var(--border);margin-bottom:4px;}
+  .board-menu-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);}
+  .board-menu-current{font-size:10px;color:var(--muted);font-family:var(--mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:130px;}
+  .board-menu-item{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;border:0;background:transparent;color:var(--text);font-family:inherit;font-size:13px;text-align:left;padding:8px 9px;border-radius:6px;cursor:pointer;}
+  .board-menu-item:hover{background:var(--subtle);}
+  .board-menu-item.active{background:#eaf5ef;color:#2d7d4e;}
+  .board-menu-item.confirming,.board-menu-item.confirming:hover{background:#fff4f0;color:var(--text);}
+  .board-menu-item.renaming,.board-menu-item.renaming:hover{background:#f6fbf8;color:var(--text);}
+  .board-menu-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .board-menu-name.editing{flex:1;overflow:visible;}
+  .board-menu-rename-input{width:100%;min-width:0;height:26px;border:1px solid var(--border);border-radius:5px;background:var(--surface);color:var(--text);font:inherit;font-size:12px;padding:4px 7px;outline:none;}
+  .board-menu-rename-input:focus{border-color:#79b895;box-shadow:0 0 0 2px rgba(45,125,78,.12);}
+  .board-menu-rename-input.error{border-color:#d76d6d;background:#fff8f8;}
+  .board-menu-meta{font-size:10px;color:var(--muted);font-family:var(--mono);white-space:nowrap;}
+  .board-menu-side{position:relative;display:inline-flex;align-items:center;justify-content:flex-end;min-width:112px;flex-shrink:0;}
+  .board-menu-actions{display:none;align-items:center;gap:4px;}
+  .board-menu-action{width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;border-radius:5px;color:var(--muted);cursor:pointer;}
+  .board-menu-action svg{width:14px;height:14px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+  .board-menu-action.rename:hover{background:#eaf5ef;color:#2d7d4e;}
+  .board-menu-action.settings:hover{background:#eef5fc;color:#1a5fa8;}
+  .board-menu-action.delete:hover{background:#fceaea;color:#b52020;}
+  .board-menu-confirm{display:inline-flex;align-items:center;gap:4px;}
+  .board-menu-confirm-text{font-size:10px;color:#b52020;font-family:var(--mono);font-weight:600;white-space:nowrap;}
+  .board-menu-action.save{background:#eaf5ef;color:#2d7d4e;}
+  .board-menu-action.save:hover{background:#dcefe4;}
+  .board-menu-action.confirm{background:#fceaea;color:#b52020;}
+  .board-menu-action.confirm:hover{background:#f6d5d5;}
+  .board-menu-action.cancel:hover{background:var(--subtle);color:var(--text);}
+  .board-menu-item:hover .board-menu-meta{display:none;}
+  .board-menu-item:hover .board-menu-actions{display:inline-flex;}
+  .board-menu-empty{padding:12px 9px;color:var(--muted);font-size:12px;text-align:center;}
+  .auth-mode-toggle{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:3px;margin-bottom:12px;}
+  .auth-mode-toggle .btn-sm{justify-content:center;border:0;background:transparent;padding:6px 9px;}
+  .auth-mode-toggle .btn-sm.active{background:var(--surface);box-shadow:0 1px 4px rgba(0,0,0,.08);}
+  .auth-modal{max-width:430px;padding:0;overflow:hidden;border-radius:14px;}
+  .auth-hero{display:flex;gap:12px;align-items:flex-start;padding:18px 20px 15px;background:#faf9f6;border-bottom:1px solid var(--border);}
+  .auth-icon{width:38px;height:38px;border-radius:10px;background:var(--text);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.12);}
+  .auth-copy{min-width:0;flex:1;}
+  .auth-copy .modal-title{margin-bottom:3px;font-size:16px;}
+  .auth-copy .modal-sub{margin-bottom:0;line-height:1.45;}
+  .auth-copy .modal-sub.importing{margin-top:8px;padding:8px 10px;border:1px solid #a8d9bc;background:#eaf5ef;color:#2d7d4e;border-radius:8px;}
+  .auth-body{padding:16px 20px 18px;}
+  .auth-body .field{margin-bottom:12px;}
+  .auth-body input{padding:9px 11px;background:#fbfaf8;}
+  .auth-body .modal-actions{margin-top:14px;}
+  .auth-body .modal-actions .btn{padding:8px 16px;}
+  .auth-status{font-size:12px;color:var(--muted);min-height:18px;margin-top:8px;}
+  .auth-status.error{color:#b52020;}
+  .auth-status.success{color:#2d7d4e;}
+  .import-name-modal{max-width:430px;}
+  .import-name-modal .modal-sub{line-height:1.45;}
+  .existing-board-wrap{margin-top:10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 10px;}
+  .existing-board-title{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);margin-bottom:6px;}
+  .existing-board-list{display:flex;flex-wrap:wrap;gap:5px;max-height:92px;overflow:auto;}
+  .existing-board-chip{display:inline-flex;max-width:100%;border:1px solid var(--border);background:var(--surface);border-radius:999px;padding:3px 8px;font-size:11px;color:var(--text);}
+  .existing-board-chip.taken{background:#ececec;border-color:#d2d2d2;color:#8a8a8a;text-decoration:line-through;}
+  .existing-board-empty{font-size:12px;color:var(--muted);}
+  .share-modal{max-width:560px;}
+  .share-owner{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 10px;margin-bottom:10px;}
+  .share-owner-email,.share-user-email{font-size:12px;font-family:var(--mono);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .share-permission-pill{font-size:10px;font-weight:600;font-family:var(--mono);text-transform:uppercase;letter-spacing:.04em;background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:2px 7px;color:var(--muted);white-space:nowrap;}
+  .share-add-row{display:grid;grid-template-columns:minmax(0,1fr) 118px auto;gap:8px;align-items:end;margin-bottom:12px;}
+  .share-list{display:flex;flex-direction:column;gap:6px;max-height:230px;overflow:auto;}
+  .share-row{display:grid;grid-template-columns:minmax(0,1fr) 118px 28px;gap:8px;align-items:center;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:8px;}
+  .share-row select,.share-add-row select{padding:6px 8px;font-size:12px;}
+  .share-remove{width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:6px;background:transparent;color:var(--muted);cursor:pointer;font-size:16px;line-height:1;}
+  .share-remove:hover{background:#fceaea;color:#b52020;}
+  .share-empty{font-size:12px;color:var(--muted);text-align:center;padding:14px;background:var(--bg);border:1px dashed var(--border2);border-radius:8px;}
+  .import-name-actions{justify-content:flex-end;}
   .view-toggle{display:inline-flex;align-items:center;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:3px;}
   .view-toggle .btn-sm{border:0;background:transparent;padding:4px 9px;}
   .view-toggle .btn-sm.active{background:var(--surface);box-shadow:0 1px 4px rgba(0,0,0,.08);color:var(--text);}
@@ -208,6 +335,7 @@
   body.board-view .capacity-only{display:none!important;}
   body.board-view .board-only{display:block!important;}
   body.board-view .app-body{grid-template-columns:290px minmax(0,1fr);}
+  body.board-view .app-body.sidebar-collapsed{grid-template-columns:38px minmax(0,1fr);}
   body.board-view .right-panel{display:none;}
   body.board-view .workspace{max-height:calc(100vh - 92px);}
   .board-setup-note{font-size:11px;color:var(--muted);line-height:1.5;margin-top:8px;}
@@ -296,36 +424,56 @@
     </button>
     <div class="dropdown-wrap" id="exportDropWrap">
       <button class="btn-sm" onclick="toggleExportDropdown()">
-        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1v9M4 7l4 4 4-4"/><path d="M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1"/></svg>
-        Export
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h10v3H3z"/><path d="M3 10h10v3H3z"/><path d="M5 6v4M11 6v4"/></svg>
+        Data
         <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 3.5l3 3 3-3"/></svg>
       </button>
       <div class="dropdown-menu" id="exportDropdown">
         <button class="dropdown-item" onclick="exportCurrentTab()">Export current team</button>
-        <div class="dropdown-divider"></div>
         <button class="dropdown-item" onclick="exportAllTabs()">Export all teams</button>
+        <div class="dropdown-divider"></div>
+        <button class="dropdown-item" onclick="openImport()">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 11V2M4 5l4-4 4 4"/><path d="M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1"/></svg>
+          Import
+        </button>
+        <div class="dropdown-divider"></div>
+        <button class="dropdown-item danger" onclick="clearAll()">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h12M5 4V2h6v2M6 7v5M10 7v5M3 4l1 9a1 1 0 001 1h6a1 1 0 001-1l1-9"/></svg>
+          Clear all
+        </button>
       </div>
     </div>
-    <button class="btn-sm" onclick="openImport()">
-      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 11V2M4 5l4-4 4 4"/><path d="M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1"/></svg>
-      Import
-    </button>
-    <button class="btn-sm danger" onclick="clearAll()">
-      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h12M5 4V2h6v2M6 7v5M10 7v5M3 4l1 9a1 1 0 001 1h6a1 1 0 001-1l1-9"/></svg>
-      Clear all
-    </button>
+    <div class="storage-status local" id="storageStatus" role="status" aria-live="polite" title="You are not signed in. Changes are saved in this browser only and are not shared.">
+      <span class="storage-status-mark" aria-hidden="true"></span>
+      <span class="storage-status-text" id="storageStatusText">Local</span>
+    </div>
+    <div class="auth-wrap">
+      <div class="board-menu-wrap visible" id="boardMenuWrap" onmouseenter="if(authSession)loadRemoteBoards()">
+        <button class="btn-sm account-menu-btn" id="boardMenuBtn" type="button" onclick="toggleBoardMenu(event)">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M2.5 14a5.5 5.5 0 0 1 11 0"/></svg>
+          <span class="account-menu-label" id="accountMenuLabel">Login / Register</span>
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 3.5l3 3 3-3"/></svg>
+        </button>
+        <div class="board-menu account-menu" id="boardMenu">
+          <div class="board-menu-empty">Sign in to load boards</div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
 <div class="tabbar" id="tabbar"></div>
 
 <div class="app-body" id="appBody">
-  <aside class="sidebar">
-    <div class="capacity-only">
-      <div class="section-title">Quarter setup</div>
-      <div class="field"><label class="field-label">Quarter name</label><input type="text" id="quarterName" value="Q3 2026" oninput="onQuarterNameInput()"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-toggle" onclick="toggleSidebar()" title="Collapse / expand sidebar">
+      <div>
+        <div class="panel-title" style="margin-bottom:0">Planner controls</div>
+        <div class="sidebar-collapsed-label">Controls</div>
+      </div>
+      <svg class="collapse-chevron open" id="sidebarChevron" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 4l4 4 4-4"/></svg>
     </div>
-
+    <div class="sidebar-inner" id="sidebarInner">
     <div class="board-only">
       <div class="section-title">PI Planning setup</div>
       <div class="field"><label class="field-label">PI name</label><input type="text" id="boardName" value="PI 2026 Q3" oninput="onBoardNameInput()"></div>
@@ -380,7 +528,7 @@
             <div><input type="radio" name="sz" id="sz-us-xl" class="size-radio" value="XL" data-type="story"><label for="sz-us-xl" class="size-btn">XL<span class="size-sub">20 pts</span></label></div>
           </div>
         </div>
-        <button class="btn btn-secondary" onclick="addFeature()">Add to quarter</button>
+        <button class="btn btn-secondary" onclick="addFeature()">Add work item</button>
       </div>
     </div>
     <div class="capacity-only" style="display:none;">
@@ -408,6 +556,7 @@
       </div>
       <div class="section-title" style="display:flex;align-items:center;gap:6px;">Board backlog <span class="count-badge" id="boardBacklogCount">0</span></div>
       <div class="board-backlog-list" id="boardBacklogList"></div>
+    </div>
     </div>
   </aside>
 
@@ -473,10 +622,78 @@
   </div>
 </div>
 
+<div class="modal-backdrop" id="authModal">
+  <div class="modal auth-modal">
+    <div class="auth-hero">
+      <div class="auth-icon">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 8a3 3 0 100-6 3 3 0 000 6z"/><path d="M3 14a5 5 0 0110 0"/></svg>
+      </div>
+      <div class="auth-copy">
+        <div class="modal-title" id="authModalTitle">Login</div>
+        <div class="modal-sub" id="authModalSub">Use your Supabase account to sign in.</div>
+      </div>
+    </div>
+    <div class="auth-body">
+      <div class="auth-mode-toggle" role="tablist" aria-label="Authentication mode">
+        <button class="btn-sm active" id="authLoginModeBtn" type="button" onclick="setAuthMode('login')" role="tab" aria-selected="true">Login</button>
+        <button class="btn-sm" id="authRegisterModeBtn" type="button" onclick="setAuthMode('register')" role="tab" aria-selected="false">Register</button>
+      </div>
+      <div class="field"><label class="field-label" for="authEmail">Email</label><input type="email" id="authEmail" name="username" autocomplete="username" inputmode="email" placeholder="you@example.com"></div>
+      <div class="field"><label class="field-label" for="authPassword">Password</label><input type="password" id="authPassword" name="password" autocomplete="current-password" placeholder="At least 6 characters"></div>
+      <div class="auth-status" id="authStatus"></div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" style="width:auto" onclick="closeAuthModal()">Cancel</button>
+        <button class="btn btn-primary" style="width:auto" id="authSubmitBtn" onclick="submitAuthForm()">Login</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="importBoardNameModal">
+  <div class="modal import-name-modal">
+    <div class="modal-title">Name imported board</div>
+    <div class="modal-sub">Choose a unique name for the anonymous board that will be moved into your Supabase account.</div>
+    <div class="field"><label class="field-label" for="importBoardNameInput">Board name</label><input type="text" id="importBoardNameInput" autocomplete="off" placeholder="Board name"></div>
+    <div class="existing-board-wrap">
+      <div class="existing-board-title">Existing boards</div>
+      <div class="existing-board-list" id="existingBoardNames"><span class="existing-board-empty">Loading boards...</span></div>
+    </div>
+    <div class="modal-error" id="importBoardNameError"></div>
+    <div class="modal-actions import-name-actions">
+      <button class="btn btn-secondary" style="width:auto" onclick="skipImportBoardName()">Skip, don't import</button>
+      <button class="btn btn-primary" style="width:auto" id="importBoardNameSubmitBtn" onclick="submitImportBoardName()">Import board</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="boardShareModal">
+  <div class="modal share-modal">
+    <div class="modal-title" id="boardShareTitle">Board settings</div>
+    <div class="modal-sub" id="boardShareSub">Add users by email and choose whether they can read or write this board.</div>
+    <div class="share-owner">
+      <span class="share-owner-email" id="boardShareOwnerEmail">Owner</span>
+      <span class="share-permission-pill">Owner</span>
+    </div>
+    <div class="share-add-row">
+      <div class="field" style="margin-bottom:0;"><label class="field-label" for="boardShareEmail">User email</label><input type="email" id="boardShareEmail" placeholder="teammate@example.com" autocomplete="off"></div>
+      <div class="field" style="margin-bottom:0;"><label class="field-label" for="boardSharePermission">Permission</label><select id="boardSharePermission"><option value="read">Read</option><option value="write">Write</option></select></div>
+      <button class="btn btn-secondary" style="width:auto;padding:7px 12px;" id="boardShareAddBtn" onclick="addBoardCollaborator()">Add</button>
+    </div>
+    <div class="share-list" id="boardShareList"></div>
+    <div class="modal-error" id="boardShareError"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" style="width:auto" onclick="closeBoardShareModal()">Done</button>
+    </div>
+  </div>
+</div>
+
 <div class="copyright-footer">© K M Schellens</div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.108.2"></script>
 <script>
-const STORAGE_KEY='capacityPlanner_v6',LEGACY_STORAGE_KEY='capacityPlanner_v5',CELL=53,PTS_PER_CELL=5;
+const STORAGE_KEY='capacityPlanner_v6',LEGACY_STORAGE_KEY='capacityPlanner_v5',EDITED_KEY='capacityPlanner_edited',CELL=53,PTS_PER_CELL=5;
+const SUPABASE_URL='http://localhost:8000';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzgyNDk3NzU5LCJleHAiOjE5NDAxNzc3NTl9.gRnymGA3NI8nbzQW_HV2CQxKqJA-ZlKKFrHY_4Xgjv8';
 const PALETTES=[
   {id:1,color:'#1a5fa8',bg:'#e8f1fb',border:'#9dc0e8'},
   {id:2,color:'#2d7d4e',bg:'#eaf5ef',border:'#a8d9bc'},
@@ -551,16 +768,13 @@ function nextQuarterParts(date=new Date()){
   if(quarter>4){quarter=1;year++;}
   return{quarter,year};
 }
-function defaultQuarterName(){
-  const{quarter,year}=nextQuarterParts();
-  return`Q${quarter} ${year}`;
-}
 function defaultPIName(){
   const{quarter,year}=nextQuarterParts();
   return`PI ${year} Q${quarter}`;
 }
 
-let tabs=[],activeTabId=null,tabIdSeq=0,dragId=null,dragFrom=null,currentView='capacity',boardDragKey=null,boardDragFrom=null,depDrag=null,boardRowDragTeamId=null,tabDragTeamId=null,suppressNextTabClick=false,rightPanelCollapsed=true;
+let tabs=[],activeTabId=null,tabIdSeq=0,dragId=null,dragFrom=null,currentView='capacity',boardDragKey=null,boardDragFrom=null,depDrag=null,boardRowDragTeamId=null,tabDragTeamId=null,suppressNextTabClick=false,sidebarCollapsed=false,rightPanelCollapsed=true,tileResizeDrag=null;
+let supabaseClient=null,authSession=null,authMode='login',remoteBoards=[],remoteBoardsLoading=false,currentRemoteBoardId=null,currentRemoteBoardName='',currentRemoteBoardPermission='owner',remoteSaveTimer=null,isSavingRemoteBoard=false,remoteSaveStatus='saved',remoteBoardChannel=null,remoteBoardChannelId=null,pendingAnonymousImportSnapshot=null,signedInModePromise=null,signedInUserModeReadyFor=null,anonymousImportEligible=false,pendingImportNameResolve=null,pendingDeleteRemoteBoardId=null,pendingRenameRemoteBoardId=null,pendingRenameRemoteBoardValue=null,pendingRenameRemoteBoardError='',boardShareBoardId=null,boardShareEntries=[],boardShareLoading=false,boardShareSaving=false,readOnlyWarningShown=false;
 function freshBoardState(){return{name:defaultPIName(),iterationCount:6,iterationNames:[],placements:{},dependencies:[],teamOrder:[],backlogFilters:defaultBoardBacklogFilters(),backlogFiltersOpen:false};}
 let boardState=freshBoardState();
 function tab(){return tabs.find(t=>t.id===activeTabId);}
@@ -576,12 +790,1080 @@ function getGridRows(){const t=tab();const cap=teamCapacityPts(t);if(!t||!cap)re
 
 const UNDO_LIMIT=60;
 let undoStack=[],lastStateSnapshot=null,isRestoringState=false;
-function statePayload(){return{version:6,tabs,activeTabId,tabIdSeq,currentView,boardState,rightPanelCollapsed};}
+function statePayload(){return{version:6,tabs,activeTabId,tabIdSeq,currentView,boardState,sidebarCollapsed,rightPanelCollapsed};}
+function syncedStatePayload(){return{version:6,tabs,tabIdSeq,boardState};}
 function currentStateSnapshot(){return JSON.stringify(statePayload());}
-function writeStateSnapshot(snapshot){try{localStorage.setItem(STORAGE_KEY,snapshot);}catch(e){}}
+function currentSyncedStateSnapshot(){return JSON.stringify(syncedStatePayload());}
+function syncedStateSnapshotFromSnapshot(snapshot){
+  if(!snapshot)return'';
+  try{
+    const s=JSON.parse(snapshot);
+    if(!s||!Array.isArray(s.tabs))return'';
+    return JSON.stringify({version:6,tabs:s.tabs,tabIdSeq:s.tabIdSeq||s.tabs.length,boardState:s.boardState});
+  }catch(e){return'';}
+}
+function writeStateSnapshot(snapshot){
+  if(authSession)return;
+  try{localStorage.setItem(STORAGE_KEY,snapshot);}catch(e){}
+}
 function updateUndoButton(){
   const btn=document.getElementById('undoBtn');
   if(btn)btn.disabled=!undoStack.length;
+}
+function setStorageStatus(kind,text,title){
+  const el=document.getElementById('storageStatus'),label=document.getElementById('storageStatusText');
+  if(!el||!label)return;
+  el.className=`storage-status ${kind}`;
+  label.textContent=text;
+  el.title=title;
+}
+function updateStorageStatus(){
+  if(!authSession){
+    setStorageStatus('local','Local','You are not signed in. Changes are saved in this browser only and are not shared.');
+    return;
+  }
+  if(!currentRemoteBoardId){
+    setStorageStatus('ready','Ready','You are signed in. Open or create a board to save changes in the shared online database.');
+    return;
+  }
+  if(!currentBoardCanWrite()){
+    setStorageStatus('readonly','Read-only','Connected to the shared online database. You can view this board, but board edits are not saved unless the owner grants write access.');
+    return;
+  }
+  if(remoteSaveStatus==='error'){
+    setStorageStatus('error','Error','Connected to the shared online database, but the last save failed. Your latest board change may not be saved yet.');
+    return;
+  }
+  if(remoteSaveTimer||isSavingRemoteBoard||remoteSaveStatus==='saving'){
+    setStorageStatus('saving','Saving','Connected to the shared online database. Board changes are being saved and shared with users who have access.');
+    return;
+  }
+  setStorageStatus('online','Saved','Connected to the shared online database. Board changes are saved and shared with users who have access.');
+}
+function getSupabaseClient(){
+  if(supabaseClient)return supabaseClient;
+  if(!window.supabase?.createClient)return null;
+  supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{
+    auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}
+  });
+  return supabaseClient;
+}
+function authIconSvg(type){
+  if(type==='out')return '<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2H3a1 1 0 00-1 1v10a1 1 0 001 1h3"/><path d="M10 11l3-3-3-3"/><path d="M13 8H6"/></svg>';
+  return '<svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2h3a1 1 0 011 1v10a1 1 0 01-1 1h-3"/><path d="M6 11l3-3-3-3"/><path d="M9 8H2"/></svg>';
+}
+function updateAuthUI(message='',kind=''){
+  const accountLabel=document.getElementById('accountMenuLabel'),btn=document.getElementById('boardMenuBtn'),status=document.getElementById('authStatus');
+  const email=authSession?.user?.email||'';
+  if(accountLabel)accountLabel.textContent=email||'Login / Register';
+  if(btn){
+    btn.disabled=false;
+    btn.title=authSession
+      ?`${email}${currentRemoteBoardName?` - ${currentRemoteBoardName}`:''}`
+      :'Login or register';
+    btn.setAttribute('aria-label',authSession?`Account and boards for ${email}`:'Login or register');
+  }
+  const boardWrap=document.getElementById('boardMenuWrap');
+  if(boardWrap)boardWrap.classList.add('visible');
+  if(!authSession){
+    clearRemoteBoardSubscription();
+    remoteBoards=[];
+    currentRemoteBoardId=null;
+    currentRemoteBoardName='';
+    currentRemoteBoardPermission='owner';
+    pendingDeleteRemoteBoardId=null;
+    pendingRenameRemoteBoardId=null;
+    pendingRenameRemoteBoardValue=null;
+    pendingRenameRemoteBoardError='';
+    renderRemoteBoardMenu();
+  }
+  if(status&&message){
+    status.textContent=message;
+    status.className='auth-status'+(kind?` ${kind}`:'');
+  }
+  updateStorageStatus();
+}
+function remoteBoardDateLabel(value){
+  if(!value)return'';
+  const d=new Date(value);
+  if(Number.isNaN(d.getTime()))return'';
+  return d.toLocaleDateString(undefined,{month:'short',day:'numeric'});
+}
+function normalizeUserEmail(email){return String(email||'').trim().toLowerCase();}
+function boardPermissionLabel(permission){
+  if(permission==='owner')return'owner';
+  if(permission==='write')return'write';
+  return'read';
+}
+function currentBoardCanWrite(){
+  return !authSession||!currentRemoteBoardId||currentRemoteBoardPermission==='owner'||currentRemoteBoardPermission==='write';
+}
+function boardPermissionFromRow(row,collabMap=null){
+  if(row?.user_id&&authSession?.user?.id&&row.user_id===authSession.user.id)return'owner';
+  const shared=collabMap?.get?.(row?.id)||row?.permission;
+  return shared==='write'?'write':'read';
+}
+async function hydrateRemoteBoardPermissions(rows){
+  const list=Array.isArray(rows)?rows:[];
+  const email=normalizeUserEmail(authSession?.user?.email);
+  const collabMap=new Map();
+  if(email&&list.some(row=>row.user_id!==authSession?.user?.id)){
+    const client=getSupabaseClient();
+    try{
+      const {data,error}=await client.from('board_collaborators').select('board_id,permission').eq('user_email',email);
+      if(error)throw error;
+      (data||[]).forEach(item=>collabMap.set(item.board_id,item.permission==='write'?'write':'read'));
+    }catch(e){
+      console.warn('Could not load board collaborator permissions',e);
+    }
+  }
+  return list.map(row=>({...row,permission:boardPermissionFromRow(row,collabMap)}));
+}
+function showReadOnlyBoardWarning(){
+  if(readOnlyWarningShown)return;
+  readOnlyWarningShown=true;
+  alert('This board is read-only for your account. Ask the owner for write access to make changes.');
+  setTimeout(()=>{readOnlyWarningShown=false;},1200);
+}
+function clearRemoteBoardSubscription(){
+  if(!remoteBoardChannel)return;
+  const client=getSupabaseClient();
+  const channel=remoteBoardChannel;
+  remoteBoardChannel=null;
+  remoteBoardChannelId=null;
+  const removal=client?.removeChannel?.(channel);
+  removal?.catch?.(e=>console.warn('Could not remove realtime channel',e));
+}
+function applyRemoteBoardSnapshot(snapshot){
+  const previousActiveTabId=activeTabId;
+  const previousView=currentView;
+  const previousRightPanelCollapsed=rightPanelCollapsed;
+  isRestoringState=true;
+  try{
+    if(!applyStateSnapshot(snapshot))return false;
+    if(tabs.find(t=>t.id===previousActiveTabId))activeTabId=previousActiveTabId;
+    currentView=previousView;
+    rightPanelCollapsed=previousRightPanelCollapsed;
+    cleanupBoardState();
+    renderPlannerState();
+    return true;
+  }finally{
+    isRestoringState=false;
+  }
+}
+function handleRemoteBoardPayload(payload){
+  const row=payload?.new||{};
+  if(!row.id||row.id!==currentRemoteBoardId)return;
+  currentRemoteBoardName=row.name||currentRemoteBoardName;
+  updateRemoteBoardInPlace(row,true);
+  if(!remoteSaveTimer&&!isSavingRemoteBoard)remoteSaveStatus='saved';
+  renderRemoteBoardMenu();
+  const snapshot=JSON.stringify(row.state||{});
+  if(syncedStateSnapshotFromSnapshot(snapshot)===currentSyncedStateSnapshot())return;
+  if(remoteSaveTimer&&currentBoardCanWrite())return;
+  if(!applyRemoteBoardSnapshot(snapshot)){
+    console.warn('Received realtime board update that could not be applied.');
+  }
+  updateStorageStatus();
+}
+async function handleRemoteBoardDelete(payload){
+  const deletedId=payload?.old?.id||payload?.new?.id;
+  if(!deletedId||deletedId!==currentRemoteBoardId)return;
+  clearRemoteBoardSubscription();
+  currentRemoteBoardId=null;
+  currentRemoteBoardName='';
+  currentRemoteBoardPermission='owner';
+  remoteSaveStatus='saved';
+  remoteBoards=remoteBoards.filter(board=>board.id!==deletedId);
+  const next=remoteBoards[0];
+  if(next)await openRemoteBoard(next.id,{skipFlush:true});
+  else{
+    resetPlannerToFreshDefaults();
+    renderPlannerState();
+    renderRemoteBoardMenu();
+  }
+}
+function subscribeToRemoteBoard(id){
+  if(!authSession||!id)return;
+  if(remoteBoardChannel&&remoteBoardChannelId===id)return;
+  clearRemoteBoardSubscription();
+  const client=getSupabaseClient();if(!client?.channel)return;
+  remoteBoardChannelId=id;
+  remoteBoardChannel=client.channel(`board:${id}`)
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'boards',filter:`id=eq.${id}`},handleRemoteBoardPayload)
+    .on('postgres_changes',{event:'DELETE',schema:'public',table:'boards',filter:`id=eq.${id}`},payload=>{handleRemoteBoardDelete(payload);})
+    .subscribe(status=>{
+      if(status==='CHANNEL_ERROR'||status==='TIMED_OUT')console.warn('Realtime board channel status:',status);
+    });
+}
+function renderRemoteBoardMenu(){
+  const menu=document.getElementById('boardMenu');
+  const btn=document.getElementById('boardMenuBtn');
+  if(!menu)return;
+  if(!authSession){
+    if(btn)btn.title='Login or register';
+    menu.innerHTML=`<button class="board-menu-item" type="button" onclick="openAuthModal('login')">
+      <span class="board-menu-name">Login / Register</span>
+      <span class="board-menu-meta">account</span>
+    </button>`;
+    updateStorageStatus();
+    return;
+  }
+  const email=authSession?.user?.email||'';
+  if(btn)btn.title=`${email}${currentRemoteBoardName?` - ${currentRemoteBoardName}`:' - Open or create a board'}`;
+  const current=currentRemoteBoardName
+    ?`${currentRemoteBoardName} (${boardPermissionLabel(currentRemoteBoardPermission)})`
+    :'No board open';
+  let html=`<div class="account-menu-email" title="${esc(email)}">${esc(email)}</div>
+    <div class="dropdown-divider"></div>
+    <div class="board-menu-head"><span class="board-menu-title">Boards</span><span class="board-menu-current" title="${esc(current)}">${esc(current)}</span></div>
+    <button class="board-menu-item" type="button" onclick="createRemoteBoard()">
+      <span class="board-menu-name">New board...</span>
+      <span class="board-menu-meta">create</span>
+    </button>`;
+  if(remoteBoardsLoading){
+    html+='<div class="board-menu-empty">Loading boards...</div>';
+  }else if(!remoteBoards.length){
+    html+='<div class="board-menu-empty">No saved boards yet</div>';
+  }else{
+    html+=remoteBoards.map(board=>{
+      const active=board.id===currentRemoteBoardId;
+      const owner=board.permission==='owner';
+      const confirming=board.id===pendingDeleteRemoteBoardId;
+      const renaming=board.id===pendingRenameRemoteBoardId;
+      const rowClick=(confirming||renaming)?'event.stopPropagation()':`openRemoteBoard('${board.id}')`;
+      const rowKeydown=confirming
+        ?"if(event.key==='Escape')cancelDeleteRemoteBoard(event)"
+        :renaming
+          ?"if(event.key==='Escape')cancelRenameRemoteBoard(event)"
+          :`if(event.key==='Enter'||event.key===' '){event.preventDefault();openRemoteBoard('${board.id}')}`;
+      const renameValue=pendingRenameRemoteBoardValue!==null?pendingRenameRemoteBoardValue:board.name;
+      const renameErrorLabel=pendingRenameRemoteBoardError
+        ?(pendingRenameRemoteBoardError.includes('already')?'Taken':'Name?')
+        :'';
+      const nameCell=renaming
+        ?`<span class="board-menu-name editing">
+            <input class="board-menu-rename-input${pendingRenameRemoteBoardError?' error':''}" id="boardRenameInput" type="text" value="${esc(renameValue)}" title="${esc(pendingRenameRemoteBoardError)}" onclick="event.stopPropagation()" oninput="pendingRenameRemoteBoardValue=this.value;pendingRenameRemoteBoardError='';this.classList.remove('error')" onkeydown="if(event.key==='Enter')confirmRenameRemoteBoard(event,'${board.id}');else if(event.key==='Escape')cancelRenameRemoteBoard(event)">
+          </span>`
+        :`<span class="board-menu-name" title="${esc(board.name)}">${esc(board.name)}</span>`;
+      const side=renaming
+        ?`<span class="board-menu-confirm" onclick="event.stopPropagation()">
+            ${renameErrorLabel?`<span class="board-menu-confirm-text">${renameErrorLabel}</span>`:''}
+            <span class="board-menu-action save" role="button" tabindex="0" title="Save name" aria-label="Save board name" onclick="confirmRenameRemoteBoard(event,'${board.id}')" onkeydown="if(event.key==='Enter'||event.key===' ')confirmRenameRemoteBoard(event,'${board.id}')">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+            </span>
+            <span class="board-menu-action cancel" role="button" tabindex="0" title="Cancel rename" aria-label="Cancel rename" onclick="cancelRenameRemoteBoard(event)" onkeydown="if(event.key==='Enter'||event.key===' ')cancelRenameRemoteBoard(event)">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </span>
+          </span>`
+        :confirming
+        ?`<span class="board-menu-confirm" onclick="event.stopPropagation()">
+            <span class="board-menu-confirm-text">Delete?</span>
+            <span class="board-menu-action confirm" role="button" tabindex="0" title="Confirm delete" aria-label="Confirm delete ${esc(board.name)}" onclick="confirmDeleteRemoteBoard(event,'${board.id}')" onkeydown="if(event.key==='Enter'||event.key===' ')confirmDeleteRemoteBoard(event,'${board.id}')">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+            </span>
+            <span class="board-menu-action cancel" role="button" tabindex="0" title="Cancel delete" aria-label="Cancel delete" onclick="cancelDeleteRemoteBoard(event)" onkeydown="if(event.key==='Enter'||event.key===' ')cancelDeleteRemoteBoard(event)">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </span>
+          </span>`
+        :`<span class="board-menu-meta">${active?boardPermissionLabel(board.permission):owner?esc(remoteBoardDateLabel(board.updated_at||board.created_at)):boardPermissionLabel(board.permission)}</span>
+          ${owner?`<span class="board-menu-actions" aria-label="Board actions">
+            <span class="board-menu-action rename" role="button" tabindex="0" title="Rename board" aria-label="Rename ${esc(board.name)}" onclick="requestRenameRemoteBoard(event,'${board.id}')" onkeydown="if(event.key==='Enter'||event.key===' ')requestRenameRemoteBoard(event,'${board.id}')">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+            </span>
+            <span class="board-menu-action settings" role="button" tabindex="0" title="Board settings" aria-label="Board settings for ${esc(board.name)}" onclick="openBoardShareModal(event,'${board.id}')" onkeydown="if(event.key==='Enter'||event.key===' ')openBoardShareModal(event,'${board.id}')">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a1.8 1.8 0 0 0 .36 1.98l.04.04a2.1 2.1 0 1 1-2.98 2.98l-.04-.04A1.8 1.8 0 0 0 14.8 19.6a1.8 1.8 0 0 0-1.08 1.65V21.3a2.1 2.1 0 1 1-4.2 0v-.06A1.8 1.8 0 0 0 8.45 19.6a1.8 1.8 0 0 0-1.98.36l-.04.04a2.1 2.1 0 1 1-2.98-2.98l.04-.04A1.8 1.8 0 0 0 3.85 15a1.8 1.8 0 0 0-1.65-1.08H2.1a2.1 2.1 0 1 1 0-4.2h.1a1.8 1.8 0 0 0 1.65-1.08 1.8 1.8 0 0 0-.36-1.98l-.04-.04a2.1 2.1 0 1 1 2.98-2.98l.04.04a1.8 1.8 0 0 0 1.98.36 1.8 1.8 0 0 0 1.08-1.65V2.1a2.1 2.1 0 1 1 4.2 0v.29a1.8 1.8 0 0 0 1.08 1.65 1.8 1.8 0 0 0 1.98-.36l.04-.04a2.1 2.1 0 1 1 2.98 2.98l-.04.04A1.8 1.8 0 0 0 19.4 8.6a1.8 1.8 0 0 0 1.65 1.08h.15a2.1 2.1 0 1 1 0 4.2h-.15A1.8 1.8 0 0 0 19.4 15Z"/></svg>
+            </span>
+            <span class="board-menu-action delete" role="button" tabindex="0" title="Delete board" aria-label="Delete ${esc(board.name)}" onclick="requestDeleteRemoteBoard(event,'${board.id}')" onkeydown="if(event.key==='Enter'||event.key===' ')requestDeleteRemoteBoard(event,'${board.id}')">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+            </span>
+          </span>`:''}`;
+      return `<div class="board-menu-item${active?' active':''}${confirming?' confirming':''}${renaming?' renaming':''}" role="button" tabindex="0" onclick="${rowClick}" onkeydown="${rowKeydown}">
+        ${nameCell}
+        <span class="board-menu-side">${side}</span>
+      </div>`;
+    }).join('');
+  }
+  html+=`<div class="dropdown-divider"></div>
+    <button class="board-menu-item" type="button" onclick="handleAuthButtonClick()">
+      <span class="board-menu-name">Sign out</span>
+      <span class="board-menu-meta">account</span>
+    </button>`;
+  menu.innerHTML=html;
+  updateStorageStatus();
+}
+function toggleBoardMenu(event){
+  event?.stopPropagation?.();
+  if(!authSession){openAuthModal('login');return;}
+  const menu=document.getElementById('boardMenu');
+  menu?.classList.toggle('open');
+  if(menu?.classList.contains('open'))loadRemoteBoards();
+}
+function anonymousStateSnapshotForImport(){
+  if(authSession||!tabs.length||!anonymousImportEligible)return null;
+  const snapshot=currentStateSnapshot();
+  try{
+    const state=JSON.parse(snapshot);
+    if(state&&Array.isArray(state.tabs)&&state.tabs.length)return snapshot;
+  }catch(e){}
+  return null;
+}
+function boardNameFromSnapshot(snapshot){
+  try{
+    const state=JSON.parse(snapshot);
+    const boardName=String(state?.boardState?.name||'').trim();
+    if(boardName)return boardName;
+    const tabName=String(state?.tabs?.[0]?.name||'').trim();
+    if(tabName)return tabName;
+  }catch(e){}
+  return'Imported anonymous board';
+}
+function authModeDescription(){
+  const hasAnonymous=!!anonymousStateSnapshotForImport();
+  if(authMode==='register'){
+    return hasAnonymous
+      ?'Create a Supabase account. Your current anonymous board will be imported and then only be available when logged in.'
+      :'Create a Supabase account for this planner.';
+  }
+  return hasAnonymous
+    ?'Your current anonymous board will be imported to Supabase and then only be available when logged in.'
+    :'Use your Supabase account to sign in.';
+}
+function authModeHasAnonymousImportNotice(){return!!anonymousStateSnapshotForImport();}
+function normalizeBoardName(name){return String(name||'').trim().toLowerCase();}
+function updateRemoteBoardInPlace(row,appendIfMissing=false){
+  const existing=remoteBoards.find(board=>board.id===row.id);
+  const meta={
+    id:row.id,
+    name:row.name,
+    user_id:row.user_id||existing?.user_id||authSession?.user?.id||null,
+    permission:row.permission||boardPermissionFromRow({...existing,...row}),
+    created_at:row.created_at,
+    updated_at:row.updated_at
+  };
+  const index=remoteBoards.findIndex(board=>board.id===row.id);
+  if(index>=0){
+    remoteBoards=remoteBoards.map(board=>board.id===row.id?{...board,...meta}:board);
+  }else if(appendIfMissing){
+    remoteBoards=[...remoteBoards,meta];
+  }
+  return meta;
+}
+async function findBoardByName(name,excludeId=null){
+  if(!authSession)return null;
+  const target=normalizeBoardName(name);
+  if(!target)return null;
+  const cached=remoteBoards.find(board=>board.permission==='owner'&&normalizeBoardName(board.name)===target&&board.id!==excludeId);
+  if(cached)return cached;
+  const client=getSupabaseClient();if(!client)return null;
+  const {data,error}=await client.from('boards').select('id,name,user_id,created_at,updated_at').eq('user_id',authSession.user.id).order('updated_at',{ascending:false});
+  if(error)throw error;
+  if(Array.isArray(data)){
+    const ownedIds=new Set(data.map(row=>row.id));
+    const shared=remoteBoards.filter(board=>!ownedIds.has(board.id)&&board.permission!=='owner');
+    const owned=data.map(row=>{
+      const existing=remoteBoards.find(board=>board.id===row.id);
+      return existing?{...existing,name:row.name,user_id:row.user_id,permission:'owner'}:{...row,permission:'owner'};
+    });
+    remoteBoards=[...owned,...shared];
+  }
+  return (data||[]).find(board=>normalizeBoardName(board.name)===target&&board.id!==excludeId)||null;
+}
+async function validateUniqueBoardName(name,excludeId=null){
+  const trimmed=String(name||'').trim();
+  if(!trimmed)return'Enter a board name.';
+  const existing=await findBoardByName(trimmed,excludeId);
+  if(existing)return'A board with this name already exists.';
+  return'';
+}
+function renderExistingBoardNames(candidateName=''){
+  const el=document.getElementById('existingBoardNames');
+  if(!el)return;
+  const candidate=normalizeBoardName(candidateName||document.getElementById('importBoardNameInput')?.value||'');
+  const boards=[...remoteBoards].sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')));
+  if(!boards.length){
+    el.innerHTML='<span class="existing-board-empty">No saved boards yet</span>';
+    return;
+  }
+  el.innerHTML=boards.map(board=>{
+    const taken=candidate&&normalizeBoardName(board.name)===candidate;
+    return `<span class="existing-board-chip${taken?' taken':''}" title="${esc(board.name)}">${esc(board.name)}</span>`;
+  }).join('');
+}
+async function requestImportBoardName(snapshot){
+  await loadRemoteBoards(true);
+  return new Promise(resolve=>{
+    pendingImportNameResolve=resolve;
+    const input=document.getElementById('importBoardNameInput');
+    const err=document.getElementById('importBoardNameError');
+    if(input)input.value=boardNameFromSnapshot(snapshot);
+    if(err)err.textContent='';
+    renderExistingBoardNames(input?.value||'');
+    document.getElementById('importBoardNameModal')?.classList.add('open');
+    setTimeout(()=>{input?.focus();input?.select();},0);
+  });
+}
+async function submitImportBoardName(){
+  const input=document.getElementById('importBoardNameInput'),err=document.getElementById('importBoardNameError'),btn=document.getElementById('importBoardNameSubmitBtn');
+  const name=(input?.value||'').trim();
+  if(btn)btn.disabled=true;
+  try{
+    const error=await validateUniqueBoardName(name);
+    renderExistingBoardNames(name);
+    if(error){if(err)err.textContent=error;return;}
+    document.getElementById('importBoardNameModal')?.classList.remove('open');
+    const resolve=pendingImportNameResolve;
+    pendingImportNameResolve=null;
+    resolve?.(name);
+  }catch(e){
+    if(err)err.textContent=e.message||'Could not validate board name.';
+  }finally{
+    if(btn)btn.disabled=false;
+  }
+}
+function skipImportBoardName(){
+  document.getElementById('importBoardNameModal')?.classList.remove('open');
+  const resolve=pendingImportNameResolve;
+  pendingImportNameResolve=null;
+  resolve?.(null);
+}
+async function loadRemoteBoards(force=false){
+  if(!authSession||remoteBoardsLoading)return remoteBoards;
+  if(remoteBoards.length&&!force){renderRemoteBoardMenu();return remoteBoards;}
+  const client=getSupabaseClient();if(!client)return;
+  remoteBoardsLoading=true;renderRemoteBoardMenu();
+  try{
+    const {data,error}=await client.from('boards').select('id,name,user_id,created_at,updated_at').order('updated_at',{ascending:false});
+    if(error)throw error;
+    remoteBoards=await hydrateRemoteBoardPermissions(data||[]);
+  }catch(e){
+    remoteBoards=[];
+    console.warn('Could not load boards',e);
+  }finally{
+    remoteBoardsLoading=false;
+    renderRemoteBoardMenu();
+  }
+  return remoteBoards;
+}
+async function createRemoteBoard(){
+  if(!authSession){openAuthModal('login');return;}
+  pendingDeleteRemoteBoardId=null;
+  pendingRenameRemoteBoardId=null;
+  pendingRenameRemoteBoardValue=null;
+  pendingRenameRemoteBoardError='';
+  let trimmed='';
+  for(;;){
+    const name=prompt('Name for the new board:',trimmed||currentRemoteBoardName||boardState.name||tab()?.name||'PI Capacity Board');
+    if(name===null)return;
+    trimmed=name.trim();
+    const error=await validateUniqueBoardName(trimmed);
+    if(!error)break;
+    alert(error);
+  }
+  const client=getSupabaseClient();if(!client)return;
+  const {data,error}=await client.from('boards').insert({
+    user_id:authSession.user.id,
+    name:trimmed,
+    state:syncedStatePayload()
+  }).select('id,name,user_id,created_at,updated_at').single();
+  if(error){alert(error.message||'Could not create board.');return;}
+  currentRemoteBoardId=data.id;
+  currentRemoteBoardName=data.name;
+  currentRemoteBoardPermission='owner';
+  remoteSaveStatus='saved';
+  updateRemoteBoardInPlace(data,true);
+  subscribeToRemoteBoard(data.id);
+  renderRemoteBoardMenu();
+  updateStorageStatus();
+}
+function focusRemoteBoardRenameInput(){
+  setTimeout(()=>{
+    const input=document.getElementById('boardRenameInput');
+    input?.focus();
+    input?.select();
+  },0);
+}
+function requestRenameRemoteBoard(event,id){
+  event?.preventDefault?.();
+  event?.stopPropagation?.();
+  if(!authSession||!id)return;
+  pendingDeleteRemoteBoardId=null;
+  pendingRenameRemoteBoardId=id;
+  pendingRenameRemoteBoardValue=remoteBoards.find(item=>item.id===id)?.name||'';
+  pendingRenameRemoteBoardError='';
+  document.getElementById('boardMenu')?.classList.add('open');
+  renderRemoteBoardMenu();
+  focusRemoteBoardRenameInput();
+}
+function cancelRenameRemoteBoard(event){
+  event?.preventDefault?.();
+  event?.stopPropagation?.();
+  pendingRenameRemoteBoardId=null;
+  pendingRenameRemoteBoardValue=null;
+  pendingRenameRemoteBoardError='';
+  renderRemoteBoardMenu();
+}
+async function confirmRenameRemoteBoard(event,id){
+  event?.preventDefault?.();
+  event?.stopPropagation?.();
+  if(!authSession||!id||pendingRenameRemoteBoardId!==id)return;
+  const board=remoteBoards.find(item=>item.id===id);
+  const input=document.getElementById('boardRenameInput');
+  const trimmed=(input?.value||pendingRenameRemoteBoardValue||'').trim();
+  pendingRenameRemoteBoardValue=input?.value||pendingRenameRemoteBoardValue||'';
+  try{
+    const validationError=await validateUniqueBoardName(trimmed,id);
+    if(validationError){
+      pendingRenameRemoteBoardError=validationError;
+      renderRemoteBoardMenu();
+      focusRemoteBoardRenameInput();
+      return;
+    }
+  }catch(e){
+    pendingRenameRemoteBoardError=e.message||'Could not validate board name.';
+    renderRemoteBoardMenu();
+    focusRemoteBoardRenameInput();
+    return;
+  }
+  const client=getSupabaseClient();if(!client)return;
+  const {data,error}=await client.from('boards').update({
+    name:trimmed,
+    updated_at:new Date().toISOString()
+  }).eq('id',id).select('id,name,user_id,created_at,updated_at').single();
+  if(error){
+    pendingRenameRemoteBoardError=error.message||'Could not rename board.';
+    renderRemoteBoardMenu();
+    focusRemoteBoardRenameInput();
+    return;
+  }
+  if(id===currentRemoteBoardId)currentRemoteBoardName=data.name;
+  updateRemoteBoardInPlace(data,true);
+  pendingRenameRemoteBoardId=null;
+  pendingRenameRemoteBoardValue=null;
+  pendingRenameRemoteBoardError='';
+  renderRemoteBoardMenu();
+}
+function requestDeleteRemoteBoard(event,id){
+  event?.preventDefault?.();
+  event?.stopPropagation?.();
+  if(!authSession||!id)return;
+  pendingDeleteRemoteBoardId=id;
+  pendingRenameRemoteBoardId=null;
+  pendingRenameRemoteBoardValue=null;
+  pendingRenameRemoteBoardError='';
+  document.getElementById('boardMenu')?.classList.add('open');
+  renderRemoteBoardMenu();
+}
+function cancelDeleteRemoteBoard(event){
+  event?.preventDefault?.();
+  event?.stopPropagation?.();
+  pendingDeleteRemoteBoardId=null;
+  renderRemoteBoardMenu();
+}
+async function confirmDeleteRemoteBoard(event,id){
+  event?.preventDefault?.();
+  event?.stopPropagation?.();
+  if(!authSession||!id||pendingDeleteRemoteBoardId!==id)return;
+  const client=getSupabaseClient();if(!client)return;
+  const {error}=await client.from('boards').delete().eq('id',id);
+  if(error){alert(error.message||'Could not delete board.');return;}
+  pendingDeleteRemoteBoardId=null;
+  const wasCurrent=id===currentRemoteBoardId;
+  remoteBoards=remoteBoards.filter(item=>item.id!==id);
+  if(wasCurrent){
+    clearRemoteBoardSubscription();
+    currentRemoteBoardId=null;
+    currentRemoteBoardName='';
+    currentRemoteBoardPermission='owner';
+    clearTimeout(remoteSaveTimer);
+    remoteSaveTimer=null;
+    const next=remoteBoards[0];
+    if(next)await openRemoteBoard(next.id,{skipFlush:true});
+    else{
+      resetPlannerToFreshDefaults();
+      renderPlannerState();
+    }
+  }
+  renderRemoteBoardMenu();
+}
+function selectedBoardForShare(){
+  return remoteBoards.find(board=>board.id===boardShareBoardId)||null;
+}
+function renderBoardShareModal(){
+  const board=selectedBoardForShare();
+  const title=document.getElementById('boardShareTitle');
+  const sub=document.getElementById('boardShareSub');
+  const owner=document.getElementById('boardShareOwnerEmail');
+  const list=document.getElementById('boardShareList');
+  const err=document.getElementById('boardShareError');
+  const addBtn=document.getElementById('boardShareAddBtn');
+  if(title)title.textContent=board?`Board settings: ${board.name}`:'Board settings';
+  if(sub)sub.textContent=boardShareLoading?'Loading shared users...':'Add users by email and choose whether they can read or write this board.';
+  if(owner)owner.textContent=authSession?.user?.email||'Owner';
+  if(addBtn)addBtn.disabled=boardShareLoading||boardShareSaving;
+  if(err&&!boardShareSaving)err.textContent=err.textContent||'';
+  if(!list)return;
+  if(boardShareLoading){
+    list.innerHTML='<div class="share-empty">Loading users...</div>';
+    return;
+  }
+  if(!boardShareEntries.length){
+    list.innerHTML='<div class="share-empty">Only you have access right now</div>';
+    return;
+  }
+  list.innerHTML=boardShareEntries.map(item=>`
+    <div class="share-row">
+      <span class="share-user-email" title="${esc(item.user_email)}">${esc(item.user_email)}</span>
+      <select aria-label="Permission for ${esc(item.user_email)}" onchange="updateBoardCollaboratorPermission('${item.id}',this.value)" ${boardShareSaving?'disabled':''}>
+        <option value="read"${item.permission==='read'?' selected':''}>Read</option>
+        <option value="write"${item.permission==='write'?' selected':''}>Write</option>
+      </select>
+      <button class="share-remove" type="button" title="Remove access" aria-label="Remove ${esc(item.user_email)}" onclick="removeBoardCollaborator('${item.id}')" ${boardShareSaving?'disabled':''}>×</button>
+    </div>
+  `).join('');
+}
+async function loadBoardCollaborators(){
+  if(!authSession||!boardShareBoardId)return;
+  const client=getSupabaseClient();if(!client)return;
+  boardShareLoading=true;
+  renderBoardShareModal();
+  try{
+    const {data,error}=await client.from('board_collaborators').select('id,user_email,permission,created_at').eq('board_id',boardShareBoardId).order('created_at',{ascending:true});
+    if(error)throw error;
+    boardShareEntries=(data||[]).map(item=>({...item,permission:item.permission==='write'?'write':'read'}));
+    const err=document.getElementById('boardShareError');
+    if(err)err.textContent='';
+  }catch(e){
+    const err=document.getElementById('boardShareError');
+    if(err)err.textContent=e.message||'Could not load shared users.';
+  }finally{
+    boardShareLoading=false;
+    renderBoardShareModal();
+  }
+}
+async function openBoardShareModal(event,id){
+  event?.preventDefault?.();
+  event?.stopPropagation?.();
+  if(!authSession||!id)return;
+  const board=remoteBoards.find(item=>item.id===id);
+  if(board?.permission!=='owner'){
+    alert('Only the board owner can manage sharing settings.');
+    return;
+  }
+  pendingDeleteRemoteBoardId=null;
+  pendingRenameRemoteBoardId=null;
+  pendingRenameRemoteBoardValue=null;
+  pendingRenameRemoteBoardError='';
+  boardShareBoardId=id;
+  boardShareEntries=[];
+  const email=document.getElementById('boardShareEmail');
+  const permission=document.getElementById('boardSharePermission');
+  const err=document.getElementById('boardShareError');
+  if(email)email.value='';
+  if(permission)permission.value='read';
+  if(err)err.textContent='';
+  document.getElementById('boardMenu')?.classList.remove('open');
+  document.getElementById('boardShareModal')?.classList.add('open');
+  renderBoardShareModal();
+  await loadBoardCollaborators();
+  setTimeout(()=>email?.focus(),0);
+}
+function closeBoardShareModal(){
+  document.getElementById('boardShareModal')?.classList.remove('open');
+  boardShareBoardId=null;
+  boardShareEntries=[];
+}
+async function addBoardCollaborator(){
+  if(!authSession||!boardShareBoardId||boardShareSaving)return;
+  const emailInput=document.getElementById('boardShareEmail');
+  const permissionInput=document.getElementById('boardSharePermission');
+  const err=document.getElementById('boardShareError');
+  const email=normalizeUserEmail(emailInput?.value);
+  const permission=permissionInput?.value==='write'?'write':'read';
+  if(err)err.textContent='';
+  if(!email||!email.includes('@')){
+    if(err)err.textContent='Enter a valid email address.';
+    return;
+  }
+  if(email===normalizeUserEmail(authSession.user?.email)){
+    if(err)err.textContent='You are already the owner of this board.';
+    return;
+  }
+  const client=getSupabaseClient();if(!client)return;
+  boardShareSaving=true;
+  renderBoardShareModal();
+  try{
+    const {data,error}=await client.from('board_collaborators').upsert({
+      board_id:boardShareBoardId,
+      user_email:email,
+      permission
+    },{onConflict:'board_id,user_email'}).select('id,user_email,permission,created_at').single();
+    if(error)throw error;
+    boardShareEntries=boardShareEntries.filter(item=>item.user_email!==email);
+    boardShareEntries.push({...data,permission:data.permission==='write'?'write':'read'});
+    boardShareEntries.sort((a,b)=>String(a.user_email).localeCompare(String(b.user_email)));
+    if(emailInput)emailInput.value='';
+  }catch(e){
+    if(err)err.textContent=e.message||'Could not add user.';
+  }finally{
+    boardShareSaving=false;
+    renderBoardShareModal();
+  }
+}
+async function updateBoardCollaboratorPermission(id,permission){
+  if(!authSession||!boardShareBoardId||boardShareSaving)return;
+  permission=permission==='write'?'write':'read';
+  const client=getSupabaseClient();if(!client)return;
+  boardShareSaving=true;
+  renderBoardShareModal();
+  const err=document.getElementById('boardShareError');
+  if(err)err.textContent='';
+  try{
+    const {data,error}=await client.from('board_collaborators').update({permission}).eq('id',id).eq('board_id',boardShareBoardId).select('id,user_email,permission,created_at').single();
+    if(error)throw error;
+    boardShareEntries=boardShareEntries.map(item=>item.id===id?{...data,permission:data.permission==='write'?'write':'read'}:item);
+  }catch(e){
+    if(err)err.textContent=e.message||'Could not update permission.';
+    await loadBoardCollaborators();
+  }finally{
+    boardShareSaving=false;
+    renderBoardShareModal();
+  }
+}
+async function removeBoardCollaborator(id){
+  if(!authSession||!boardShareBoardId||boardShareSaving)return;
+  const client=getSupabaseClient();if(!client)return;
+  boardShareSaving=true;
+  renderBoardShareModal();
+  const err=document.getElementById('boardShareError');
+  if(err)err.textContent='';
+  try{
+    const {error}=await client.from('board_collaborators').delete().eq('id',id).eq('board_id',boardShareBoardId);
+    if(error)throw error;
+    boardShareEntries=boardShareEntries.filter(item=>item.id!==id);
+  }catch(e){
+    if(err)err.textContent=e.message||'Could not remove access.';
+  }finally{
+    boardShareSaving=false;
+    renderBoardShareModal();
+  }
+}
+async function importAnonymousSnapshotToSupabase(snapshot,nameOverride=''){
+  if(!authSession||!snapshot)return false;
+  let state;
+  try{state=JSON.parse(snapshot);}catch(e){return false;}
+  if(!state||!Array.isArray(state.tabs)||!state.tabs.length)return false;
+  const client=getSupabaseClient();if(!client)return false;
+  const name=(nameOverride||'').trim()||boardNameFromSnapshot(snapshot);
+  const {data,error}=await client.from('boards').insert({
+    user_id:authSession.user.id,
+    name,
+    state:{version:6,tabs:state.tabs,tabIdSeq:state.tabIdSeq||state.tabs.length,boardState:state.boardState}
+  }).select('id,name,user_id,created_at,updated_at').single();
+  if(error){
+    alert((error.message||'Could not import anonymous board.')+' Your anonymous board is still stored locally.');
+    return false;
+  }
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(LEGACY_STORAGE_KEY);
+  localStorage.removeItem(EDITED_KEY);
+  anonymousImportEligible=false;
+  isRestoringState=true;
+  try{
+    if(!applyStateSnapshot(snapshot))throw new Error('Imported board state could not be loaded.');
+    currentRemoteBoardId=data.id;
+    currentRemoteBoardName=data.name;
+    currentRemoteBoardPermission='owner';
+    remoteSaveStatus='saved';
+    updateRemoteBoardInPlace(data,true);
+    subscribeToRemoteBoard(data.id);
+    renderPlannerState();
+    renderRemoteBoardMenu();
+  }catch(e){
+    alert(e.message||'The anonymous board was imported, but could not be opened.');
+  }finally{
+    isRestoringState=false;
+  }
+  return true;
+}
+async function openRemoteBoard(id,options={}){
+  if(!authSession||!id)return;
+  pendingDeleteRemoteBoardId=null;
+  pendingRenameRemoteBoardId=null;
+  pendingRenameRemoteBoardValue=null;
+  pendingRenameRemoteBoardError='';
+  if(!options.skipFlush)await flushRemoteBoardSave();
+  const client=getSupabaseClient();if(!client)return;
+  const {data,error}=await client.from('boards').select('id,name,user_id,state,created_at,updated_at').eq('id',id).single();
+  if(error){alert(error.message||'Could not open board.');return;}
+  const snapshot=JSON.stringify(data.state||{});
+  isRestoringState=true;
+  try{
+    if(!applyStateSnapshot(snapshot))throw new Error('The selected board state could not be loaded.');
+    currentRemoteBoardId=data.id;
+    currentRemoteBoardName=data.name;
+    currentRemoteBoardPermission=boardPermissionFromRow(data,new Map(remoteBoards.map(board=>[board.id,board.permission])));
+    remoteSaveStatus='saved';
+    readOnlyWarningShown=false;
+    updateRemoteBoardInPlace(data,true);
+    subscribeToRemoteBoard(data.id);
+    syncViewUI();
+    syncSidebarUI();
+    syncRightPanelUI();
+    renderTabBar();
+    loadTabIntoSidebar();
+    renderWorkspace();
+    resetUndoBaseline();
+    renderRemoteBoardMenu();
+    document.getElementById('boardMenu')?.classList.remove('open');
+  }catch(e){
+    alert(e.message||'Could not open board.');
+  }finally{
+    isRestoringState=false;
+  }
+}
+function resetPlannerToFreshDefaults(){
+  tabs=[];activeTabId=null;tabIdSeq=0;currentView='capacity';sidebarCollapsed=false;rightPanelCollapsed=true;boardState=freshBoardState();
+  const t=newTab('Team A');activeTabId=t.id;
+  ensureDefaultWorkItems(t);
+  placeDefaultStartupItems(t);
+  normalizeLoadedPlannerState();
+}
+function normalizeLoadedPlannerState(){
+  if(!tabs.length)return;
+  normalizeAllTeams();
+  cleanupBoardState();
+}
+function renderPlannerState(){
+  syncViewUI();
+  syncSidebarUI();
+  syncRightPanelUI();
+  renderTabBar();
+  loadTabIntoSidebar();
+  renderWorkspace();
+  resetUndoBaseline();
+}
+function loadAnonymousPlannerState(){
+  const hadAnonymousSnapshot=!!(localStorage.getItem(STORAGE_KEY)||localStorage.getItem(LEGACY_STORAGE_KEY));
+  const hadEditedMarker=!!localStorage.getItem(EDITED_KEY);
+  tabs=[];activeTabId=null;tabIdSeq=0;currentView='capacity';sidebarCollapsed=false;rightPanelCollapsed=true;boardState=freshBoardState();
+  loadState();
+  rightPanelCollapsed=true;
+  if(!tabs.length)resetPlannerToFreshDefaults();
+  else normalizeLoadedPlannerState();
+  anonymousImportEligible=hadAnonymousSnapshot&&hadEditedMarker;
+  renderPlannerState();
+}
+async function enterSupabaseBoardMode(){
+  clearTimeout(remoteSaveTimer);
+  remoteSaveTimer=null;
+  clearRemoteBoardSubscription();
+  currentRemoteBoardId=null;
+  currentRemoteBoardName='';
+  currentRemoteBoardPermission='owner';
+  remoteSaveStatus='saved';
+  const boards=await loadRemoteBoards(true)||[];
+  if(boards.length){
+    await openRemoteBoard(boards[0].id,{skipFlush:true});
+  }else{
+    resetPlannerToFreshDefaults();
+    renderPlannerState();
+    renderRemoteBoardMenu();
+  }
+}
+async function handleSignedInBoardMode(snapshot=null,name=''){
+  const userId=authSession?.user?.id||null;
+  if(!userId)return;
+  if(signedInModePromise)return signedInModePromise;
+  if(signedInUserModeReadyFor===userId)return;
+  signedInModePromise=(async()=>{
+    try{
+      if(snapshot){
+        const importName=name||await requestImportBoardName(snapshot);
+        if(importName===null){
+          await enterSupabaseBoardMode();
+        }else{
+          const imported=await importAnonymousSnapshotToSupabase(snapshot,importName);
+          if(!imported)await enterSupabaseBoardMode();
+        }
+      }else{
+        await enterSupabaseBoardMode();
+      }
+      signedInUserModeReadyFor=userId;
+    }finally{
+      signedInModePromise=null;
+    }
+  })();
+  return signedInModePromise;
+}
+function enterAnonymousBoardMode(){
+  clearTimeout(remoteSaveTimer);
+  remoteSaveTimer=null;
+  clearRemoteBoardSubscription();
+  currentRemoteBoardId=null;
+  currentRemoteBoardName='';
+  currentRemoteBoardPermission='owner';
+  remoteBoards=[];
+  signedInUserModeReadyFor=null;
+  loadAnonymousPlannerState();
+  renderRemoteBoardMenu();
+}
+function scheduleRemoteBoardSave(){
+  if(!authSession||!currentRemoteBoardId||isRestoringState||!currentBoardCanWrite())return;
+  clearTimeout(remoteSaveTimer);
+  remoteSaveStatus='saving';
+  updateStorageStatus();
+  remoteSaveTimer=setTimeout(()=>{flushRemoteBoardSave();},700);
+}
+async function flushRemoteBoardSave(){
+  if(!authSession||!currentRemoteBoardId||isSavingRemoteBoard||!currentBoardCanWrite())return;
+  clearTimeout(remoteSaveTimer);
+  remoteSaveTimer=null;
+  const client=getSupabaseClient();
+  if(!client){remoteSaveStatus='error';updateStorageStatus();return;}
+  isSavingRemoteBoard=true;
+  remoteSaveStatus='saving';
+  updateStorageStatus();
+  const updatedAt=new Date().toISOString();
+  const boardId=currentRemoteBoardId;
+  try{
+    const {data,error}=await client.from('boards').update({
+      state:syncedStatePayload(),
+      updated_at:updatedAt
+    }).eq('id',boardId).select('id,name,user_id,created_at,updated_at').single();
+    if(error)throw error;
+    if(data){
+      currentRemoteBoardName=data.name;
+      remoteSaveStatus='saved';
+      updateRemoteBoardInPlace(data,true);
+      renderRemoteBoardMenu();
+    }
+  }catch(e){
+    remoteSaveStatus='error';
+    console.warn('Could not save board',e);
+  }finally{
+    isSavingRemoteBoard=false;
+    updateStorageStatus();
+  }
+}
+async function initAuth(){
+  const client=getSupabaseClient();
+  if(!client){
+    updateAuthUI('Supabase auth is unavailable. Check the Supabase JS script.', 'error');
+    return;
+  }
+  try{
+    const {data,error}=await client.auth.getSession();
+    if(error)throw error;
+    authSession=data?.session||null;
+    updateAuthUI();
+    client.auth.onAuthStateChange(async(_event,session)=>{
+      const previousUserId=authSession?.user?.id||null;
+      authSession=session;
+      updateAuthUI();
+      if(session){
+        closeAuthModal();
+        if(session.user?.id!==previousUserId){
+          const snapshot=pendingAnonymousImportSnapshot;
+          pendingAnonymousImportSnapshot=null;
+          await handleSignedInBoardMode(snapshot);
+        }
+      }else if(previousUserId){
+        enterAnonymousBoardMode();
+      }
+    });
+    if(authSession)await handleSignedInBoardMode();
+  }catch(e){
+    updateAuthUI(e.message||'Could not load Supabase auth session.', 'error');
+  }
+}
+function setAuthMode(mode){
+  authMode=mode==='register'?'register':'login';
+  const isRegister=authMode==='register';
+  document.getElementById('authLoginModeBtn')?.classList.toggle('active',!isRegister);
+  document.getElementById('authRegisterModeBtn')?.classList.toggle('active',isRegister);
+  document.getElementById('authLoginModeBtn')?.setAttribute('aria-selected',String(!isRegister));
+  document.getElementById('authRegisterModeBtn')?.setAttribute('aria-selected',String(isRegister));
+  const title=document.getElementById('authModalTitle'),sub=document.getElementById('authModalSub'),submit=document.getElementById('authSubmitBtn'),password=document.getElementById('authPassword'),status=document.getElementById('authStatus');
+  if(title)title.textContent=isRegister?'Register':'Login';
+  if(sub){
+    sub.textContent=authModeDescription();
+    sub.classList.toggle('importing',authModeHasAnonymousImportNotice());
+  }
+  if(submit)submit.textContent=isRegister?'Register':'Login';
+  if(password)password.autocomplete=isRegister?'new-password':'current-password';
+  if(status){status.textContent='';status.className='auth-status';}
+}
+function openAuthModal(mode='login'){
+  document.getElementById('boardMenu')?.classList.remove('open');
+  setAuthMode(mode);
+  const email=document.getElementById('authEmail'),password=document.getElementById('authPassword');
+  if(password)password.value='';
+  document.getElementById('authModal')?.classList.add('open');
+  setTimeout(()=>email?.focus(),0);
+}
+function closeAuthModal(){
+  document.getElementById('authModal')?.classList.remove('open');
+}
+async function handleAuthButtonClick(){
+  document.getElementById('boardMenu')?.classList.remove('open');
+  const client=getSupabaseClient();
+  if(!client){openAuthModal('login');updateAuthUI('Supabase auth is unavailable. Check the Supabase JS script.', 'error');return;}
+  if(!authSession){openAuthModal('login');return;}
+  const btn=document.getElementById('boardMenuBtn');
+  if(btn)btn.disabled=true;
+  await flushRemoteBoardSave();
+  const {error}=await client.auth.signOut();
+  if(error)alert(error.message||'Could not sign out.');
+  else{
+    currentRemoteBoardId=null;
+    currentRemoteBoardName='';
+    clearRemoteBoardSubscription();
+    remoteBoards=[];
+    pendingAnonymousImportSnapshot=null;
+    signedInUserModeReadyFor=null;
+    authSession=null;
+    updateAuthUI();
+    enterAnonymousBoardMode();
+  }
+  if(btn)btn.disabled=false;
+}
+async function submitAuthForm(){
+  const client=getSupabaseClient(),status=document.getElementById('authStatus'),submit=document.getElementById('authSubmitBtn');
+  if(!client){if(status){status.textContent='Supabase auth is unavailable. Check the Supabase JS script.';status.className='auth-status error';}return;}
+  const email=(document.getElementById('authEmail')?.value||'').trim();
+  const password=document.getElementById('authPassword')?.value||'';
+  if(!email||!password){
+    if(status){status.textContent='Enter an email and password.';status.className='auth-status error';}
+    return;
+  }
+  if(submit)submit.disabled=true;
+  pendingAnonymousImportSnapshot=anonymousStateSnapshotForImport();
+  if(status){status.textContent=authMode==='register'?'Creating account...':'Signing in...';status.className='auth-status';}
+  try{
+    const options={emailRedirectTo:window.location.origin+window.location.pathname};
+    const result=authMode==='register'
+      ?await client.auth.signUp({email,password,options})
+      :await client.auth.signInWithPassword({email,password});
+    if(result.error)throw result.error;
+    if(authMode==='register'&&!result.data?.session){
+      pendingAnonymousImportSnapshot=null;
+      setAuthMode('login');
+      if(status){status.textContent='Account created. Confirm the email if Supabase requires it, then log in.';status.className='auth-status success';}
+    }else{
+      authSession=result.data?.session||authSession;
+      updateAuthUI();
+      closeAuthModal();
+      const snapshot=pendingAnonymousImportSnapshot;
+      pendingAnonymousImportSnapshot=null;
+      await handleSignedInBoardMode(snapshot);
+    }
+  }catch(e){
+    pendingAnonymousImportSnapshot=null;
+    if(status){status.textContent=e.message||'Authentication failed.';status.className='auth-status error';}
+  }finally{
+    if(submit)submit.disabled=false;
+  }
 }
 function resetUndoBaseline(){
   lastStateSnapshot=currentStateSnapshot();
@@ -591,25 +1873,54 @@ function resetUndoBaseline(){
 }
 function saveState(){
   const snapshot=currentStateSnapshot();
-  if(!isRestoringState&&lastStateSnapshot&&snapshot!==lastStateSnapshot){
-    undoStack.push(lastStateSnapshot);
-    if(undoStack.length>UNDO_LIMIT)undoStack.shift();
+  const syncedSnapshot=currentSyncedStateSnapshot();
+  const previousSyncedSnapshot=syncedStateSnapshotFromSnapshot(lastStateSnapshot);
+  if(authSession&&currentRemoteBoardId&&!currentBoardCanWrite()){
+    if(previousSyncedSnapshot===syncedSnapshot){
+      lastStateSnapshot=snapshot;
+      updateUndoButton();
+      updateStorageStatus();
+      return;
+    }
+    showReadOnlyBoardWarning();
+    if(lastStateSnapshot){
+      isRestoringState=true;
+      try{applyStateSnapshot(lastStateSnapshot);}
+      finally{isRestoringState=false;}
+      renderPlannerState();
+    }
+    updateStorageStatus();
+    return;
+  }
+  const changed=!isRestoringState&&lastStateSnapshot&&snapshot!==lastStateSnapshot;
+  const syncedChanged=!isRestoringState&&lastStateSnapshot&&previousSyncedSnapshot!==syncedSnapshot;
+  if(changed){
+    if(syncedChanged){
+      undoStack.push(lastStateSnapshot);
+      if(undoStack.length>UNDO_LIMIT)undoStack.shift();
+    }
+    if(!authSession){anonymousImportEligible=true;try{localStorage.setItem(EDITED_KEY,'1');}catch(e){}}
   }
   writeStateSnapshot(snapshot);
   lastStateSnapshot=snapshot;
   updateUndoButton();
+  if(syncedChanged)scheduleRemoteBoardSave();
+  else updateStorageStatus();
 }
 function applyStateSnapshot(snapshot){
   let s;
   try{s=JSON.parse(snapshot);}catch(e){return false;}
   if(!s||!Array.isArray(s.tabs)||!s.tabs.length)return false;
   tabs=s.tabs;
-  activeTabId=s.activeTabId;
+  const incomingActiveTabId=s.activeTabId;
   tabIdSeq=s.tabIdSeq||tabs.length;
-  currentView=s.currentView==='board'?'board':'capacity';
-  rightPanelCollapsed=!!s.rightPanelCollapsed;
+  if(s.currentView==='board'||s.currentView==='capacity')currentView=s.currentView;
+  if(Object.prototype.hasOwnProperty.call(s,'sidebarCollapsed'))sidebarCollapsed=!!s.sidebarCollapsed;
+  if(Object.prototype.hasOwnProperty.call(s,'rightPanelCollapsed'))rightPanelCollapsed=!!s.rightPanelCollapsed;
   boardState=normalizeBoardState(s.boardState);
+  if(tabs.find(t=>t.id===incomingActiveTabId))activeTabId=incomingActiveTabId;
   if(!tabs.find(t=>t.id===activeTabId))activeTabId=tabs[0].id;
+  normalizeAllTeams();
   cleanupBoardState();
   return true;
 }
@@ -622,6 +1933,7 @@ function undoLastAction(){
       writeStateSnapshot(currentStateSnapshot());
       lastStateSnapshot=currentStateSnapshot();
       syncViewUI();
+      syncSidebarUI();
       syncRightPanelUI();
       renderTabBar();
       loadTabIntoSidebar();
@@ -647,23 +1959,31 @@ function normalizeBoardState(s){
   Object.keys(filterDefaults).forEach(key=>{if(Object.prototype.hasOwnProperty.call(srcFilters,key))b.backlogFilters[key]=srcFilters[key]!==false;});
   return b;
 }
+function normalizeTeamDefaults(t){
+  if(!t||typeof t!=='object')return;
+  delete t.quarterName;
+  if(!t.capacity){t.capacity=240;t.sprintDevs=4;t.sprintCount=6;t.sprintWeeks=2;t.sprintPtsPerDev=10;t.holidays=0;}
+}
+function normalizeAllTeams(){tabs.forEach(normalizeTeamDefaults);}
 function loadState(){
   try{
     let s=JSON.parse(localStorage.getItem(STORAGE_KEY));
     if(s&&s.version===6&&Array.isArray(s.tabs)&&s.tabs.length){
       tabs=s.tabs;activeTabId=s.activeTabId;tabIdSeq=s.tabIdSeq||s.tabs.length;
       currentView=s.currentView==='board'?'board':'capacity';
+      sidebarCollapsed=!!s.sidebarCollapsed;
       rightPanelCollapsed=!!s.rightPanelCollapsed;
       boardState=normalizeBoardState(s.boardState);
       if(!tabs.find(t=>t.id===activeTabId))activeTabId=tabs[0].id;
+      normalizeAllTeams();
       cleanupBoardState();
       return true;
     }
     s=JSON.parse(localStorage.getItem(LEGACY_STORAGE_KEY));
     if(!s||s.version!==5||!Array.isArray(s.tabs)||!s.tabs.length)return false;
     tabs=s.tabs;activeTabId=s.activeTabId;tabIdSeq=s.tabIdSeq||s.tabs.length;
-    currentView='capacity';rightPanelCollapsed=false;boardState=freshBoardState();
-    tabs.forEach(t=>{if(!t.capacity){t.capacity=240;t.sprintDevs=4;t.sprintCount=6;t.sprintWeeks=2;t.sprintPtsPerDev=10;t.holidays=0;}if(!t.quarterName)t.quarterName=defaultQuarterName();});
+    currentView='capacity';sidebarCollapsed=false;rightPanelCollapsed=false;boardState=freshBoardState();
+    normalizeAllTeams();
     if(!tabs.find(t=>t.id===activeTabId))activeTabId=tabs[0].id;
     return true;
   }catch(e){return false;}
@@ -714,7 +2034,7 @@ function loadSprintInputs(){
 
 function newTab(name){
   const id=++tabIdSeq;
-  tabs.push({id,name:name||`Team ${id}`,quarterName:defaultQuarterName(),capacity:240,gridCols:12,
+  tabs.push({id,name:name||`Team ${id}`,capacity:240,gridCols:12,
     sprintDevs:4,sprintCount:6,sprintWeeks:2,sprintPtsPerDev:10,holidays:0,
     features:[],idCounter:0,placed:{},parked:[]});
   return tabs[tabs.length-1];
@@ -749,17 +2069,10 @@ function switchTab(id){
   loadTabIntoSidebar();
   renderWorkspace();
 }
-function renameTab(id,name){const t=tabs.find(t=>t.id===id);if(t){t.name=name||t.name;saveState();if(currentView==='board')renderWorkspace();}}
+function renameTab(id,name){const t=tabs.find(t=>t.id===id);if(t){t.name=name||t.name;saveState();if(currentView==='board'||id===activeTabId)renderWorkspace();}}
 function loadTabIntoSidebar(){
   const t=tab();if(!t)return;
-  if(!t.quarterName)t.quarterName=defaultQuarterName();
-  document.getElementById('quarterName').value=t.quarterName;
   loadSprintInputs();renderBacklog();loadBoardInputs();
-}
-function onQuarterNameInput(){
-  const t=tab();if(!t)return;
-  t.quarterName=document.getElementById('quarterName').value;saveState();
-  const el=document.getElementById('wsTitle');if(el)el.textContent=t.quarterName||'Quarter';
 }
 
 
@@ -991,6 +2304,7 @@ function syncViewUI(){
   const title=document.querySelector('.topbar-title');
   if(title)title.textContent=isBoard?'PI Planning Board':'PI Capacity Planner';
   loadBoardInputs();
+  syncSidebarUI();
   syncRightPanelUI();
 }
 function setView(view){
@@ -1497,7 +2811,7 @@ function renderWorkspace(){
   ws.innerHTML=`
     <div class="ws-header">
       <div>
-        <div class="ws-title" id="wsTitle">${esc(t.quarterName||'Quarter')}</div>
+        <div class="ws-title" id="wsTitle">${esc(t.name||'Team')}</div>
         <div class="ws-sub">
           <span>${sprintLine}</span><span>·</span>
           <span style="display:inline-flex;align-items:center;gap:3px;cursor:pointer;" onclick="promptGridCols()" title="Edit grid width">
@@ -1534,7 +2848,7 @@ function renderWorkspace(){
     </div>
     <div>
       <div class="capacity-section-head">
-        <div class="box-label">Parked items — not committed this quarter <span class="count-badge" id="parkedCount" style="display:none"></span></div>
+        <div class="box-label">Parked items — not committed <span class="count-badge" id="parkedCount" style="display:none"></span></div>
       </div>
       <div class="parked-outer" id="parkedOuter"><div class="parked-chips" id="parkedChips"></div></div>
     </div>`;
@@ -1627,6 +2941,91 @@ function onGridCreatePointerUp(e){
   cleanupBoardState();saveState();renderWorkspace();
 }
 
+function resizeCandidatesForWorkItem(f,maxCols=Infinity,maxRows=Infinity){
+  return SIZE_OPTIONS
+    .map(opt=>({...opt,s:SIZES(opt.type,opt.size)}))
+    .filter(opt=>opt.s&&opt.s.cols<=maxCols&&opt.s.rows<=maxRows);
+}
+function resizeOptionRank(opt){
+  const typeRank=opt.type==='story'?0:1;
+  const sizeRank={S:0,M:1,L:2,XL:3}[opt.size]??9;
+  return typeRank*10+sizeRank;
+}
+function getResizeCandidateForWorkItem(f,cols,rows,maxCols=Infinity,maxRows=Infinity){
+  const candidates=resizeCandidatesForWorkItem(f,maxCols,maxRows);
+  if(!candidates.length)return null;
+  const type=f.type||'feature',current=SIZES(type,f.size);
+  const currentCandidate=candidates.find(opt=>opt.type===type&&opt.size===f.size);
+  if(currentCandidate&&current?.cols===cols&&current?.rows===rows)return currentCandidate;
+  const exact=candidates.filter(opt=>opt.s.cols===cols&&opt.s.rows===rows);
+  if(exact.length)return exact.slice().sort((a,b)=>resizeOptionRank(a)-resizeOptionRank(b))[0];
+  const desiredArea=cols*rows,currentArea=(current?.cols||cols)*(current?.rows||rows),growing=desiredArea>=currentArea;
+  return candidates.slice().sort((a,b)=>{
+    const areaA=a.s.cols*a.s.rows,areaB=b.s.cols*b.s.rows;
+    const scoreA=(Math.abs(a.s.cols-cols)+Math.abs(a.s.rows-rows))*10+Math.abs(areaA-desiredArea);
+    const scoreB=(Math.abs(b.s.cols-cols)+Math.abs(b.s.rows-rows))*10+Math.abs(areaB-desiredArea);
+    if(scoreA!==scoreB)return scoreA-scoreB;
+    if(areaA!==areaB)return growing?areaB-areaA:areaA-areaB;
+    return resizeOptionRank(a)-resizeOptionRank(b);
+  })[0]||null;
+}
+function updateTileResizePreview(e){
+  if(!tileResizeDrag)return;
+  e?.preventDefault?.();
+  const t=tab();if(!t)return;
+  const f=t.features.find(item=>item.id===tileResizeDrag.id);if(!f)return;
+  const grid=document.getElementById('tetrisGrid');if(!grid)return;
+  const rect=grid.getBoundingClientRect(),gridCols=getGridCols(),gridRows=getGridRows();
+  const pointerCol=Math.max(tileResizeDrag.col,Math.min(gridCols-1,Math.floor((e.clientX-rect.left)/CELL)));
+  const pointerRow=Math.max(tileResizeDrag.row,Math.min(gridRows-1,Math.floor((e.clientY-rect.top)/CELL)));
+  const rawCols=pointerCol-tileResizeDrag.col+1,rawRows=pointerRow-tileResizeDrag.row+1;
+  const maxCols=gridCols-tileResizeDrag.col,maxRows=gridRows-tileResizeDrag.row;
+  const candidate=getResizeCandidateForWorkItem(f,rawCols,rawRows,maxCols,maxRows);
+  const cols=candidate?.s.cols||rawCols,rows=candidate?.s.rows||rawRows;
+  const ok=!!candidate&&canPlace(tileResizeDrag.col,tileResizeDrag.row,cols,rows,tileResizeDrag.id);
+  tileResizeDrag={...tileResizeDrag,cols,rows,candidate,ok};
+  const ghost=document.getElementById('dropGhost');
+  if(ghost){
+    const pal=candidate
+      ?(f.paletteId!=null?getPalette(f):PALETTES.find(p=>p.id===candidate.s.paletteId)||PALETTES[0])
+      :PALETTES[4];
+    ghost.style.display='flex';
+    ghost.style.left=`${tileResizeDrag.col*CELL+1}px`;
+    ghost.style.top=`${tileResizeDrag.row*CELL+1}px`;
+    ghost.style.width=`${cols*CELL-2}px`;
+    ghost.style.height=`${rows*CELL-2}px`;
+    ghost.style.borderColor=ok?pal.border:'#b52020';
+    ghost.style.background=ok?`${pal.color}22`:'rgba(181,32,32,.1)';
+    ghost.style.color=ok?pal.color:'#b52020';
+    ghost.className='drop-ghost create-preview'+(ok?'':' blocked');
+    ghost.innerHTML=`<div>${esc(candidate?describeCreateCandidate(candidate):'Unsupported size')}<div class="preview-sub">${cols}×${rows}${candidate?` · ${candidate.s.pts}pts`:''}${ok?'':' · blocked'}</div></div>`;
+  }
+}
+function startTileResize(event,id){
+  if(currentView==='board')return;
+  event?.preventDefault?.();
+  event?.stopPropagation?.();
+  closeSizeMenu();
+  const t=tab();if(!t)return;
+  const f=t.features.find(item=>item.id===+id),pos=t.placed[+id];
+  if(!f||!pos)return;
+  tileResizeDrag={id:+id,col:pos.col,row:pos.row,cols:SIZES(f.type||'feature',f.size).cols,rows:SIZES(f.type||'feature',f.size).rows,candidate:null,ok:false};
+  event?.currentTarget?.closest?.('.feat-tile')?.classList.add('is-resizing');
+  document.addEventListener('pointermove',onTileResizePointerMove);
+  document.addEventListener('pointerup',onTileResizePointerUp,{once:true});
+  updateTileResizePreview(event);
+}
+function onTileResizePointerMove(e){updateTileResizePreview(e);}
+function onTileResizePointerUp(){
+  document.removeEventListener('pointermove',onTileResizePointerMove);
+  const draft=tileResizeDrag;
+  tileResizeDrag=null;
+  document.querySelectorAll('.feat-tile.is-resizing').forEach(el=>el.classList.remove('is-resizing'));
+  hideGhost();
+  if(!draft||!draft.ok||!draft.candidate)return;
+  resizeWorkItem(draft.id,draft.candidate.type,draft.candidate.size);
+}
+
 function onGridDragOver(e){
   e.preventDefault();if(dragId==null)return;
   const t=tab();if(!t)return;
@@ -1712,11 +3111,12 @@ function renderTiles(){
     tile.style.cssText=`left:${pos.col*CELL+1}px;top:${pos.row*CELL+1}px;width:${s.cols*CELL-2}px;height:${s.rows*CELL-2}px;background:${pal.bg};color:${pal.color};border-color:${pal.border};`;
     const activePid=f.paletteId!=null?f.paletteId:s.paletteId;
     const dots=PALETTES.map(p=>`<div class="colour-dot${activePid===p.id?' active':''}" style="background:${p.color}" onclick="setFeatureColour(${id},${p.id})"></div>`).join('');
-    const splitBtn=isF?`<button class="tile-split" onclick="splitFeature(${id})" title="Split into ${SPLIT_COUNT[f.size]} × XL user stories (${SPLIT_COUNT[f.size]}×20 pts)">
+    const splitBtn=isF?`<button class="tile-split" type="button" draggable="false" onclick="event.stopPropagation();splitFeature(${id})" onpointerdown="event.stopPropagation()" onmousedown="event.stopPropagation()" title="Split into ${SPLIT_COUNT[f.size]} × XL user stories (${SPLIT_COUNT[f.size]}×20 pts)" aria-label="Split into ${SPLIT_COUNT[f.size]} XL user stories">
       <svg width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="4.5" cy="4.5" r="2"/><circle cx="4.5" cy="11.5" r="2"/>
         <path d="M6.5 4.5l7 7M6.5 11.5l7-7"/>
       </svg></button>`:'';
+    const resizeBtn=`<button class="tile-resize" type="button" draggable="false" onpointerdown="startTileResize(event,${id})" title="Drag to resize" aria-label="Drag to resize ${esc(f.name)}"></button>`;
     const descriptionPreview=(f.description||'').trim();
     const showDescription=descriptionPreview.length>0&&(isF||f.size==='XL');
     tile.innerHTML=`
@@ -1724,12 +3124,14 @@ function renderTiles(){
       <button class="tile-rm" onclick="tileRemove(${id})" title="Move to parked">✕</button>
       <button class="tile-edit" onclick="editFeatureDescription(${id})" data-description="${esc(f.description||'No description yet. Click to add one.')}" title="" aria-label="Edit description">✎</button>
       ${splitBtn}
+      ${resizeBtn}
       ${showDescription ? `<div class="tile-description" onclick="event.stopPropagation();editFeatureDescription(${id});" title="Edit description">${esc(descriptionPreview)}</div>` : ''}
       <div class="tile-name" id="tileName-${id}" onclick="startTileEdit(${id},event)" title="Click to rename">${esc(f.name)}</div>
       <div class="tile-meta" style="display:flex;align-items:center;gap:4px;">
         <span class="size-trigger" onclick="openSizeMenu(${id},event)" title="Click to resize">${tileMetaLabel(f)}</span>
       </div>`;
     tile.addEventListener('dragstart',e=>{
+      if(e.target.closest('.tile-resize,.tile-split,.tile-rm,.tile-edit,.size-trigger,.colour-dot')){e.preventDefault();return;}
       if(document.getElementById('tileName-'+id)?.getAttribute('contenteditable')==='true'){e.preventDefault();return;}
       dragId=+id;dragFrom='box';e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',String(id));
       setTimeout(()=>tile.classList.add('is-dragging'),0);
@@ -1843,7 +3245,7 @@ function updateParked(){
   const t=tab();if(!t)return;
   const chips=document.getElementById('parkedChips'),badge=document.getElementById('parkedCount');
   if(!chips)return;chips.innerHTML='';
-  if(!t.parked.length){chips.innerHTML='<span class="parked-empty">Drag features here to park them for a later quarter</span>';if(badge)badge.style.display='none';return;}
+  if(!t.parked.length){chips.innerHTML='<span class="parked-empty">Drag work items here to keep them out of the committed grid</span>';if(badge)badge.style.display='none';return;}
   const totalPts=t.parked.reduce((s,id)=>{const f=t.features.find(f=>f.id===id);return s+(f?SIZES(f.type,f.size).pts:0);},0);
   if(badge){badge.textContent=totalPts+' pts';badge.style.display='inline-flex';}
   t.parked.forEach(id=>{
@@ -2079,11 +3481,13 @@ function promptGridCols(){
 
 function toggleExportDropdown(){document.getElementById('exportDropdown').classList.toggle('open');}
 document.addEventListener('click',e=>{if(!document.getElementById('exportDropWrap').contains(e.target))document.getElementById('exportDropdown').classList.remove('open');});
+document.addEventListener('click',e=>{if(!document.getElementById('boardMenuWrap')?.contains(e.target))document.getElementById('boardMenu')?.classList.remove('open');});
 function downloadJSON(obj,fn){const b=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}),u=URL.createObjectURL(b),a=Object.assign(document.createElement('a'),{href:u,download:fn});a.click();URL.revokeObjectURL(u);}
 function exportCurrentTab(){document.getElementById('exportDropdown').classList.remove('open');const t=tab();if(!t)return;downloadJSON({version:6,type:'single',tab:t},`capacity-${slug(t.name)}.json`);}
 function exportAllTabs(){document.getElementById('exportDropdown').classList.remove('open');downloadJSON({version:6,type:'all',tabs,boardState},'capacity-all-teams.json');}
 function slug(s){return s.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');}
 function openImport(){
+  document.getElementById('exportDropdown')?.classList.remove('open');
   document.getElementById('importText').value='';
   document.getElementById('importError').textContent='';
   const fileInput=document.getElementById('importFile');
@@ -2123,8 +3527,7 @@ function doImport(){
       const ex=tabs.find(t=>t.name===s.tab.name);
       if(ex)Object.assign(ex,s.tab,{id:ex.id});else{const id=++tabIdSeq;tabs.push({...s.tab,id});activeTabId=id;}
       const imported=ex||tabs.find(t=>t.id===activeTabId);
-      if(imported&&!imported.capacity){imported.capacity=240;imported.sprintDevs=4;imported.sprintCount=6;imported.sprintWeeks=2;imported.sprintPtsPerDev=10;imported.holidays=0;}
-      if(imported&&!imported.quarterName)imported.quarterName=defaultQuarterName();
+      normalizeTeamDefaults(imported);
     }else if(s.type==='all'){
       if(!Array.isArray(s.tabs))throw new Error('Missing tabs array.');
       const idMap={};
@@ -2133,7 +3536,7 @@ function doImport(){
         if(ex){idMap[inc.id]=ex.id;Object.assign(ex,inc,{id:ex.id});}
         else{const id=++tabIdSeq;idMap[inc.id]=id;tabs.push({...inc,id});}
       });
-      tabs.forEach(t=>{if(!t.capacity){t.capacity=240;t.sprintDevs=4;t.sprintCount=6;t.sprintWeeks=2;t.sprintPtsPerDev=10;t.holidays=0;}if(!t.quarterName)t.quarterName=defaultQuarterName();});
+      normalizeAllTeams();
       if(s.version===6&&s.boardState)boardState=remapBoardStateForImportedTabs(s.boardState,idMap);
     }else throw new Error('Unknown export type.');
     cleanupBoardState();
@@ -2141,7 +3544,20 @@ function doImport(){
   }catch(e){errEl.textContent='Error: '+(e.message||'Invalid JSON.');}
 }
 
-function clearAll(){if(!confirm('Clear all teams and start fresh?'))return;tabs=[];tabIdSeq=0;activeTabId=null;currentView='capacity';rightPanelCollapsed=true;boardState=freshBoardState();localStorage.removeItem(STORAGE_KEY);localStorage.removeItem(LEGACY_STORAGE_KEY);init();}
+function clearAll(){
+  document.getElementById('exportDropdown')?.classList.remove('open');
+  if(!confirm('Clear all teams and start fresh?'))return;
+  if(authSession){
+    resetPlannerToFreshDefaults();
+    renderPlannerState();
+    saveState();
+    return;
+  }
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(LEGACY_STORAGE_KEY);
+  localStorage.removeItem(EDITED_KEY);
+  loadAnonymousPlannerState();
+}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 document.getElementById('featureName').addEventListener('keydown',e=>{if(e.key==='Enter')addFeature();});
@@ -2158,7 +3574,14 @@ document.addEventListener('mouseout',e=>{
 document.getElementById('descriptionModal').addEventListener('click',e=>{if(e.target===document.getElementById('descriptionModal'))closeDescriptionEditor();});
 document.getElementById('splitModal').addEventListener('click',e=>{if(e.target===document.getElementById('splitModal'))cancelSplitFeature();});
 document.getElementById('importModal').addEventListener('click',e=>{if(e.target===document.getElementById('importModal'))closeImport();});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDescriptionEditor();closeImport();}});
+document.getElementById('authModal').addEventListener('click',e=>{if(e.target===document.getElementById('authModal'))closeAuthModal();});
+document.getElementById('boardShareModal').addEventListener('click',e=>{if(e.target===document.getElementById('boardShareModal'))closeBoardShareModal();});
+document.getElementById('importBoardNameInput')?.addEventListener('input',e=>renderExistingBoardNames(e.target.value));
+document.getElementById('importBoardNameInput')?.addEventListener('keydown',e=>{if(e.key==='Enter')submitImportBoardName();});
+document.getElementById('boardShareEmail')?.addEventListener('keydown',e=>{if(e.key==='Enter')addBoardCollaborator();});
+document.getElementById('authEmail')?.addEventListener('keydown',e=>{if(e.key==='Enter')submitAuthForm();});
+document.getElementById('authPassword')?.addEventListener('keydown',e=>{if(e.key==='Enter')submitAuthForm();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDescriptionEditor();closeImport();closeAuthModal();closeBoardShareModal();}});
 
 function toggleSection(bodyId,chevronId){
   const body=document.getElementById(bodyId),chevron=document.getElementById(chevronId);if(!body)return;
@@ -2166,6 +3589,18 @@ function toggleSection(bodyId,chevronId){
   if(isOpen){body.style.maxHeight=body.scrollHeight+'px';requestAnimationFrame(()=>{body.classList.add('closed');body.style.maxHeight='';});}
   else{body.classList.remove('closed');body.style.maxHeight=body.scrollHeight+'px';body.addEventListener('transitionend',()=>{body.style.maxHeight='';},{once:true});}
   if(chevron)chevron.classList.toggle('open',!isOpen);
+}
+function syncSidebarUI(){
+  const app=document.getElementById('appBody'),panel=document.getElementById('sidebar'),inner=document.getElementById('sidebarInner'),chevron=document.getElementById('sidebarChevron');
+  if(app)app.classList.toggle('sidebar-collapsed',sidebarCollapsed);
+  if(panel)panel.classList.toggle('collapsed',sidebarCollapsed);
+  if(inner)inner.classList.toggle('closed',sidebarCollapsed);
+  if(chevron)chevron.classList.toggle('open',!sidebarCollapsed);
+}
+function toggleSidebar(){
+  sidebarCollapsed=!sidebarCollapsed;
+  syncSidebarUI();
+  saveState();
 }
 function syncRightPanelUI(){
   const app=document.getElementById('appBody'),panel=document.getElementById('rightPanel'),inner=document.getElementById('rightPanelInner'),chevron=document.getElementById('rightPanelChevron');
@@ -2216,16 +3651,10 @@ function placeDefaultStartupItems(t){
     if(f&&!t.placed[f.id]&&!t.parked?.includes(f.id))t.placed[f.id]={...pos};
   });
 }
-function init(){
-  loadState();
-  rightPanelCollapsed=true;
-  if(!tabs.length){
-    const t=newTab('Team A');activeTabId=t.id;
-    ensureDefaultWorkItems(t);
-    placeDefaultStartupItems(t);
-  }
-  tabs.forEach(t=>{if(!t.quarterName)t.quarterName=defaultQuarterName();if(!t.capacity){t.capacity=240;t.sprintDevs=4;t.sprintCount=6;t.sprintWeeks=2;t.sprintPtsPerDev=10;t.holidays=0;}});
-  cleanupBoardState();syncViewUI();syncRightPanelUI();renderTabBar();loadTabIntoSidebar();renderWorkspace();resetUndoBaseline();
+async function init(){
+  await initAuth();
+  if(!authSession)loadAnonymousPlannerState();
+  updateStorageStatus();
 }
 window.addEventListener('resize',()=>{if(currentView==='board')renderBoardDependencies();});
 init();

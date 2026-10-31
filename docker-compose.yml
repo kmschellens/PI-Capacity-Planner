@@ -1,0 +1,16 @@
+services:
+  caddy:
+    image: caddy:2-alpine
+    container_name: pi-capacity-planner
+    networks:
+      - shared_net
+    ports:
+      - "18081:80"
+    volumes:
+      - ./index.html:/usr/share/caddy/index.html:ro
+    restart: unless-stopped
+
+# Connect to local Supabase network
+networks:
+  shared_net:
+    external: true
