@@ -27,6 +27,7 @@ The only way data leaves your machine is if **you export it yourself**.
 - Tetris-style placement of features
 - Feature sizes: S (40), M (60), L (80), XL (100)
 - Editable feature names, even after placement
+- Attach feature-specific user stories with optional story points and a progress tracker
 - Backlog + parked area for items that don’t fit
 - Team tabs with separate plans
 - Import/export (single tab or all tabs)

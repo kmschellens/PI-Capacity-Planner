@@ -105,6 +105,7 @@
   .tile-name:hover{background:rgba(255,255,255,.38);box-shadow:0 0 0 1px rgba(255,255,255,.34) inset;}
   .tile-name[contenteditable="true"]{outline:none;background:rgba(255,255,255,.62);border-radius:3px;padding:1px 3px;margin:-1px -3px;cursor:text;box-shadow:0 0 0 1px rgba(0,0,0,.08) inset;}
   .tile-meta{font-size:9px;opacity:.65;margin-top:1px;font-family:var(--mono);}
+  .tile-story-count{font:inherit;opacity:.65;}
   .tile-description{display:block;max-height:56px;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-ms-overflow-style:none;font-size:9px;line-height:1.2;opacity:.55;cursor:pointer;transition:opacity .12s;word-break:break-word;white-space:pre-wrap;margin:1px 0 4px;}
   .tile-description::-webkit-scrollbar{display:none;}
   .desc-tooltip{position:fixed;z-index:300;max-width:260px;padding:8px 10px;border-radius:8px;background:rgba(248,250,252,.96);color:#1f2937;border:1px solid rgba(148,163,184,.25);box-shadow:0 8px 18px rgba(15,23,42,.12);font-size:11px;line-height:1.35;pointer-events:none;display:none;white-space:pre-wrap;word-break:break-word;}
@@ -196,6 +197,41 @@
   .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;align-items:center;justify-content:center;}
   .modal-backdrop.open{display:flex;}
   .modal{background:var(--surface);border-radius:12px;border:1px solid var(--border);padding:1.5rem;width:500px;max-width:95vw;box-shadow:0 8px 40px rgba(0,0,0,.15);}
+  .description-modal{width:80vw;max-width:1100px;max-height:90vh;overflow-y:auto;}
+  .description-editor-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;}
+  .description-editor-column{min-width:0;}
+  .description-editor-column textarea{height:230px;resize:vertical;}
+  .description-modal:not(.has-stories) .description-editor-layout{grid-template-columns:1fr;}
+  .user-stories-panel{border-left:1px solid var(--border);padding-left:20px;min-width:0;}
+  .user-stories-heading{font-size:13px;font-weight:600;margin-bottom:8px;}
+  .user-stories-progress{margin:0 0 8px;}
+  .user-stories-progress-track{height:3px;background:var(--subtle);border-radius:3px;overflow:hidden;margin-bottom:3px;}
+  .user-stories-progress-fill{height:100%;width:0;background:#b9a875;border-radius:3px;transition:width .15s,background .15s;}
+  .user-stories-progress-fill.fulfilled{background:#8aa28f;}
+  .user-stories-progress-fill.exceeded{background:#bd918c;}
+  .user-stories-progress-label{font-size:9px;line-height:1.35;color:var(--muted);font-family:var(--mono);}
+  .user-stories-progress-label.fulfilled,.user-stories-progress-label.exceeded{color:var(--muted);}
+  .user-stories-list{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto;margin-bottom:12px;}
+  .user-story-row{display:grid;grid-template-columns:minmax(0,1fr) 90px auto;align-items:center;gap:7px;padding:5px 7px;background:var(--bg);border:1px solid var(--border);border-radius:6px;min-width:0;}
+  .user-story-edit-input{min-width:0;width:100%;padding:5px 7px!important;font-size:11px!important;}
+  .user-story-edit-size{font-family:var(--mono)!important;}
+  .user-story-remove{border:0;background:none;color:var(--muted);font-size:16px;line-height:1;cursor:pointer;padding:2px 4px;}
+  .user-story-remove:hover{color:#b52020;}
+  .user-stories-empty{font-size:12px;color:var(--muted);padding:8px 0;}
+  .user-story-form{display:grid;grid-template-columns:minmax(0,1fr) 90px auto;align-items:end;gap:7px;}
+  .user-story-form .field{margin:0;}
+  .user-story-form .field-label{font-size:10px;}
+  .user-story-form input{min-width:0;}
+  .user-story-form .btn{width:auto;padding:7px 11px;white-space:nowrap;}
+  .user-story-error{font-size:11px;color:#b52020;margin-top:6px;min-height:16px;}
+  @media(max-width:700px){
+    .description-modal{width:95vw;padding:1.1rem;}
+    .description-editor-layout{grid-template-columns:1fr;gap:16px;}
+    .user-stories-panel{border-left:0;border-top:1px solid var(--border);padding:14px 0 0;}
+    .description-modal:not(.has-stories) .description-editor-layout{grid-template-columns:1fr;}
+    .user-story-form{grid-template-columns:minmax(0,1fr) 80px;}
+    .user-story-form .btn{grid-column:1 / -1;justify-self:start;}
+  }
   .modal-title{font-size:15px;font-weight:600;margin-bottom:4px;}
   .modal-sub{font-size:12px;color:var(--muted);margin-bottom:1rem;}
   textarea{width:100%;height:200px;font-family:var(--mono);font-size:11px;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px;color:var(--text);outline:none;resize:vertical;}
@@ -602,11 +638,36 @@
 <div class="remote-cursor-layer" id="remoteCursorLayer" aria-hidden="true"></div>
 
 <div class="modal-backdrop" id="descriptionModal">
-  <div class="modal">
-    <div class="modal-title">Edit description</div>
-    <div class="modal-sub">Update the description for this work item.</div>
-    <textarea id="descriptionEditor" rows="6" placeholder="Enter a short description"></textarea>
-    <div class="modal-hint" style="font-size:11px;color:var(--muted);margin-top:6px;">Press Enter to save, Shift+Enter for a new line.</div>
+  <div class="modal description-modal" id="descriptionEditorModal">
+  <div class="modal-title" id="descriptionEditorTitle">Edit work item</div>
+    <div class="modal-sub" id="descriptionEditorSub">Update the description and manage any user stories for this feature.</div>
+    <div class="description-editor-layout">
+      <section class="description-editor-column">
+        <label class="field-label" for="descriptionEditor">Description</label>
+        <textarea id="descriptionEditor" rows="6" placeholder="Enter a short description"></textarea>
+        <div class="modal-hint" style="font-size:11px;color:var(--muted);margin-top:6px;">Press Enter to save, Shift+Enter for a new line.</div>
+      </section>
+      <section class="user-stories-panel" id="userStoriesPanel">
+        <div class="user-stories-heading">Feature-specific user stories</div>
+        <div class="user-stories-list" id="userStoriesList"></div>
+        <div class="user-stories-progress" id="userStoriesProgress">
+          <div class="user-stories-progress-track" id="userStoriesProgressTrack" role="progressbar" aria-label="Story points toward feature size" aria-valuemin="0"><div class="user-stories-progress-fill" id="userStoriesProgressFill"></div></div>
+          <div class="user-stories-progress-label" id="userStoriesProgressLabel" role="status" aria-live="polite"></div>
+        </div>
+        <div class="user-story-form">
+          <div class="field">
+            <label class="field-label" for="userStoryName">Name</label>
+            <input type="text" id="userStoryName" placeholder="Story name" onkeydown="if(event.key==='Enter'){event.preventDefault();addDescriptionUserStory()}">
+          </div>
+          <div class="field">
+            <label class="field-label" for="userStorySize">Story points (optional)</label>
+            <input type="number" id="userStorySize" min="0.5" step="any" placeholder="Optional" onkeydown="if(event.key==='Enter'){event.preventDefault();addDescriptionUserStory()}">
+          </div>
+          <button class="btn btn-secondary" type="button" onclick="addDescriptionUserStory()">Add story</button>
+        </div>
+        <div class="user-story-error" id="userStoryError" role="status"></div>
+      </section>
+    </div>
     <div class="modal-actions">
       <button class="btn btn-secondary" style="width:auto" onclick="closeDescriptionEditor()">Cancel</button>
       <button class="btn btn-primary" style="width:auto" onclick="saveDescriptionEditor()">Save</button>
@@ -3283,6 +3344,7 @@ function renderTiles(){
     const s=SIZES(f.type,f.size),pal=getPalette(f);
     const isF=(f.type||'feature')==='feature';
     const typeLbl=compactTypeLabel(f);
+    const storyCount=Array.isArray(f.userStories)?f.userStories.length:0;
     const tile=document.createElement('div');
     tile.className='feat-tile';tile.dataset.id=id;tile.draggable=true;
     tile.style.cssText=`left:${pos.col*CELL+1}px;top:${pos.row*CELL+1}px;width:${s.cols*CELL-2}px;height:${s.rows*CELL-2}px;background:${pal.bg};color:${pal.color};border-color:${pal.border};`;
@@ -3306,9 +3368,10 @@ function renderTiles(){
       <div class="tile-name" id="tileName-${id}" onclick="startTileEdit(${id},event)" title="Click to rename">${esc(f.name)}</div>
       <div class="tile-meta" style="display:flex;align-items:center;gap:4px;">
         <span class="size-trigger" onclick="openSizeMenu(${id},event)" title="Click to resize">${tileMetaLabel(f)}</span>
+        ${isF?`<span class="tile-story-count" onclick="event.stopPropagation();editFeatureDescription(${id})" title="Edit ${storyCount} feature-specific ${storyCount===1?'user story':'user stories'}" aria-label="Edit ${storyCount} feature-specific ${storyCount===1?'user story':'user stories'}">${storyCount} US</span>`:''}
       </div>`;
     tile.addEventListener('dragstart',e=>{
-      if(e.target.closest('.tile-resize,.tile-split,.tile-rm,.tile-edit,.size-trigger,.colour-dot')){e.preventDefault();return;}
+      if(e.target.closest('.tile-resize,.tile-split,.tile-rm,.tile-edit,.size-trigger,.tile-story-count,.colour-dot')){e.preventDefault();return;}
       if(document.getElementById('tileName-'+id)?.getAttribute('contenteditable')==='true'){e.preventDefault();return;}
       dragId=+id;dragFrom='box';e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',String(id));
       setTimeout(()=>tile.classList.add('is-dragging'),0);
@@ -3462,11 +3525,28 @@ function renderBacklog(){
   });
 }
 
-let editingDescriptionId=null;
+let editingDescriptionId=null,editingUserStories=[];
 function openDescriptionEditor(id){
   const t=tab();if(!t)return;
   const f=t.features.find(item=>item.id===+id);if(!f)return;
   editingDescriptionId=+id;
+  editingUserStories=Array.isArray(f.userStories)?f.userStories.filter(story=>story&&typeof story.name==='string').map(story=>{
+    const size=Number(story.size);
+    return{name:story.name,...(story.size!=null&&story.size!==''&&Number.isFinite(size)&&size>0?{size}:{})};
+  }):[];
+  const modal=document.getElementById('descriptionEditorModal');
+  const title=document.getElementById('descriptionEditorTitle');
+  if(title)title.textContent=`Edit ${f.name}`;
+  const hasStories=(f.type||'feature')==='feature';
+  modal?.classList.toggle('has-stories',hasStories);
+  const subtitle=document.getElementById('descriptionEditorSub');
+  if(subtitle)subtitle.textContent=hasStories?'Update the description and manage any user stories for this feature.':'Update the description for this user story.';
+  const storiesPanel=document.getElementById('userStoriesPanel');
+  if(storiesPanel)storiesPanel.hidden=!hasStories;
+  document.getElementById('userStoryName').value='';
+  document.getElementById('userStorySize').value='';
+  document.getElementById('userStoryError').textContent='';
+  renderDescriptionUserStories();
   const el=document.getElementById('descriptionEditor');
   if(el){
     el.value=f.description||'';
@@ -3484,7 +3564,80 @@ function handleDescriptionKeydown(e){
 }
 function closeDescriptionEditor(){
   editingDescriptionId=null;
+  editingUserStories=[];
   document.getElementById('descriptionModal')?.classList.remove('open');
+}
+function renderDescriptionUserStories(){
+  const list=document.getElementById('userStoriesList');
+  if(!list)return;
+  list.innerHTML=editingUserStories.length
+    ?editingUserStories.map((story,index)=>`<div class="user-story-row"><input class="user-story-edit-input" type="text" value="${esc(story.name)}" aria-label="User story name" oninput="updateDescriptionUserStory(${index},'name',this.value)"><input class="user-story-edit-input user-story-edit-size" type="number" min="0.5" step="any" value="${story.size==null?'':esc(String(story.size))}" placeholder="No points" aria-label="Story points for ${esc(story.name)}" oninput="updateDescriptionUserStory(${index},'size',this.value)"><button class="user-story-remove" type="button" onclick="removeDescriptionUserStory(${index})" aria-label="Remove ${esc(story.name)}" title="Remove story">×</button></div>`).join('')
+    :'<div class="user-stories-empty">No user stories added yet.</div>';
+  renderDescriptionUserStoryProgress();
+}
+function updateDescriptionUserStory(index,field,value){
+  const story=editingUserStories[index];
+  if(!story)return;
+  const error=document.getElementById('userStoryError');
+  if(field==='name'){
+    story.name=value;
+    if(value.trim()&&error)error.textContent='';
+  }
+  else if(field==='size'){
+    if(value==='')delete story.size;
+    else{
+      const size=Number(value);
+      if(Number.isFinite(size)&&size>0)story.size=size;
+      else{
+        story.size=0;
+        if(error)error.textContent='Story points must be positive, or left blank.';
+      }
+    }
+    if(value===''||(Number.isFinite(Number(value))&&Number(value)>0))if(error)error.textContent='';
+  }
+  renderDescriptionUserStoryProgress();
+}
+function renderDescriptionUserStoryProgress(){
+  const f=tab()?.features.find(item=>item.id===editingDescriptionId);
+  const target=f?SIZES(f.type||'feature',f.size)?.pts:0;
+  const total=editingUserStories.reduce((sum,story)=>sum+(Number.isFinite(story.size)?story.size:0),0);
+  const fill=document.getElementById('userStoriesProgressFill'),label=document.getElementById('userStoriesProgressLabel');
+  const track=document.getElementById('userStoriesProgressTrack');
+  if(!fill||!label||!track)return;
+  const delta=total-target,tolerance=Number.EPSILON*Math.max(1,total,target)*8;
+  const state=delta>tolerance?'exceeded':Math.abs(delta)<=tolerance?'fulfilled':'';
+  const remaining=Math.max(0,target-total),difference=Math.max(0,total-target);
+  const formatPoints=value=>Number(value.toPrecision(12)).toString();
+  fill.className=`user-stories-progress-fill${state?` ${state}`:''}`;
+  fill.style.width=`${target?Math.min(100,total/target*100):0}%`;
+  track.setAttribute('aria-valuemax',String(target));
+  track.setAttribute('aria-valuenow',String(Math.min(total,target)));
+  label.className=`user-stories-progress-label${state?` ${state}`:''}`;
+  label.textContent=state==='exceeded'
+    ?`${formatPoints(total)} / ${target} pts · exceeded by ${formatPoints(difference)} ${difference===1?'pt':'pts'}`
+    :state==='fulfilled'
+      ?`${target} / ${target} pts · fulfilled`
+      :`${formatPoints(total)} / ${target} pts · ${formatPoints(remaining)} ${remaining===1?'pt':'pts'} remaining`;
+}
+function addDescriptionUserStory(){
+  const nameInput=document.getElementById('userStoryName'),sizeInput=document.getElementById('userStorySize');
+  const name=(nameInput?.value||'').trim(),sizeValue=sizeInput?.value.trim();
+  const size=sizeValue?Number(sizeValue):undefined;
+  const error=document.getElementById('userStoryError');
+  if(!name||(sizeValue&&(!Number.isFinite(size)||size<=0))){
+    if(error)error.textContent='Enter a story name and, if provided, a positive story-point size.';
+    return;
+  }
+  editingUserStories.push({name,...(size==null?{}:{size})});
+  nameInput.value='';sizeInput.value='';
+  if(error)error.textContent='';
+  renderDescriptionUserStories();
+  nameInput.focus();
+}
+function removeDescriptionUserStory(index){
+  if(index<0||index>=editingUserStories.length)return;
+  editingUserStories.splice(index,1);
+  renderDescriptionUserStories();
 }
 function createDescriptionTooltip(){
   let tip=document.getElementById('descTooltip');
@@ -3520,8 +3673,17 @@ function saveDescriptionEditor(){
   if(editingDescriptionId==null)return;
   const t=tab();if(!t)return;
   const f=t.features.find(item=>item.id===editingDescriptionId);if(!f)return;
+  if((f.type||'feature')==='feature'){
+    const invalidStory=editingUserStories.find(story=>!story.name.trim()||(story.size!=null&&(!Number.isFinite(story.size)||story.size<=0)));
+    if(invalidStory){
+      const error=document.getElementById('userStoryError');
+      if(error)error.textContent=!invalidStory.name.trim()?'User story names cannot be blank.':'Story points must be positive, or left blank.';
+      return;
+    }
+  }
   const el=document.getElementById('descriptionEditor');
   f.description=(el?.value||'').trim();
+  if((f.type||'feature')==='feature')f.userStories=editingUserStories.map(story=>({name:story.name.trim(),...(story.size==null?{}:{size:story.size})}));
   closeDescriptionEditor();
   saveState();
   renderBacklog();
