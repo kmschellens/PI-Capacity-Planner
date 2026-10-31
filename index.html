@@ -34,7 +34,17 @@
   .tab-add{display:flex;align-items:center;padding:0 12px;cursor:pointer;color:var(--muted);font-size:20px;font-weight:300;transition:color .12s;min-height:40px;border-bottom:2px solid transparent;}
   .tab-add:hover{color:var(--text);}
   .app-body{display:grid;grid-template-columns:290px minmax(0,1fr) 270px;min-height:calc(100vh - 92px);}
+  .app-body.sidebar-collapsed{grid-template-columns:38px minmax(0,1fr) 270px;}
+  .app-body.sidebar-collapsed.right-panel-collapsed{grid-template-columns:38px minmax(0,1fr) 38px;}
   .sidebar{background:var(--surface);border-right:1px solid var(--border);padding:1.25rem;display:flex;flex-direction:column;gap:1.25rem;overflow-y:auto;max-height:calc(100vh - 92px);}
+  .sidebar.collapsed{padding:0;gap:0;overflow:hidden;}
+  .sidebar.collapsed .sidebar-inner{display:none!important;}
+  .sidebar.collapsed .sidebar-toggle{height:100%;padding:10px 0;align-items:center;justify-content:flex-start;flex-direction:column;gap:8px;}
+  .sidebar.collapsed .sidebar-toggle .panel-title{display:none;}
+  .sidebar-collapsed-label{display:none;font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap;}
+  .sidebar.collapsed .sidebar-collapsed-label{display:block;}
+  .sidebar.collapsed .collapse-chevron{transform:rotate(-90deg);}
+  .sidebar-inner{display:flex;flex-direction:column;gap:1.25rem;min-width:0;}
   .section-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;font-family:var(--mono);}
   .field{margin-bottom:10px;}
   .field-label{display:block;font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;font-family:var(--mono);}
@@ -106,9 +116,19 @@
   .feat-tile:hover .tile-rm,.feat-tile:hover .tile-edit{opacity:1;}
   .tile-rm:hover,.tile-edit:hover{background:rgba(0,0,0,.22);}
   .tile-edit:hover{background:rgba(26,95,168,.16);color:#1a5fa8;}
-  /* ✂ bottom-right — only rendered on feature tiles */
-  .tile-split{position:absolute;bottom:3px;right:3px;width:15px;height:15px;border-radius:3px;background:rgba(0,0,0,.12);border:none;cursor:pointer;color:inherit;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .12s,background .12s;}
-  .feat-tile:hover .tile-split{opacity:1;}.tile-split:hover{background:rgba(0,0,0,.26);}
+  /* Split button: larger hit target, compact visual. */
+  .tile-split{position:absolute;bottom:3px;right:24px;width:22px;height:22px;border-radius:5px;background:transparent;border:none;cursor:pointer;color:inherit;display:flex;align-items:center;justify-content:center;opacity:0;z-index:14;transition:opacity .12s,background .12s,color .12s;}
+  .tile-split::before{content:"";position:absolute;inset:3px;border-radius:3px;background:rgba(0,0,0,.12);transition:background .12s,box-shadow .12s;}
+  .tile-split svg{position:relative;z-index:1;}
+  .feat-tile:hover .tile-split,.tile-split:focus-visible{opacity:1;}
+  .tile-split:hover::before,.tile-split:focus-visible::before{background:rgba(26,95,168,.16);box-shadow:0 0 0 1px rgba(26,95,168,.12) inset;}
+  .tile-split:hover,.tile-split:focus-visible{color:#1a5fa8;outline:none;}
+  .tile-resize{position:absolute;right:1px;bottom:1px;width:20px;height:20px;border:0;background:transparent;color:inherit;cursor:nwse-resize;opacity:0;z-index:15;display:flex;align-items:flex-end;justify-content:flex-end;padding:4px;border-radius:5px;transition:opacity .12s,background .12s,color .12s;}
+  .tile-resize::before,.tile-resize::after{content:"";position:absolute;right:4px;bottom:4px;border-right:1.8px solid currentColor;border-bottom:1.8px solid currentColor;border-radius:1px;opacity:.55;}
+  .tile-resize::before{width:10px;height:10px;}
+  .tile-resize::after{width:5px;height:5px;opacity:.78;}
+  .feat-tile:hover .tile-resize,.tile-resize:focus-visible,.feat-tile.is-resizing .tile-resize{opacity:1;}
+  .tile-resize:hover,.tile-resize:focus-visible{background:rgba(255,255,255,.28);color:#1a5fa8;outline:none;}
   .tile-colour-bar{position:absolute;top:3px;left:3px;display:flex;gap:3px;opacity:0;transition:opacity .15s;pointer-events:none;}
   .feat-tile:hover .tile-colour-bar{opacity:1;pointer-events:all;}
   .colour-dot{width:11px;height:11px;border-radius:50%;cursor:pointer;border:1.5px solid rgba(255,255,255,.6);transition:transform .1s,box-shadow .1s;flex-shrink:0;}
@@ -197,7 +217,8 @@
   .collapsible-body.closed{max-height:0!important;opacity:0;}
   .right-panel-inner{overflow:hidden;transition:max-height .25s ease,opacity .2s;opacity:1;}
   .right-panel-inner.closed{max-height:0!important;opacity:0;}
-  .right-panel-toggle{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;padding-bottom:2px;}
+  .sidebar-toggle,.right-panel-toggle{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;padding-bottom:2px;}
+  .sidebar-toggle:hover .collapse-chevron,
   .right-panel-toggle:hover .collapse-chevron{color:var(--text);}
   ::-webkit-scrollbar{width:5px;height:5px;}
   ::-webkit-scrollbar-track{background:transparent;}
@@ -314,6 +335,7 @@
   body.board-view .capacity-only{display:none!important;}
   body.board-view .board-only{display:block!important;}
   body.board-view .app-body{grid-template-columns:290px minmax(0,1fr);}
+  body.board-view .app-body.sidebar-collapsed{grid-template-columns:38px minmax(0,1fr);}
   body.board-view .right-panel{display:none;}
   body.board-view .workspace{max-height:calc(100vh - 92px);}
   .board-setup-note{font-size:11px;color:var(--muted);line-height:1.5;margin-top:8px;}
@@ -443,7 +465,15 @@
 <div class="tabbar" id="tabbar"></div>
 
 <div class="app-body" id="appBody">
-  <aside class="sidebar">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-toggle" onclick="toggleSidebar()" title="Collapse / expand sidebar">
+      <div>
+        <div class="panel-title" style="margin-bottom:0">Planner controls</div>
+        <div class="sidebar-collapsed-label">Controls</div>
+      </div>
+      <svg class="collapse-chevron open" id="sidebarChevron" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 4l4 4 4-4"/></svg>
+    </div>
+    <div class="sidebar-inner" id="sidebarInner">
     <div class="board-only">
       <div class="section-title">PI Planning setup</div>
       <div class="field"><label class="field-label">PI name</label><input type="text" id="boardName" value="PI 2026 Q3" oninput="onBoardNameInput()"></div>
@@ -526,6 +556,7 @@
       </div>
       <div class="section-title" style="display:flex;align-items:center;gap:6px;">Board backlog <span class="count-badge" id="boardBacklogCount">0</span></div>
       <div class="board-backlog-list" id="boardBacklogList"></div>
+    </div>
     </div>
   </aside>
 
@@ -742,7 +773,7 @@ function defaultPIName(){
   return`PI ${year} Q${quarter}`;
 }
 
-let tabs=[],activeTabId=null,tabIdSeq=0,dragId=null,dragFrom=null,currentView='capacity',boardDragKey=null,boardDragFrom=null,depDrag=null,boardRowDragTeamId=null,tabDragTeamId=null,suppressNextTabClick=false,rightPanelCollapsed=true;
+let tabs=[],activeTabId=null,tabIdSeq=0,dragId=null,dragFrom=null,currentView='capacity',boardDragKey=null,boardDragFrom=null,depDrag=null,boardRowDragTeamId=null,tabDragTeamId=null,suppressNextTabClick=false,sidebarCollapsed=false,rightPanelCollapsed=true,tileResizeDrag=null;
 let supabaseClient=null,authSession=null,authMode='login',remoteBoards=[],remoteBoardsLoading=false,currentRemoteBoardId=null,currentRemoteBoardName='',currentRemoteBoardPermission='owner',remoteSaveTimer=null,isSavingRemoteBoard=false,remoteSaveStatus='saved',remoteBoardChannel=null,remoteBoardChannelId=null,pendingAnonymousImportSnapshot=null,signedInModePromise=null,signedInUserModeReadyFor=null,anonymousImportEligible=false,pendingImportNameResolve=null,pendingDeleteRemoteBoardId=null,pendingRenameRemoteBoardId=null,pendingRenameRemoteBoardValue=null,pendingRenameRemoteBoardError='',boardShareBoardId=null,boardShareEntries=[],boardShareLoading=false,boardShareSaving=false,readOnlyWarningShown=false;
 function freshBoardState(){return{name:defaultPIName(),iterationCount:6,iterationNames:[],placements:{},dependencies:[],teamOrder:[],backlogFilters:defaultBoardBacklogFilters(),backlogFiltersOpen:false};}
 let boardState=freshBoardState();
@@ -759,7 +790,7 @@ function getGridRows(){const t=tab();const cap=teamCapacityPts(t);if(!t||!cap)re
 
 const UNDO_LIMIT=60;
 let undoStack=[],lastStateSnapshot=null,isRestoringState=false;
-function statePayload(){return{version:6,tabs,activeTabId,tabIdSeq,currentView,boardState,rightPanelCollapsed};}
+function statePayload(){return{version:6,tabs,activeTabId,tabIdSeq,currentView,boardState,sidebarCollapsed,rightPanelCollapsed};}
 function syncedStatePayload(){return{version:6,tabs,tabIdSeq,boardState};}
 function currentStateSnapshot(){return JSON.stringify(statePayload());}
 function currentSyncedStateSnapshot(){return JSON.stringify(syncedStatePayload());}
@@ -1577,6 +1608,7 @@ async function openRemoteBoard(id,options={}){
     updateRemoteBoardInPlace(data,true);
     subscribeToRemoteBoard(data.id);
     syncViewUI();
+    syncSidebarUI();
     syncRightPanelUI();
     renderTabBar();
     loadTabIntoSidebar();
@@ -1591,7 +1623,7 @@ async function openRemoteBoard(id,options={}){
   }
 }
 function resetPlannerToFreshDefaults(){
-  tabs=[];activeTabId=null;tabIdSeq=0;currentView='capacity';rightPanelCollapsed=true;boardState=freshBoardState();
+  tabs=[];activeTabId=null;tabIdSeq=0;currentView='capacity';sidebarCollapsed=false;rightPanelCollapsed=true;boardState=freshBoardState();
   const t=newTab('Team A');activeTabId=t.id;
   ensureDefaultWorkItems(t);
   placeDefaultStartupItems(t);
@@ -1604,6 +1636,7 @@ function normalizeLoadedPlannerState(){
 }
 function renderPlannerState(){
   syncViewUI();
+  syncSidebarUI();
   syncRightPanelUI();
   renderTabBar();
   loadTabIntoSidebar();
@@ -1613,7 +1646,7 @@ function renderPlannerState(){
 function loadAnonymousPlannerState(){
   const hadAnonymousSnapshot=!!(localStorage.getItem(STORAGE_KEY)||localStorage.getItem(LEGACY_STORAGE_KEY));
   const hadEditedMarker=!!localStorage.getItem(EDITED_KEY);
-  tabs=[];activeTabId=null;tabIdSeq=0;currentView='capacity';rightPanelCollapsed=true;boardState=freshBoardState();
+  tabs=[];activeTabId=null;tabIdSeq=0;currentView='capacity';sidebarCollapsed=false;rightPanelCollapsed=true;boardState=freshBoardState();
   loadState();
   rightPanelCollapsed=true;
   if(!tabs.length)resetPlannerToFreshDefaults();
@@ -1882,6 +1915,7 @@ function applyStateSnapshot(snapshot){
   const incomingActiveTabId=s.activeTabId;
   tabIdSeq=s.tabIdSeq||tabs.length;
   if(s.currentView==='board'||s.currentView==='capacity')currentView=s.currentView;
+  if(Object.prototype.hasOwnProperty.call(s,'sidebarCollapsed'))sidebarCollapsed=!!s.sidebarCollapsed;
   if(Object.prototype.hasOwnProperty.call(s,'rightPanelCollapsed'))rightPanelCollapsed=!!s.rightPanelCollapsed;
   boardState=normalizeBoardState(s.boardState);
   if(tabs.find(t=>t.id===incomingActiveTabId))activeTabId=incomingActiveTabId;
@@ -1899,6 +1933,7 @@ function undoLastAction(){
       writeStateSnapshot(currentStateSnapshot());
       lastStateSnapshot=currentStateSnapshot();
       syncViewUI();
+      syncSidebarUI();
       syncRightPanelUI();
       renderTabBar();
       loadTabIntoSidebar();
@@ -1936,6 +1971,7 @@ function loadState(){
     if(s&&s.version===6&&Array.isArray(s.tabs)&&s.tabs.length){
       tabs=s.tabs;activeTabId=s.activeTabId;tabIdSeq=s.tabIdSeq||s.tabs.length;
       currentView=s.currentView==='board'?'board':'capacity';
+      sidebarCollapsed=!!s.sidebarCollapsed;
       rightPanelCollapsed=!!s.rightPanelCollapsed;
       boardState=normalizeBoardState(s.boardState);
       if(!tabs.find(t=>t.id===activeTabId))activeTabId=tabs[0].id;
@@ -1946,7 +1982,7 @@ function loadState(){
     s=JSON.parse(localStorage.getItem(LEGACY_STORAGE_KEY));
     if(!s||s.version!==5||!Array.isArray(s.tabs)||!s.tabs.length)return false;
     tabs=s.tabs;activeTabId=s.activeTabId;tabIdSeq=s.tabIdSeq||s.tabs.length;
-    currentView='capacity';rightPanelCollapsed=false;boardState=freshBoardState();
+    currentView='capacity';sidebarCollapsed=false;rightPanelCollapsed=false;boardState=freshBoardState();
     normalizeAllTeams();
     if(!tabs.find(t=>t.id===activeTabId))activeTabId=tabs[0].id;
     return true;
@@ -2268,6 +2304,7 @@ function syncViewUI(){
   const title=document.querySelector('.topbar-title');
   if(title)title.textContent=isBoard?'PI Planning Board':'PI Capacity Planner';
   loadBoardInputs();
+  syncSidebarUI();
   syncRightPanelUI();
 }
 function setView(view){
@@ -2904,6 +2941,91 @@ function onGridCreatePointerUp(e){
   cleanupBoardState();saveState();renderWorkspace();
 }
 
+function resizeCandidatesForWorkItem(f,maxCols=Infinity,maxRows=Infinity){
+  return SIZE_OPTIONS
+    .map(opt=>({...opt,s:SIZES(opt.type,opt.size)}))
+    .filter(opt=>opt.s&&opt.s.cols<=maxCols&&opt.s.rows<=maxRows);
+}
+function resizeOptionRank(opt){
+  const typeRank=opt.type==='story'?0:1;
+  const sizeRank={S:0,M:1,L:2,XL:3}[opt.size]??9;
+  return typeRank*10+sizeRank;
+}
+function getResizeCandidateForWorkItem(f,cols,rows,maxCols=Infinity,maxRows=Infinity){
+  const candidates=resizeCandidatesForWorkItem(f,maxCols,maxRows);
+  if(!candidates.length)return null;
+  const type=f.type||'feature',current=SIZES(type,f.size);
+  const currentCandidate=candidates.find(opt=>opt.type===type&&opt.size===f.size);
+  if(currentCandidate&&current?.cols===cols&&current?.rows===rows)return currentCandidate;
+  const exact=candidates.filter(opt=>opt.s.cols===cols&&opt.s.rows===rows);
+  if(exact.length)return exact.slice().sort((a,b)=>resizeOptionRank(a)-resizeOptionRank(b))[0];
+  const desiredArea=cols*rows,currentArea=(current?.cols||cols)*(current?.rows||rows),growing=desiredArea>=currentArea;
+  return candidates.slice().sort((a,b)=>{
+    const areaA=a.s.cols*a.s.rows,areaB=b.s.cols*b.s.rows;
+    const scoreA=(Math.abs(a.s.cols-cols)+Math.abs(a.s.rows-rows))*10+Math.abs(areaA-desiredArea);
+    const scoreB=(Math.abs(b.s.cols-cols)+Math.abs(b.s.rows-rows))*10+Math.abs(areaB-desiredArea);
+    if(scoreA!==scoreB)return scoreA-scoreB;
+    if(areaA!==areaB)return growing?areaB-areaA:areaA-areaB;
+    return resizeOptionRank(a)-resizeOptionRank(b);
+  })[0]||null;
+}
+function updateTileResizePreview(e){
+  if(!tileResizeDrag)return;
+  e?.preventDefault?.();
+  const t=tab();if(!t)return;
+  const f=t.features.find(item=>item.id===tileResizeDrag.id);if(!f)return;
+  const grid=document.getElementById('tetrisGrid');if(!grid)return;
+  const rect=grid.getBoundingClientRect(),gridCols=getGridCols(),gridRows=getGridRows();
+  const pointerCol=Math.max(tileResizeDrag.col,Math.min(gridCols-1,Math.floor((e.clientX-rect.left)/CELL)));
+  const pointerRow=Math.max(tileResizeDrag.row,Math.min(gridRows-1,Math.floor((e.clientY-rect.top)/CELL)));
+  const rawCols=pointerCol-tileResizeDrag.col+1,rawRows=pointerRow-tileResizeDrag.row+1;
+  const maxCols=gridCols-tileResizeDrag.col,maxRows=gridRows-tileResizeDrag.row;
+  const candidate=getResizeCandidateForWorkItem(f,rawCols,rawRows,maxCols,maxRows);
+  const cols=candidate?.s.cols||rawCols,rows=candidate?.s.rows||rawRows;
+  const ok=!!candidate&&canPlace(tileResizeDrag.col,tileResizeDrag.row,cols,rows,tileResizeDrag.id);
+  tileResizeDrag={...tileResizeDrag,cols,rows,candidate,ok};
+  const ghost=document.getElementById('dropGhost');
+  if(ghost){
+    const pal=candidate
+      ?(f.paletteId!=null?getPalette(f):PALETTES.find(p=>p.id===candidate.s.paletteId)||PALETTES[0])
+      :PALETTES[4];
+    ghost.style.display='flex';
+    ghost.style.left=`${tileResizeDrag.col*CELL+1}px`;
+    ghost.style.top=`${tileResizeDrag.row*CELL+1}px`;
+    ghost.style.width=`${cols*CELL-2}px`;
+    ghost.style.height=`${rows*CELL-2}px`;
+    ghost.style.borderColor=ok?pal.border:'#b52020';
+    ghost.style.background=ok?`${pal.color}22`:'rgba(181,32,32,.1)';
+    ghost.style.color=ok?pal.color:'#b52020';
+    ghost.className='drop-ghost create-preview'+(ok?'':' blocked');
+    ghost.innerHTML=`<div>${esc(candidate?describeCreateCandidate(candidate):'Unsupported size')}<div class="preview-sub">${cols}×${rows}${candidate?` · ${candidate.s.pts}pts`:''}${ok?'':' · blocked'}</div></div>`;
+  }
+}
+function startTileResize(event,id){
+  if(currentView==='board')return;
+  event?.preventDefault?.();
+  event?.stopPropagation?.();
+  closeSizeMenu();
+  const t=tab();if(!t)return;
+  const f=t.features.find(item=>item.id===+id),pos=t.placed[+id];
+  if(!f||!pos)return;
+  tileResizeDrag={id:+id,col:pos.col,row:pos.row,cols:SIZES(f.type||'feature',f.size).cols,rows:SIZES(f.type||'feature',f.size).rows,candidate:null,ok:false};
+  event?.currentTarget?.closest?.('.feat-tile')?.classList.add('is-resizing');
+  document.addEventListener('pointermove',onTileResizePointerMove);
+  document.addEventListener('pointerup',onTileResizePointerUp,{once:true});
+  updateTileResizePreview(event);
+}
+function onTileResizePointerMove(e){updateTileResizePreview(e);}
+function onTileResizePointerUp(){
+  document.removeEventListener('pointermove',onTileResizePointerMove);
+  const draft=tileResizeDrag;
+  tileResizeDrag=null;
+  document.querySelectorAll('.feat-tile.is-resizing').forEach(el=>el.classList.remove('is-resizing'));
+  hideGhost();
+  if(!draft||!draft.ok||!draft.candidate)return;
+  resizeWorkItem(draft.id,draft.candidate.type,draft.candidate.size);
+}
+
 function onGridDragOver(e){
   e.preventDefault();if(dragId==null)return;
   const t=tab();if(!t)return;
@@ -2989,11 +3111,12 @@ function renderTiles(){
     tile.style.cssText=`left:${pos.col*CELL+1}px;top:${pos.row*CELL+1}px;width:${s.cols*CELL-2}px;height:${s.rows*CELL-2}px;background:${pal.bg};color:${pal.color};border-color:${pal.border};`;
     const activePid=f.paletteId!=null?f.paletteId:s.paletteId;
     const dots=PALETTES.map(p=>`<div class="colour-dot${activePid===p.id?' active':''}" style="background:${p.color}" onclick="setFeatureColour(${id},${p.id})"></div>`).join('');
-    const splitBtn=isF?`<button class="tile-split" onclick="splitFeature(${id})" title="Split into ${SPLIT_COUNT[f.size]} × XL user stories (${SPLIT_COUNT[f.size]}×20 pts)">
+    const splitBtn=isF?`<button class="tile-split" type="button" draggable="false" onclick="event.stopPropagation();splitFeature(${id})" onpointerdown="event.stopPropagation()" onmousedown="event.stopPropagation()" title="Split into ${SPLIT_COUNT[f.size]} × XL user stories (${SPLIT_COUNT[f.size]}×20 pts)" aria-label="Split into ${SPLIT_COUNT[f.size]} XL user stories">
       <svg width="9" height="9" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="4.5" cy="4.5" r="2"/><circle cx="4.5" cy="11.5" r="2"/>
         <path d="M6.5 4.5l7 7M6.5 11.5l7-7"/>
       </svg></button>`:'';
+    const resizeBtn=`<button class="tile-resize" type="button" draggable="false" onpointerdown="startTileResize(event,${id})" title="Drag to resize" aria-label="Drag to resize ${esc(f.name)}"></button>`;
     const descriptionPreview=(f.description||'').trim();
     const showDescription=descriptionPreview.length>0&&(isF||f.size==='XL');
     tile.innerHTML=`
@@ -3001,12 +3124,14 @@ function renderTiles(){
       <button class="tile-rm" onclick="tileRemove(${id})" title="Move to parked">✕</button>
       <button class="tile-edit" onclick="editFeatureDescription(${id})" data-description="${esc(f.description||'No description yet. Click to add one.')}" title="" aria-label="Edit description">✎</button>
       ${splitBtn}
+      ${resizeBtn}
       ${showDescription ? `<div class="tile-description" onclick="event.stopPropagation();editFeatureDescription(${id});" title="Edit description">${esc(descriptionPreview)}</div>` : ''}
       <div class="tile-name" id="tileName-${id}" onclick="startTileEdit(${id},event)" title="Click to rename">${esc(f.name)}</div>
       <div class="tile-meta" style="display:flex;align-items:center;gap:4px;">
         <span class="size-trigger" onclick="openSizeMenu(${id},event)" title="Click to resize">${tileMetaLabel(f)}</span>
       </div>`;
     tile.addEventListener('dragstart',e=>{
+      if(e.target.closest('.tile-resize,.tile-split,.tile-rm,.tile-edit,.size-trigger,.colour-dot')){e.preventDefault();return;}
       if(document.getElementById('tileName-'+id)?.getAttribute('contenteditable')==='true'){e.preventDefault();return;}
       dragId=+id;dragFrom='box';e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',String(id));
       setTimeout(()=>tile.classList.add('is-dragging'),0);
@@ -3464,6 +3589,18 @@ function toggleSection(bodyId,chevronId){
   if(isOpen){body.style.maxHeight=body.scrollHeight+'px';requestAnimationFrame(()=>{body.classList.add('closed');body.style.maxHeight='';});}
   else{body.classList.remove('closed');body.style.maxHeight=body.scrollHeight+'px';body.addEventListener('transitionend',()=>{body.style.maxHeight='';},{once:true});}
   if(chevron)chevron.classList.toggle('open',!isOpen);
+}
+function syncSidebarUI(){
+  const app=document.getElementById('appBody'),panel=document.getElementById('sidebar'),inner=document.getElementById('sidebarInner'),chevron=document.getElementById('sidebarChevron');
+  if(app)app.classList.toggle('sidebar-collapsed',sidebarCollapsed);
+  if(panel)panel.classList.toggle('collapsed',sidebarCollapsed);
+  if(inner)inner.classList.toggle('closed',sidebarCollapsed);
+  if(chevron)chevron.classList.toggle('open',!sidebarCollapsed);
+}
+function toggleSidebar(){
+  sidebarCollapsed=!sidebarCollapsed;
+  syncSidebarUI();
+  saveState();
 }
 function syncRightPanelUI(){
   const app=document.getElementById('appBody'),panel=document.getElementById('rightPanel'),inner=document.getElementById('rightPanelInner'),chevron=document.getElementById('rightPanelChevron');
