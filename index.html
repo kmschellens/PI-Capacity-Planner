@@ -104,10 +104,14 @@
   .tile-name{font-size:10px;font-weight:600;line-height:1.3;word-break:break-word;cursor:text;border-radius:3px;padding:1px 3px;margin:-1px -3px;transition:background .12s,box-shadow .12s;}
   .tile-name:hover{background:rgba(255,255,255,.38);box-shadow:0 0 0 1px rgba(255,255,255,.34) inset;}
   .tile-name[contenteditable="true"]{outline:none;background:rgba(255,255,255,.62);border-radius:3px;padding:1px 3px;margin:-1px -3px;cursor:text;box-shadow:0 0 0 1px rgba(0,0,0,.08) inset;}
-  .tile-meta{font-size:9px;opacity:.65;margin-top:1px;font-family:var(--mono);}
+  .tile-meta{font-size:9px;opacity:.65;padding-top:1px;font-family:var(--mono);}
   .tile-story-count{font:inherit;opacity:.65;}
   .tile-description{display:block;max-height:56px;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-ms-overflow-style:none;font-size:9px;line-height:1.2;opacity:.55;cursor:pointer;transition:opacity .12s;word-break:break-word;white-space:pre-wrap;margin:1px 0 4px;}
   .tile-description::-webkit-scrollbar{display:none;}
+  .tile-user-stories{max-height:56px;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;-ms-overflow-style:none;padding-left:13px;margin:1px 0 4px;font-size:9px;line-height:1.2;opacity:.65;cursor:pointer;transition:opacity .12s;word-break:break-word;}
+  .tile-user-stories::-webkit-scrollbar{display:none;}
+  .tile-user-stories:hover{opacity:.9;}
+  .tile-user-stories li{padding-left:1px;}
   .desc-tooltip{position:fixed;z-index:300;max-width:260px;padding:8px 10px;border-radius:8px;background:rgba(248,250,252,.96);color:#1f2937;border:1px solid rgba(148,163,184,.25);box-shadow:0 8px 18px rgba(15,23,42,.12);font-size:11px;line-height:1.35;pointer-events:none;display:none;white-space:pre-wrap;word-break:break-word;}
   .desc-tooltip strong{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#475569;margin-bottom:2px;}
   .tile-description:hover{opacity:.85;}
@@ -197,37 +201,57 @@
   .modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;align-items:center;justify-content:center;}
   .modal-backdrop.open{display:flex;}
   .modal{background:var(--surface);border-radius:12px;border:1px solid var(--border);padding:1.5rem;width:500px;max-width:95vw;box-shadow:0 8px 40px rgba(0,0,0,.15);}
-  .description-modal{width:80vw;max-width:1100px;max-height:90vh;overflow-y:auto;}
-  .description-editor-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;}
+  .description-modal{width:80vw;max-width:1100px;max-height:90vh;overflow-y:auto;padding:1.75rem;border-radius:16px;box-shadow:0 20px 60px rgba(28,27,25,.18);}
+  .description-editor-header{margin-bottom:1.25rem;}
+  .description-editor-title{display:flex;align-items:center;gap:9px;font-size:19px;font-weight:600;letter-spacing:-.025em;line-height:1.3;}
+  .description-editor-title-mark{width:9px;height:9px;border-radius:50%;flex:none;}
+  .description-editor-name{font:inherit;}
+  .description-editor-sub{font-size:12px;color:var(--muted);margin:5px 0 0 18px;line-height:1.5;}
+  .description-editor-save-status{margin:8px 0 0 18px;font:10px var(--mono);color:var(--muted);}
+  .description-editor-save-status.saving{color:#8a6200;}
+  .description-editor-save-status.error{color:#b52020;}
+  .description-editor-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;}
   .description-editor-column{min-width:0;}
-  .description-editor-column textarea{height:230px;resize:vertical;}
+  .description-editor-column .field-label{margin-bottom:7px;}
+  .description-editor-column textarea{height:170px;min-height:120px;resize:vertical;border-radius:9px;padding:12px;line-height:1.5;}
+  .description-editor-hint{font-size:10px;color:var(--muted);margin-top:7px;}
   .description-modal:not(.has-stories) .description-editor-layout{grid-template-columns:1fr;}
-  .user-stories-panel{border-left:1px solid var(--border);padding-left:20px;min-width:0;}
-  .user-stories-heading{font-size:13px;font-weight:600;margin-bottom:8px;}
-  .user-stories-progress{margin:0 0 8px;}
+  .user-stories-panel{min-width:0;}
+  .user-stories-heading{margin-bottom:7px;}
+  .user-stories-progress{margin:8px 0 12px;}
   .user-stories-progress-track{height:3px;background:var(--subtle);border-radius:3px;overflow:hidden;margin-bottom:3px;}
   .user-stories-progress-fill{height:100%;width:0;background:#b9a875;border-radius:3px;transition:width .15s,background .15s;}
   .user-stories-progress-fill.fulfilled{background:#8aa28f;}
   .user-stories-progress-fill.exceeded{background:#bd918c;}
   .user-stories-progress-label{font-size:9px;line-height:1.35;color:var(--muted);font-family:var(--mono);}
   .user-stories-progress-label.fulfilled,.user-stories-progress-label.exceeded{color:var(--muted);}
-  .user-stories-list{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto;margin-bottom:12px;}
-  .user-story-row{display:grid;grid-template-columns:minmax(0,1fr) 90px auto;align-items:center;gap:7px;padding:5px 7px;background:var(--bg);border:1px solid var(--border);border-radius:6px;min-width:0;}
-  .user-story-edit-input{min-width:0;width:100%;padding:5px 7px!important;font-size:11px!important;}
+  .user-stories-list{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto;}
+  .user-story-row{display:flex;align-items:center;gap:8px;padding:6px 7px;border-radius:5px;min-width:0;cursor:text;transition:background .12s,box-shadow .12s;}
+  .user-story-display{display:flex;align-items:center;gap:8px;flex:1;min-width:0;border:0;border-radius:4px;padding:2px 4px;background:transparent;color:inherit;text-align:left;font:inherit;cursor:text;transition:background .12s,box-shadow .12s;}
+  .user-story-display:hover{background:rgba(255,255,255,.55);box-shadow:0 0 0 1px rgba(255,255,255,.4) inset;}
+  .user-story-display:focus-visible{outline:2px solid #6a9fd8;outline-offset:1px;border-radius:3px;}
+  .user-story-display-name{flex:1;min-width:0;overflow-wrap:anywhere;font-size:12px;}
+  .user-story-display-size{font:10px var(--mono);color:var(--muted);white-space:nowrap;}
+  .user-story-edit-actions{display:flex;align-items:center;gap:3px;margin-left:auto;}
+  .user-story-action{border:0;background:transparent;color:var(--muted);font:16px var(--sans);line-height:1;cursor:pointer;padding:4px 6px;border-radius:4px;opacity:.5;}
+  .user-story-action:hover{background:#fceaea;color:#b52020;opacity:1;}
+  .user-story-row.editing{display:grid;grid-template-columns:minmax(0,1fr) 90px auto;gap:7px;}
+  .user-story-edit-input{min-width:0;width:100%;padding:6px 8px!important;font-size:11px!important;background:var(--surface)!important;}
   .user-story-edit-size{font-family:var(--mono)!important;}
-  .user-story-remove{border:0;background:none;color:var(--muted);font-size:16px;line-height:1;cursor:pointer;padding:2px 4px;}
-  .user-story-remove:hover{color:#b52020;}
-  .user-stories-empty{font-size:12px;color:var(--muted);padding:8px 0;}
-  .user-story-form{display:grid;grid-template-columns:minmax(0,1fr) 90px auto;align-items:end;gap:7px;}
+  .user-stories-empty{font-size:12px;color:var(--muted);padding:10px 0 4px;}
+  .user-story-form{display:grid;grid-template-columns:minmax(0,1fr) 100px auto;align-items:end;gap:9px;padding-top:11px;margin-top:8px;border-top:1px solid var(--border);}
   .user-story-form .field{margin:0;}
-  .user-story-form .field-label{font-size:10px;}
+  .user-story-form .field-label{font-size:9px;}
   .user-story-form input{min-width:0;}
-  .user-story-form .btn{width:auto;padding:7px 11px;white-space:nowrap;}
-  .user-story-error{font-size:11px;color:#b52020;margin-top:6px;min-height:16px;}
+  .user-story-form .btn{width:auto;padding:8px 12px;white-space:nowrap;}
+  .user-story-error{font-size:11px;color:#b52020;margin-top:5px;min-height:14px;}
+  .description-modal .modal-actions{border-top:1px solid var(--border);padding-top:14px;margin-top:20px;}
   @media(max-width:700px){
-    .description-modal{width:95vw;padding:1.1rem;}
+    .description-modal{width:95vw;padding:1rem;border-radius:13px;}
+    .description-editor-title{font-size:17px;}
     .description-editor-layout{grid-template-columns:1fr;gap:16px;}
-    .user-stories-panel{border-left:0;border-top:1px solid var(--border);padding:14px 0 0;}
+    .description-editor-column textarea{height:120px;min-height:100px;}
+    .user-stories-panel{padding:0;}
     .description-modal:not(.has-stories) .description-editor-layout{grid-template-columns:1fr;}
     .user-story-form{grid-template-columns:minmax(0,1fr) 80px;}
     .user-story-form .btn{grid-column:1 / -1;justify-self:start;}
@@ -254,6 +278,7 @@
   .right-panel-inner{overflow:hidden;transition:max-height .25s ease,opacity .2s;opacity:1;}
   .right-panel-inner.closed{max-height:0!important;opacity:0;}
   .sidebar-toggle,.right-panel-toggle{display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;padding-bottom:2px;}
+  .sidebar-toggle{width:100%;border:0;background:transparent;color:inherit;text-align:left;font:inherit;}
   .sidebar-toggle:hover .collapse-chevron,
   .right-panel-toggle:hover .collapse-chevron{color:var(--text);}
   ::-webkit-scrollbar{width:5px;height:5px;}
@@ -522,13 +547,13 @@
 
 <div class="app-body" id="appBody">
   <aside class="sidebar" id="sidebar">
-    <div class="sidebar-toggle" onclick="toggleSidebar()" title="Collapse / expand sidebar">
+    <button class="sidebar-toggle" type="button" onclick="toggleSidebar()" title="Collapse sidebar" aria-expanded="true" aria-controls="sidebarInner">
       <div>
         <div class="panel-title" style="margin-bottom:0">Planner controls</div>
         <div class="sidebar-collapsed-label">Controls</div>
       </div>
       <svg class="collapse-chevron open" id="sidebarChevron" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 4l4 4 4-4"/></svg>
-    </div>
+    </button>
     <div class="sidebar-inner" id="sidebarInner">
     <div class="board-only">
       <div class="section-title">PI Planning setup</div>
@@ -639,16 +664,19 @@
 
 <div class="modal-backdrop" id="descriptionModal">
   <div class="modal description-modal" id="descriptionEditorModal">
-  <div class="modal-title" id="descriptionEditorTitle">Edit work item</div>
-    <div class="modal-sub" id="descriptionEditorSub">Update the description and manage any user stories for this feature.</div>
+    <header class="description-editor-header">
+      <div class="description-editor-title"><span class="description-editor-title-mark" id="descriptionEditorMark"></span><span>Edit <span class="description-editor-name" id="descriptionEditorName">work item</span></span></div>
+      <div class="description-editor-sub" id="descriptionEditorSub">Update the description and manage any user stories for this feature.</div>
+      <div class="description-editor-save-status" id="descriptionEditorSaveStatus" role="status" aria-live="polite">All changes saved</div>
+    </header>
     <div class="description-editor-layout">
       <section class="description-editor-column">
         <label class="field-label" for="descriptionEditor">Description</label>
-        <textarea id="descriptionEditor" rows="6" placeholder="Enter a short description"></textarea>
-        <div class="modal-hint" style="font-size:11px;color:var(--muted);margin-top:6px;">Press Enter to save, Shift+Enter for a new line.</div>
+        <textarea id="descriptionEditor" rows="6" placeholder="Enter a short description" oninput="scheduleDescriptionEditorSave()"></textarea>
+        <div class="description-editor-hint">Press Enter to save, Shift+Enter for a new line.</div>
       </section>
       <section class="user-stories-panel" id="userStoriesPanel">
-        <div class="user-stories-heading">Feature-specific user stories</div>
+        <div class="user-stories-heading field-label">Feature-specific user stories</div>
         <div class="user-stories-list" id="userStoriesList"></div>
         <div class="user-stories-progress" id="userStoriesProgress">
           <div class="user-stories-progress-track" id="userStoriesProgressTrack" role="progressbar" aria-label="Story points toward feature size" aria-valuemin="0"><div class="user-stories-progress-fill" id="userStoriesProgressFill"></div></div>
@@ -657,11 +685,11 @@
         <div class="user-story-form">
           <div class="field">
             <label class="field-label" for="userStoryName">Name</label>
-            <input type="text" id="userStoryName" placeholder="Story name" onkeydown="if(event.key==='Enter'){event.preventDefault();addDescriptionUserStory()}">
+            <input type="text" id="userStoryName" placeholder="Story name" oninput="updateDescriptionUserStoryComposer()" onkeydown="if(event.key==='Enter'){event.preventDefault();addDescriptionUserStory()}">
           </div>
           <div class="field">
             <label class="field-label" for="userStorySize">Story points (optional)</label>
-            <input type="number" id="userStorySize" min="0.5" step="any" placeholder="Optional" onkeydown="if(event.key==='Enter'){event.preventDefault();addDescriptionUserStory()}">
+            <input type="number" id="userStorySize" min="0.5" step="any" placeholder="Optional" oninput="updateDescriptionUserStoryComposer()" onkeydown="if(event.key==='Enter'){event.preventDefault();addDescriptionUserStory()}">
           </div>
           <button class="btn btn-secondary" type="button" onclick="addDescriptionUserStory()">Add story</button>
         </div>
@@ -669,8 +697,7 @@
       </section>
     </div>
     <div class="modal-actions">
-      <button class="btn btn-secondary" style="width:auto" onclick="closeDescriptionEditor()">Cancel</button>
-      <button class="btn btn-primary" style="width:auto" onclick="saveDescriptionEditor()">Save</button>
+      <button class="btn btn-primary" style="width:auto" onclick="closeDescriptionEditor()">Close</button>
     </div>
   </div>
 </div>
@@ -3343,6 +3370,7 @@ function renderTiles(){
     const f=t.features.find(f=>f.id===+id);if(!f)continue;
     const s=SIZES(f.type,f.size),pal=getPalette(f);
     const isF=(f.type||'feature')==='feature';
+    const isUserStory=(f.type||'feature')==='story';
     const typeLbl=compactTypeLabel(f);
     const storyCount=Array.isArray(f.userStories)?f.userStories.length:0;
     const tile=document.createElement('div');
@@ -3357,13 +3385,17 @@ function renderTiles(){
       </svg></button>`:'';
     const resizeBtn=`<button class="tile-resize" type="button" draggable="false" onpointerdown="startTileResize(event,${id})" title="Drag to resize" aria-label="Drag to resize ${esc(f.name)}"></button>`;
     const descriptionPreview=(f.description||'').trim();
-    const showDescription=descriptionPreview.length>0&&(isF||f.size==='XL');
+    const userStories=isF&&Array.isArray(f.userStories)?f.userStories.filter(story=>story&&typeof story.name==='string'&&story.name.trim()):[];
+    const showUserStories=userStories.length>0;
+    const showDescription=!showUserStories&&descriptionPreview.length>0&&(isF||f.size==='XL');
+    const userStoriesPreview=showUserStories?`<ul class="tile-user-stories" onclick="event.stopPropagation();editFeatureDescription(${id})" title="Edit feature-specific user stories">${userStories.map(story=>`<li>${esc(story.name)}</li>`).join('')}</ul>`:'';
     tile.innerHTML=`
       <div class="tile-colour-bar">${dots}</div>
       <button class="tile-rm" onclick="tileRemove(${id})" title="Move to parked">✕</button>
       <button class="tile-edit" onclick="editFeatureDescription(${id})" data-description="${esc(f.description||'No description yet. Click to add one.')}" title="" aria-label="Edit description">✎</button>
       ${splitBtn}
       ${resizeBtn}
+      ${userStoriesPreview}
       ${showDescription ? `<div class="tile-description" onclick="event.stopPropagation();editFeatureDescription(${id});" title="Edit description">${esc(descriptionPreview)}</div>` : ''}
       <div class="tile-name" id="tileName-${id}" onclick="startTileEdit(${id},event)" title="Click to rename">${esc(f.name)}</div>
       <div class="tile-meta" style="display:flex;align-items:center;gap:4px;">
@@ -3371,7 +3403,7 @@ function renderTiles(){
         ${isF?`<span class="tile-story-count" onclick="event.stopPropagation();editFeatureDescription(${id})" title="Edit ${storyCount} feature-specific ${storyCount===1?'user story':'user stories'}" aria-label="Edit ${storyCount} feature-specific ${storyCount===1?'user story':'user stories'}">${storyCount} US</span>`:''}
       </div>`;
     tile.addEventListener('dragstart',e=>{
-      if(e.target.closest('.tile-resize,.tile-split,.tile-rm,.tile-edit,.size-trigger,.tile-story-count,.colour-dot')){e.preventDefault();return;}
+      if(e.target.closest('.tile-resize,.tile-split,.tile-rm,.tile-edit,.size-trigger,.tile-story-count,.tile-user-stories,.colour-dot')){e.preventDefault();return;}
       if(document.getElementById('tileName-'+id)?.getAttribute('contenteditable')==='true'){e.preventDefault();return;}
       dragId=+id;dragFrom='box';e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',String(id));
       setTimeout(()=>tile.classList.add('is-dragging'),0);
@@ -3525,7 +3557,7 @@ function renderBacklog(){
   });
 }
 
-let editingDescriptionId=null,editingUserStories=[];
+let editingDescriptionId=null,editingUserStories=[],editingUserStoryIndex=null,editingUserStoryDraft=null,descriptionEditorSaveTimer=null,descriptionEditorSavePending=false;
 function openDescriptionEditor(id){
   const t=tab();if(!t)return;
   const f=t.features.find(item=>item.id===+id);if(!f)return;
@@ -3535,8 +3567,14 @@ function openDescriptionEditor(id){
     return{name:story.name,...(story.size!=null&&story.size!==''&&Number.isFinite(size)&&size>0?{size}:{})};
   }):[];
   const modal=document.getElementById('descriptionEditorModal');
-  const title=document.getElementById('descriptionEditorTitle');
-  if(title)title.textContent=`Edit ${f.name}`;
+  const nameLabel=document.getElementById('descriptionEditorName');
+  if(nameLabel){
+    const palette=getPalette(f);
+    nameLabel.textContent=f.name;
+    nameLabel.style.color=palette.color;
+    const mark=document.getElementById('descriptionEditorMark');
+    if(mark)mark.style.backgroundColor=palette.color;
+  }
   const hasStories=(f.type||'feature')==='feature';
   modal?.classList.toggle('has-stories',hasStories);
   const subtitle=document.getElementById('descriptionEditorSub');
@@ -3546,6 +3584,8 @@ function openDescriptionEditor(id){
   document.getElementById('userStoryName').value='';
   document.getElementById('userStorySize').value='';
   document.getElementById('userStoryError').textContent='';
+  descriptionEditorSavePending=false;
+  updateDescriptionEditorSaveStatus('All changes saved');
   renderDescriptionUserStories();
   const el=document.getElementById('descriptionEditor');
   if(el){
@@ -3563,20 +3603,98 @@ function handleDescriptionKeydown(e){
   }
 }
 function closeDescriptionEditor(){
+  if(editingDescriptionId==null)return;
+  const nameInput=document.getElementById('userStoryName'),sizeInput=document.getElementById('userStorySize');
+  if((nameInput?.value.trim()||sizeInput?.value.trim())&&!confirm('This new user story has not been added yet. Close without adding it?'))return;
+  flushDescriptionEditorSave();
+  renderBacklog();renderTiles();updateParked();updateRightPanel();renderBoardBacklog();
+  if(currentView==='board')renderWorkspace();
   editingDescriptionId=null;
   editingUserStories=[];
+  editingUserStoryIndex=null;
+  editingUserStoryDraft=null;
   document.getElementById('descriptionModal')?.classList.remove('open');
+}
+function updateDescriptionEditorSaveStatus(text,state=''){
+  const status=document.getElementById('descriptionEditorSaveStatus');
+  if(!status)return;
+  status.textContent=text;
+  status.className=`description-editor-save-status${state?` ${state}`:''}`;
+}
+function syncDescriptionEditorToFeature(){
+  if(editingDescriptionId==null)return;
+  const f=tab()?.features.find(item=>item.id===editingDescriptionId);
+  if(!f)return;
+  f.description=document.getElementById('descriptionEditor')?.value||'';
+  if((f.type||'feature')==='feature'){
+    const stories=editingUserStoryIndex==null?editingUserStories:editingUserStories.map((story,index)=>index===editingUserStoryIndex&&editingUserStoryDraft?editingUserStoryDraft:story);
+    f.userStories=stories.map(story=>({name:story.name,...(story.size==null?{}:{size:story.size})}));
+  }
+}
+function scheduleDescriptionEditorSave(){
+  if(editingDescriptionId==null)return;
+  syncDescriptionEditorToFeature();
+  descriptionEditorSavePending=true;
+  updateDescriptionEditorSaveStatus('Saving…','saving');
+  clearTimeout(descriptionEditorSaveTimer);
+  descriptionEditorSaveTimer=setTimeout(flushDescriptionEditorSave,500);
+}
+function flushDescriptionEditorSave(){
+  clearTimeout(descriptionEditorSaveTimer);
+  descriptionEditorSaveTimer=null;
+  if(!descriptionEditorSavePending)return;
+  syncDescriptionEditorToFeature();
+  saveState();
+  descriptionEditorSavePending=false;
+  updateDescriptionUserStoryComposer();
+}
+function updateDescriptionUserStoryComposer(){
+  const hasDraft=!!(document.getElementById('userStoryName')?.value.trim()||document.getElementById('userStorySize')?.value.trim());
+  if(hasDraft)updateDescriptionEditorSaveStatus('Add the story to save it');
+  else if(!descriptionEditorSavePending)updateDescriptionEditorSaveStatus('All changes saved');
 }
 function renderDescriptionUserStories(){
   const list=document.getElementById('userStoriesList');
   if(!list)return;
   list.innerHTML=editingUserStories.length
-    ?editingUserStories.map((story,index)=>`<div class="user-story-row"><input class="user-story-edit-input" type="text" value="${esc(story.name)}" aria-label="User story name" oninput="updateDescriptionUserStory(${index},'name',this.value)"><input class="user-story-edit-input user-story-edit-size" type="number" min="0.5" step="any" value="${story.size==null?'':esc(String(story.size))}" placeholder="No points" aria-label="Story points for ${esc(story.name)}" oninput="updateDescriptionUserStory(${index},'size',this.value)"><button class="user-story-remove" type="button" onclick="removeDescriptionUserStory(${index})" aria-label="Remove ${esc(story.name)}" title="Remove story">×</button></div>`).join('')
+    ?editingUserStories.map((story,index)=>{
+      if(index===editingUserStoryIndex&&editingUserStoryDraft){
+        const draft=editingUserStoryDraft;
+        return`<div class="user-story-row editing"><input class="user-story-edit-input" type="text" value="${esc(draft.name)}" aria-label="User story name" oninput="updateDescriptionUserStory(${index},'name',this.value)" onkeydown="handleDescriptionUserStoryEditKeydown(event)"><input class="user-story-edit-input user-story-edit-size" type="number" min="0.5" step="any" value="${draft.size==null?'':esc(String(draft.size))}" placeholder="No points" aria-label="Story points for ${esc(draft.name)}" oninput="updateDescriptionUserStory(${index},'size',this.value)" onkeydown="handleDescriptionUserStoryEditKeydown(event)"><div class="user-story-edit-actions"><button class="user-story-action" type="button" onclick="commitDescriptionUserStoryEdit()" aria-label="Finish editing story">Done</button></div></div>`;
+      }
+      return`<div class="user-story-row"><button class="user-story-display" type="button" onclick="editDescriptionUserStory(${index})" aria-label="Edit ${esc(story.name)}" title="Click to edit"><span class="user-story-display-name">${esc(story.name)}</span><span class="user-story-display-size">${story.size!=null?`${esc(String(story.size))} ${story.size===1?'pt':'pts'}`:'No points'}</span></button><div class="user-story-edit-actions"><button class="user-story-action" type="button" onclick="removeDescriptionUserStory(${index})" aria-label="Remove ${esc(story.name)}" title="Remove story">×</button></div></div>`;
+    }).join('')
     :'<div class="user-stories-empty">No user stories added yet.</div>';
   renderDescriptionUserStoryProgress();
 }
+function editDescriptionUserStory(index){
+  if(index<0||index>=editingUserStories.length)return;
+  editingUserStoryIndex=index;
+  editingUserStoryDraft={...editingUserStories[index]};
+  renderDescriptionUserStories();
+  const input=document.querySelector('#userStoriesList .user-story-row.editing .user-story-edit-input[type="text"]');
+  input?.focus();input?.select();
+}
+function commitDescriptionUserStoryEdit(){
+  if(editingUserStoryIndex==null||!editingUserStoryDraft)return;
+  const draft=editingUserStoryDraft,error=document.getElementById('userStoryError');
+  if(!draft.name.trim()){
+    if(error)error.textContent='User story names cannot be blank.';
+    return;
+  }
+  if(draft.size!=null&&(!Number.isFinite(draft.size)||draft.size<=0)){
+    if(error)error.textContent='Story points must be positive, or left blank.';
+    return;
+  }
+  editingUserStories[editingUserStoryIndex]={name:draft.name.trim(),...(draft.size==null?{}:{size:draft.size})};
+  editingUserStoryIndex=null;editingUserStoryDraft=null;
+  if(error)error.textContent='';
+  renderDescriptionUserStories();
+  scheduleDescriptionEditorSave();
+  document.getElementById('userStoryName')?.focus();
+}
 function updateDescriptionUserStory(index,field,value){
-  const story=editingUserStories[index];
+  const story=editingUserStoryIndex===index?editingUserStoryDraft:null;
   if(!story)return;
   const error=document.getElementById('userStoryError');
   if(field==='name'){
@@ -3596,11 +3714,18 @@ function updateDescriptionUserStory(index,field,value){
     if(value===''||(Number.isFinite(Number(value))&&Number(value)>0))if(error)error.textContent='';
   }
   renderDescriptionUserStoryProgress();
+  scheduleDescriptionEditorSave();
+}
+function handleDescriptionUserStoryEditKeydown(e){
+  if(e.key!=='Enter')return;
+  e.preventDefault();
+  commitDescriptionUserStoryEdit();
 }
 function renderDescriptionUserStoryProgress(){
   const f=tab()?.features.find(item=>item.id===editingDescriptionId);
   const target=f?SIZES(f.type||'feature',f.size)?.pts:0;
-  const total=editingUserStories.reduce((sum,story)=>sum+(Number.isFinite(story.size)?story.size:0),0);
+  const stories=editingUserStoryIndex==null?editingUserStories:editingUserStories.map((story,index)=>index===editingUserStoryIndex&&editingUserStoryDraft?editingUserStoryDraft:story);
+  const total=stories.reduce((sum,story)=>sum+(Number.isFinite(story.size)?story.size:0),0);
   const fill=document.getElementById('userStoriesProgressFill'),label=document.getElementById('userStoriesProgressLabel');
   const track=document.getElementById('userStoriesProgressTrack');
   if(!fill||!label||!track)return;
@@ -3632,12 +3757,16 @@ function addDescriptionUserStory(){
   nameInput.value='';sizeInput.value='';
   if(error)error.textContent='';
   renderDescriptionUserStories();
+  scheduleDescriptionEditorSave();
   nameInput.focus();
 }
 function removeDescriptionUserStory(index){
   if(index<0||index>=editingUserStories.length)return;
   editingUserStories.splice(index,1);
+  if(editingUserStoryIndex===index){editingUserStoryIndex=null;editingUserStoryDraft=null;}
+  else if(editingUserStoryIndex!=null&&editingUserStoryIndex>index)editingUserStoryIndex--;
   renderDescriptionUserStories();
+  scheduleDescriptionEditorSave();
 }
 function createDescriptionTooltip(){
   let tip=document.getElementById('descTooltip');
@@ -3671,27 +3800,7 @@ function hideDescriptionTooltip(){
 }
 function saveDescriptionEditor(){
   if(editingDescriptionId==null)return;
-  const t=tab();if(!t)return;
-  const f=t.features.find(item=>item.id===editingDescriptionId);if(!f)return;
-  if((f.type||'feature')==='feature'){
-    const invalidStory=editingUserStories.find(story=>!story.name.trim()||(story.size!=null&&(!Number.isFinite(story.size)||story.size<=0)));
-    if(invalidStory){
-      const error=document.getElementById('userStoryError');
-      if(error)error.textContent=!invalidStory.name.trim()?'User story names cannot be blank.':'Story points must be positive, or left blank.';
-      return;
-    }
-  }
-  const el=document.getElementById('descriptionEditor');
-  f.description=(el?.value||'').trim();
-  if((f.type||'feature')==='feature')f.userStories=editingUserStories.map(story=>({name:story.name.trim(),...(story.size==null?{}:{size:story.size})}));
   closeDescriptionEditor();
-  saveState();
-  renderBacklog();
-  renderTiles();
-  updateParked();
-  updateRightPanel();
-  renderBoardBacklog();
-  if(currentView==='board')renderWorkspace();
 }
 function editFeatureDescription(id){
   openDescriptionEditor(id);
@@ -3911,6 +4020,8 @@ document.addEventListener('mouseout',e=>{
   if(!btn)hideDescriptionTooltip();
 });
 document.getElementById('descriptionModal').addEventListener('click',e=>{if(e.target===document.getElementById('descriptionModal'))closeDescriptionEditor();});
+document.addEventListener('visibilitychange',()=>{if(document.hidden)flushDescriptionEditorSave();});
+window.addEventListener('pagehide',flushDescriptionEditorSave);
 document.getElementById('splitModal').addEventListener('click',e=>{if(e.target===document.getElementById('splitModal'))cancelSplitFeature();});
 document.getElementById('importModal').addEventListener('click',e=>{if(e.target===document.getElementById('importModal'))closeImport();});
 document.getElementById('authModal').addEventListener('click',e=>{if(e.target===document.getElementById('authModal'))closeAuthModal();});
@@ -3931,10 +4042,15 @@ function toggleSection(bodyId,chevronId){
 }
 function syncSidebarUI(){
   const app=document.getElementById('appBody'),panel=document.getElementById('sidebar'),inner=document.getElementById('sidebarInner'),chevron=document.getElementById('sidebarChevron');
+  const toggle=panel?.querySelector('.sidebar-toggle');
   if(app)app.classList.toggle('sidebar-collapsed',sidebarCollapsed);
   if(panel)panel.classList.toggle('collapsed',sidebarCollapsed);
   if(inner)inner.classList.toggle('closed',sidebarCollapsed);
   if(chevron)chevron.classList.toggle('open',!sidebarCollapsed);
+  if(toggle){
+    toggle.setAttribute('aria-expanded',String(!sidebarCollapsed));
+    toggle.title=sidebarCollapsed?'Expand sidebar':'Collapse sidebar';
+  }
 }
 function toggleSidebar(){
   sidebarCollapsed=!sidebarCollapsed;
