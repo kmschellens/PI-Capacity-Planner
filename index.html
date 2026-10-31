@@ -250,6 +250,18 @@
   .storage-status.error .storage-status-mark::before{transform:rotate(-45deg);}
   @keyframes storage-spin{to{transform:rotate(360deg);}}
   .auth-wrap{display:inline-flex;align-items:center;gap:7px;margin-left:4px;}
+  .online-users{display:inline-flex;align-items:center;padding-left:7px;margin-right:2px;min-width:0;}
+  .online-users[hidden]{display:none;}
+  .online-avatar{position:relative;width:28px;height:28px;margin-left:-7px;border:2px solid var(--surface);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.02em;box-shadow:0 1px 4px rgba(0,0,0,.14);cursor:default;user-select:none;}
+  .online-avatar:first-child{margin-left:0;}
+  .online-avatar.self{box-shadow:0 0 0 1px rgba(255,255,255,.9),0 1px 4px rgba(0,0,0,.14);}
+  .online-avatar-more{background:#77736b;color:#fff;}
+  .online-avatar-dot{position:absolute;right:-1px;bottom:-1px;width:8px;height:8px;border:1.5px solid var(--surface);border-radius:50%;background:#34a267;}
+  .remote-cursor-layer{position:fixed;inset:0;z-index:180;pointer-events:none;overflow:hidden;}
+  .remote-cursor{position:fixed;left:0;top:0;display:none;will-change:transform;transition:transform 45ms linear;filter:drop-shadow(0 1px 1px rgba(0,0,0,.2));}
+  .remote-cursor.visible{display:block;}
+  .remote-cursor-pointer{display:block;width:19px;height:23px;}
+  .remote-cursor-label{position:absolute;left:14px;top:15px;max-width:160px;padding:3px 6px;border-radius:4px;color:#fff;font-family:var(--sans);font-size:10px;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:0 1px 4px rgba(0,0,0,.16);}
   .account-menu-btn{max-width:230px;}
   .account-menu-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .board-menu-wrap{position:relative;display:inline-flex;}
@@ -443,6 +455,7 @@
         </button>
       </div>
     </div>
+    <div class="online-users" id="onlineUsers" role="status" aria-live="polite" hidden></div>
     <div class="storage-status local" id="storageStatus" role="status" aria-live="polite" title="You are not signed in. Changes are saved in this browser only and are not shared.">
       <span class="storage-status-mark" aria-hidden="true"></span>
       <span class="storage-status-text" id="storageStatusText">Local</span>
@@ -455,7 +468,14 @@
           <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 3.5l3 3 3-3"/></svg>
         </button>
         <div class="board-menu account-menu" id="boardMenu">
-          <div class="board-menu-empty">Sign in to load boards</div>
+          <button class="board-menu-item" type="button" onclick="openAuthModal('login')">
+            <span class="board-menu-name">Login</span>
+            <span class="board-menu-meta">existing account</span>
+          </button>
+          <button class="board-menu-item" type="button" onclick="openAuthModal('register')">
+            <span class="board-menu-name">Register</span>
+            <span class="board-menu-meta">new account</span>
+          </button>
         </div>
       </div>
     </div>
@@ -578,6 +598,8 @@
     </div>
   </aside>
 </div>
+
+<div class="remote-cursor-layer" id="remoteCursorLayer" aria-hidden="true"></div>
 
 <div class="modal-backdrop" id="descriptionModal">
   <div class="modal">
@@ -775,6 +797,9 @@ function defaultPIName(){
 
 let tabs=[],activeTabId=null,tabIdSeq=0,dragId=null,dragFrom=null,currentView='capacity',boardDragKey=null,boardDragFrom=null,depDrag=null,boardRowDragTeamId=null,tabDragTeamId=null,suppressNextTabClick=false,sidebarCollapsed=false,rightPanelCollapsed=true,tileResizeDrag=null;
 let supabaseClient=null,authSession=null,authMode='login',remoteBoards=[],remoteBoardsLoading=false,currentRemoteBoardId=null,currentRemoteBoardName='',currentRemoteBoardPermission='owner',remoteSaveTimer=null,isSavingRemoteBoard=false,remoteSaveStatus='saved',remoteBoardChannel=null,remoteBoardChannelId=null,pendingAnonymousImportSnapshot=null,signedInModePromise=null,signedInUserModeReadyFor=null,anonymousImportEligible=false,pendingImportNameResolve=null,pendingDeleteRemoteBoardId=null,pendingRenameRemoteBoardId=null,pendingRenameRemoteBoardValue=null,pendingRenameRemoteBoardError='',boardShareBoardId=null,boardShareEntries=[],boardShareLoading=false,boardShareSaving=false,readOnlyWarningShown=false;
+const COLLABORATION_COLORS=['#2f6fdd','#d05b45','#2d8b62','#8b5cc7','#c47a19','#187f94','#b34f83','#65712f'];
+const realtimeClientId=globalThis.crypto?.randomUUID?.()||`client-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+let remoteBoardChannelReady=false,onlineBoardPresences=[],remoteCursors=new Map(),pendingCursorPayload=null,cursorSendTimer=null,lastCursorSentAt=0;
 function freshBoardState(){return{name:defaultPIName(),iterationCount:6,iterationNames:[],placements:{},dependencies:[],teamOrder:[],backlogFilters:defaultBoardBacklogFilters(),backlogFiltersOpen:false};}
 let boardState=freshBoardState();
 function tab(){return tabs.find(t=>t.id===activeTabId);}
@@ -890,6 +915,128 @@ function remoteBoardDateLabel(value){
   return d.toLocaleDateString(undefined,{month:'short',day:'numeric'});
 }
 function normalizeUserEmail(email){return String(email||'').trim().toLowerCase();}
+function collaborationName(email){
+  const local=normalizeUserEmail(email).split('@')[0]||'User';
+  return local.replace(/[._-]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+}
+function collaborationInitials(name){
+  const parts=String(name||'User').trim().split(/\s+/).filter(Boolean);
+  return (parts.length>1?parts[0][0]+parts[parts.length-1][0]:parts[0]?.slice(0,2)||'U').toUpperCase();
+}
+function collaborationColor(seed){
+  let hash=0;for(const ch of String(seed||''))hash=((hash<<5)-hash+ch.charCodeAt(0))|0;
+  return COLLABORATION_COLORS[(hash>>>0)%COLLABORATION_COLORS.length];
+}
+function collaborationLocation(){return currentView==='board'?'board':`capacity:${activeTabId||''}`;}
+function collaborationLocationLabel(location){
+  if(location==='board')return'PI Board';
+  const teamId=Number(String(location||'').split(':')[1]);
+  const team=tabs.find(item=>item.id===teamId);
+  return team?.name?`Capacity · ${team.name}`:'Capacity';
+}
+function localPresencePayload(){
+  const email=normalizeUserEmail(authSession?.user?.email);
+  return{clientId:realtimeClientId,userId:authSession?.user?.id||realtimeClientId,email,name:collaborationName(email),location:collaborationLocation(),onlineAt:new Date().toISOString()};
+}
+function renderOnlineUsers(){
+  const el=document.getElementById('onlineUsers');if(!el)return;
+  const unique=new Map();
+  onlineBoardPresences.forEach(item=>{
+    if(!item?.clientId)return;
+    const key=item.userId||item.email||item.clientId;
+    if(!unique.has(key))unique.set(key,item);
+  });
+  const users=[...unique.values()].sort((a,b)=>{
+    const aSelf=a.userId===authSession?.user?.id,bSelf=b.userId===authSession?.user?.id;
+    return Number(bSelf)-Number(aSelf)||String(a.name||a.email).localeCompare(String(b.name||b.email));
+  });
+  el.replaceChildren();
+  el.hidden=!authSession||!currentRemoteBoardId||!users.length;
+  if(el.hidden)return;
+  users.slice(0,5).forEach(user=>{
+    const avatar=document.createElement('span'),name=user.name||collaborationName(user.email),isSelf=user.userId===authSession?.user?.id;
+    avatar.className='online-avatar'+(isSelf?' self':'');
+    avatar.style.background=collaborationColor(user.userId||user.email||user.clientId);
+    avatar.textContent=collaborationInitials(name);
+    avatar.title=`${user.email||name}${isSelf?' (you)':''} · ${collaborationLocationLabel(user.location)}`;
+    const dot=document.createElement('span');dot.className='online-avatar-dot';dot.setAttribute('aria-hidden','true');avatar.appendChild(dot);
+    el.appendChild(avatar);
+  });
+  if(users.length>5){
+    const more=document.createElement('span');more.className='online-avatar online-avatar-more';more.textContent=`+${users.length-5}`;more.title=`${users.length-5} more online`;el.appendChild(more);
+  }
+  const label=`${users.length} ${users.length===1?'person':'people'} online`;
+  el.setAttribute('aria-label',label);el.title=label;
+}
+function removeRemoteCursor(clientId){
+  const entry=remoteCursors.get(clientId);if(!entry)return;
+  entry.el?.remove();remoteCursors.delete(clientId);
+}
+function clearRemoteCursors(){
+  remoteCursors.forEach(entry=>entry.el?.remove());remoteCursors.clear();
+}
+function positionRemoteCursor(entry){
+  const ws=document.getElementById('workspace'),payload=entry?.payload,el=entry?.el;
+  if(!ws||!payload||!el||payload.location!==collaborationLocation()||Date.now()-entry.lastSeen>3000){el?.classList.remove('visible');return;}
+  const rect=ws.getBoundingClientRect(),contentWidth=Math.max(ws.scrollWidth,rect.width),contentHeight=Math.max(ws.scrollHeight,rect.height);
+  const left=rect.left+payload.x*contentWidth-ws.scrollLeft,top=rect.top+payload.y*contentHeight-ws.scrollTop;
+  const visible=left>=rect.left&&left<=rect.right&&top>=rect.top&&top<=rect.bottom;
+  el.classList.toggle('visible',visible);
+  if(visible)el.style.transform=`translate3d(${Math.round(left)}px,${Math.round(top)}px,0)`;
+}
+function positionAllRemoteCursors(){remoteCursors.forEach(positionRemoteCursor);}
+function handleRemoteCursorBroadcast(message){
+  const payload=message?.payload||message;
+  if(!payload?.clientId||payload.clientId===realtimeClientId||!Number.isFinite(payload.x)||!Number.isFinite(payload.y))return;
+  payload.x=Math.max(0,Math.min(1,payload.x));payload.y=Math.max(0,Math.min(1,payload.y));
+  let entry=remoteCursors.get(payload.clientId);
+  if(!entry){
+    const el=document.createElement('div'),label=document.createElement('span'),color=collaborationColor(payload.userId||payload.clientId);
+    el.className='remote-cursor';el.style.color=color;
+    el.innerHTML='<svg class="remote-cursor-pointer" viewBox="0 0 20 24" aria-hidden="true"><path d="M2 1.5v18l4.7-4.8 3.3 7.2 3.1-1.5-3.2-6.9h6.7L2 1.5Z" fill="currentColor" stroke="white" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+    label.className='remote-cursor-label';label.style.background=color;el.appendChild(label);
+    document.getElementById('remoteCursorLayer')?.appendChild(el);
+    entry={el,label,payload,lastSeen:Date.now()};remoteCursors.set(payload.clientId,entry);
+  }
+  entry.payload=payload;entry.lastSeen=Date.now();entry.label.textContent=payload.name||collaborationName(payload.email);
+  positionRemoteCursor(entry);
+}
+function handleRemoteCursorLeave(message){const clientId=(message?.payload||message)?.clientId;if(clientId&&clientId!==realtimeClientId)removeRemoteCursor(clientId);}
+function handlePresenceSync(){
+  const state=remoteBoardChannel?.presenceState?.()||{};
+  onlineBoardPresences=Object.values(state).flat().filter(item=>item?.clientId);
+  const activeClients=new Set(onlineBoardPresences.map(item=>item.clientId));
+  remoteCursors.forEach((_entry,clientId)=>{if(!activeClients.has(clientId))removeRemoteCursor(clientId);});
+  renderOnlineUsers();
+}
+function sendChannelEvent(event,payload){
+  if(!remoteBoardChannel||!remoteBoardChannelReady)return;
+  const sent=remoteBoardChannel.send({type:'broadcast',event,payload});
+  sent?.catch?.(e=>console.warn(`Could not broadcast ${event}`,e));
+}
+function clearLocalCursorBroadcast(){
+  clearTimeout(cursorSendTimer);cursorSendTimer=null;pendingCursorPayload=null;
+  sendChannelEvent('cursor_leave',{clientId:realtimeClientId});
+}
+function updateRealtimePresence(){
+  clearLocalCursorBroadcast();
+  if(!remoteBoardChannel||!remoteBoardChannelReady)return;
+  const tracked=remoteBoardChannel.track(localPresencePayload());
+  tracked?.catch?.(e=>console.warn('Could not update realtime presence',e));
+  positionAllRemoteCursors();
+}
+function flushLocalCursor(){
+  cursorSendTimer=null;if(!pendingCursorPayload)return;
+  const payload=pendingCursorPayload;pendingCursorPayload=null;lastCursorSentAt=performance.now();sendChannelEvent('cursor',payload);
+}
+function handleLocalCursorMove(event){
+  if(event.pointerType==='touch'||!authSession||!currentRemoteBoardId||!remoteBoardChannelReady)return;
+  const ws=document.getElementById('workspace'),rect=ws?.getBoundingClientRect();if(!ws||!rect?.width||!rect?.height)return;
+  const email=normalizeUserEmail(authSession.user?.email),contentWidth=Math.max(ws.scrollWidth,rect.width),contentHeight=Math.max(ws.scrollHeight,rect.height);
+  pendingCursorPayload={clientId:realtimeClientId,userId:authSession.user?.id||realtimeClientId,email,name:collaborationName(email),location:collaborationLocation(),x:(event.clientX-rect.left+ws.scrollLeft)/contentWidth,y:(event.clientY-rect.top+ws.scrollTop)/contentHeight};
+  if(cursorSendTimer)return;
+  const wait=Math.max(0,50-(performance.now()-lastCursorSentAt));cursorSendTimer=setTimeout(flushLocalCursor,wait);
+}
 function boardPermissionLabel(permission){
   if(permission==='owner')return'owner';
   if(permission==='write')return'write';
@@ -926,11 +1073,18 @@ function showReadOnlyBoardWarning(){
   setTimeout(()=>{readOnlyWarningShown=false;},1200);
 }
 function clearRemoteBoardSubscription(){
-  if(!remoteBoardChannel)return;
+  remoteBoardChannelReady=false;
+  onlineBoardPresences=[];
+  renderOnlineUsers();
+  clearLocalCursorBroadcast();
+  clearRemoteCursors();
   const client=getSupabaseClient();
   const channel=remoteBoardChannel;
   remoteBoardChannel=null;
   remoteBoardChannelId=null;
+  if(!channel)return;
+  const untracked=channel.untrack?.();
+  untracked?.catch?.(()=>{});
   const removal=client?.removeChannel?.(channel);
   removal?.catch?.(e=>console.warn('Could not remove realtime channel',e));
 }
@@ -983,17 +1137,33 @@ async function handleRemoteBoardDelete(payload){
     renderRemoteBoardMenu();
   }
 }
-function subscribeToRemoteBoard(id){
+async function subscribeToRemoteBoard(id){
   if(!authSession||!id)return;
   if(remoteBoardChannel&&remoteBoardChannelId===id)return;
   clearRemoteBoardSubscription();
   const client=getSupabaseClient();if(!client?.channel)return;
   remoteBoardChannelId=id;
-  remoteBoardChannel=client.channel(`board:${id}`)
+  try{await client.realtime?.setAuth?.(authSession.access_token);}catch(e){console.warn('Could not authenticate realtime connection',e);}
+  if(remoteBoardChannelId!==id||!authSession)return;
+  const channel=client.channel(`board:${id}`,{config:{private:true,presence:{key:realtimeClientId},broadcast:{self:false,ack:false}}})
     .on('postgres_changes',{event:'UPDATE',schema:'public',table:'boards',filter:`id=eq.${id}`},handleRemoteBoardPayload)
     .on('postgres_changes',{event:'DELETE',schema:'public',table:'boards',filter:`id=eq.${id}`},payload=>{handleRemoteBoardDelete(payload);})
-    .subscribe(status=>{
-      if(status==='CHANNEL_ERROR'||status==='TIMED_OUT')console.warn('Realtime board channel status:',status);
+    .on('presence',{event:'sync'},handlePresenceSync)
+    .on('broadcast',{event:'cursor'},handleRemoteCursorBroadcast)
+    .on('broadcast',{event:'cursor_leave'},handleRemoteCursorLeave);
+  remoteBoardChannel=channel;
+  channel.subscribe(async(status,err)=>{
+      if(remoteBoardChannel!==channel)return;
+      if(status==='SUBSCRIBED'){
+        remoteBoardChannelReady=true;
+        try{await channel.track(localPresencePayload());}catch(e){console.warn('Could not publish realtime presence',e);}
+      }
+      if(status==='CLOSED')remoteBoardChannelReady=false;
+      if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){
+        remoteBoardChannelReady=false;
+        onlineBoardPresences=[];renderOnlineUsers();clearRemoteCursors();
+        console.warn('Realtime board channel status:',status,err||'');
+      }
     });
 }
 function renderRemoteBoardMenu(){
@@ -1003,8 +1173,12 @@ function renderRemoteBoardMenu(){
   if(!authSession){
     if(btn)btn.title='Login or register';
     menu.innerHTML=`<button class="board-menu-item" type="button" onclick="openAuthModal('login')">
-      <span class="board-menu-name">Login / Register</span>
-      <span class="board-menu-meta">account</span>
+      <span class="board-menu-name">Login</span>
+      <span class="board-menu-meta">existing account</span>
+    </button>
+    <button class="board-menu-item" type="button" onclick="openAuthModal('register')">
+      <span class="board-menu-name">Register</span>
+      <span class="board-menu-meta">new account</span>
     </button>`;
     updateStorageStatus();
     return;
@@ -1094,10 +1268,10 @@ function renderRemoteBoardMenu(){
 }
 function toggleBoardMenu(event){
   event?.stopPropagation?.();
-  if(!authSession){openAuthModal('login');return;}
+  if(!authSession)renderRemoteBoardMenu();
   const menu=document.getElementById('boardMenu');
   menu?.classList.toggle('open');
-  if(menu?.classList.contains('open'))loadRemoteBoards();
+  if(authSession&&menu?.classList.contains('open'))loadRemoteBoards();
 }
 function anonymousStateSnapshotForImport(){
   if(authSession||!tabs.length||!anonymousImportEligible)return null;
@@ -2039,14 +2213,14 @@ function newTab(name){
     features:[],idCounter:0,placed:{},parked:[]});
   return tabs[tabs.length-1];
 }
-function addTab(){const t=newTab();activeTabId=t.id;saveState();renderTabBar();loadTabIntoSidebar();renderWorkspace();}
+function addTab(){const t=newTab();activeTabId=t.id;saveState();renderTabBar();loadTabIntoSidebar();renderWorkspace();updateRealtimePresence();}
 function deleteTab(id){
   if(tabs.length===1){alert('Need at least one team tab.');return;}
   if(!confirm(`Delete team "${tabs.find(t=>t.id===id)?.name}"?`))return;
   tabs=tabs.filter(t=>t.id!==id);
   cleanupBoardState();
   if(activeTabId===id)activeTabId=tabs[0].id;
-  saveState();renderTabBar();loadTabIntoSidebar();renderWorkspace();
+  saveState();renderTabBar();loadTabIntoSidebar();renderWorkspace();updateRealtimePresence();
 }
 function switchTab(id){
   const isSameTab=id===activeTabId;
@@ -2068,6 +2242,7 @@ function switchTab(id){
   renderTabBar();
   loadTabIntoSidebar();
   renderWorkspace();
+  updateRealtimePresence();
 }
 function renameTab(id,name){const t=tabs.find(t=>t.id===id);if(t){t.name=name||t.name;saveState();if(currentView==='board'||id===activeTabId)renderWorkspace();}}
 function loadTabIntoSidebar(){
@@ -2313,6 +2488,7 @@ function setView(view){
   saveState();
   loadTabIntoSidebar();
   renderWorkspace();
+  updateRealtimePresence();
 }
 function loadBoardInputs(){
   boardState=normalizeBoardState(boardState);
@@ -2787,6 +2963,7 @@ function remapBoardStateForImportedTabs(incomingState,idMap){
 }
 
 function renderWorkspace(){
+  requestAnimationFrame(positionAllRemoteCursors);
   if(currentView==='board'){renderPIBoardWorkspace();return;}
   const ws=document.getElementById('workspace'),t=tab();
   if(!t||!t.capacity){
@@ -3656,7 +3833,16 @@ async function init(){
   if(!authSession)loadAnonymousPlannerState();
   updateStorageStatus();
 }
-window.addEventListener('resize',()=>{if(currentView==='board')renderBoardDependencies();});
+const collaborationWorkspace=document.getElementById('workspace');
+collaborationWorkspace?.addEventListener('pointermove',handleLocalCursorMove,{passive:true});
+collaborationWorkspace?.addEventListener('pointerleave',clearLocalCursorBroadcast);
+collaborationWorkspace?.addEventListener('scroll',positionAllRemoteCursors,{passive:true});
+setInterval(()=>{
+  const now=Date.now();
+  remoteCursors.forEach((entry,clientId)=>{if(now-entry.lastSeen>10000)removeRemoteCursor(clientId);else positionRemoteCursor(entry);});
+},1000);
+window.addEventListener('beforeunload',()=>{remoteBoardChannel?.untrack?.();});
+window.addEventListener('resize',()=>{if(currentView==='board')renderBoardDependencies();positionAllRemoteCursors();});
 init();
 </script>
 </body>
