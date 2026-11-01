@@ -39,6 +39,7 @@ services:
       - /var/lib/postgresql/data
       # Seed data should be inserted last (alphabetical order)
       - ./dev/data.sql:/docker-entrypoint-initdb.d/seed.sql
+      - ./dev/activity-log.sql:/docker-entrypoint-initdb.d/zz-activity-log.sql
   storage:
     volumes:
       - /var/lib/storage

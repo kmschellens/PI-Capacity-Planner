@@ -34,9 +34,9 @@
   .tab-status{appearance:none;width:auto;max-width:none;border:0;border-radius:0;padding:1px 10px 1px 0;background:transparent;font:10px var(--sans);cursor:pointer;}
   .tab-status:focus{border:0;box-shadow:none;}
   .tab-status:focus-visible{outline:2px solid #6a9fd8;outline-offset:1px;}
-  .tab-status.current{color:#28633a;}
+  .tab-status.current{color:#28633a;background:#e8f3eb;border-radius:4px;padding:1px 14px 1px 5px;}
   .tab-status.past{color:#696965;}
-  .tab-status.upcoming{color:#285d95;}
+  .tab-status.upcoming{color:#285d95;background:#e9f1fa;border-radius:4px;padding:1px 14px 1px 5px;}
   .tab-del{background:none;border:none;cursor:pointer;color:var(--border2);font-size:13px;padding:1px 3px;border-radius:3px;opacity:0;transition:opacity .12s,color .12s;}
   .tab-item:hover .tab-del,.tab-item.active .tab-del{opacity:.6;}
   .tab-del:hover{color:#b52020;opacity:1!important;}
@@ -86,15 +86,17 @@
   .card-edit:hover{color:#1a5fa8;background:rgba(26,95,168,.14);} 
   .empty-state{font-size:12px;color:var(--muted);text-align:center;padding:12px 0;}
   .count-badge{display:inline-flex;align-items:center;justify-content:center;background:var(--subtle);border:1px solid var(--border);border-radius:10px;padding:0 6px;height:18px;font-size:10px;font-weight:600;color:var(--muted);font-family:var(--mono);}
-  .workspace{padding:1.5rem;display:flex;flex-direction:column;gap:1.25rem;overflow-y:auto;overflow-x:auto;max-height:calc(100vh - 92px);}
-  .ws-header{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
-  .ws-title{font-size:16px;font-weight:600;letter-spacing:-.01em;}
-  .ws-sub{font-size:11px;color:var(--muted);margin-top:2px;font-family:var(--mono);display:flex;align-items:center;flex-wrap:wrap;gap:5px;}
-  .ws-stats{display:flex;align-items:center;gap:1.5rem;}
+  .workspace{padding:1.5rem;display:flex;flex-direction:column;gap:.75rem;overflow-y:auto;overflow-x:auto;max-height:calc(100vh - 92px);}
+  .ws-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;}
+  .ws-title{font-size:15px;font-weight:600;letter-spacing:-.01em;}
+  .ws-sub{font-size:10px;color:var(--muted);margin-top:0;font-family:var(--mono);display:flex;align-items:center;flex-wrap:wrap;gap:4px;}
+  .ws-header>div:first-child{min-width:0;flex:1 1 240px;}
+  .ws-header>div:last-child{gap:8px!important;flex:0 1 auto;}
+  .ws-stats{display:flex;align-items:center;gap:8px;}
   .stat-item{text-align:right;}
-  .stat-num{font-size:20px;font-weight:600;font-family:var(--mono);}
-  .stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);}
-  .status-pill{font-size:12px;font-weight:500;padding:4px 10px;border-radius:20px;border:1px solid transparent;}
+  .stat-num{font-size:16px;font-weight:600;font-family:var(--mono);}
+  .stat-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);}
+  .status-pill{font-size:11px;font-weight:500;padding:3px 8px;border-radius:20px;border:1px solid transparent;white-space:nowrap;}
   .pill-ok{background:#eaf5ef;color:#2d7d4e;border-color:#a8d9bc;}
   .pill-near{background:#fdf5e0;color:#8a6200;border-color:#e0c97a;}
   .pill-over{background:#fceaea;color:#b52020;border-color:#e89090;}
@@ -361,6 +363,7 @@
   .board-menu-action svg{width:14px;height:14px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;}
   .board-menu-action.rename:hover{background:#eaf5ef;color:#2d7d4e;}
   .board-menu-action.settings:hover{background:#eef5fc;color:#1a5fa8;}
+  .board-menu-action.activity:hover{background:#f0ede8;color:var(--text);}
   .board-menu-action.delete:hover{background:#fceaea;color:#b52020;}
   .board-menu-confirm{display:inline-flex;align-items:center;gap:4px;}
   .board-menu-confirm-text{font-size:10px;color:#b52020;font-family:var(--mono);font-weight:600;white-space:nowrap;}
@@ -409,24 +412,28 @@
   .share-remove{width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:6px;background:transparent;color:var(--muted);cursor:pointer;font-size:16px;line-height:1;}
   .share-remove:hover{background:#fceaea;color:#b52020;}
   .share-empty{font-size:12px;color:var(--muted);text-align:center;padding:14px;background:var(--bg);border:1px dashed var(--border2);border-radius:8px;}
+  .activity-modal{max-width:620px;}
+  .activity-list{display:flex;flex-direction:column;gap:6px;max-height:min(55vh,460px);overflow:auto;}
+  .activity-entry{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:9px 10px;background:var(--bg);border:1px solid var(--border);border-radius:7px;}
+  .activity-summary{font-size:12px;font-weight:500;overflow-wrap:anywhere;}
+  .activity-meta{flex:none;text-align:right;font-size:10px;color:var(--muted);font-family:var(--mono);}
+  .activity-empty,.activity-loading{font-size:12px;color:var(--muted);text-align:center;padding:18px 10px;}
+  .activity-error{font-size:11px;color:#b52020;margin-top:8px;overflow-wrap:anywhere;}
+  .activity-more{display:flex;justify-content:center;margin-top:10px;}
   .import-name-actions{justify-content:flex-end;}
   .view-toggle{display:inline-flex;align-items:center;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:3px;}
   .view-toggle .btn-sm{border:0;background:transparent;padding:4px 9px;}
   .view-toggle .btn-sm.active{background:var(--surface);box-shadow:0 1px 4px rgba(0,0,0,.08);color:var(--text);}
-  .sidebar-view-toggle{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:2px;}
-  .sidebar-view-toggle .btn-sm{justify-content:center;padding:5px 3px;font-size:11px;}
-  .board-only{display:none!important;}
+  .sidebar-view-toggle{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%;gap:2px;}
+  .sidebar-view-toggle .btn-sm{justify-content:center;gap:5px;padding:5px 3px;font-size:11px;}
+  .sidebar-view-icon{width:12px;height:12px;flex:none;opacity:.62;}
   .sprint-only{display:none!important;}
-  body.board-view .capacity-only{display:none!important;}
-  body.board-view .board-only{display:block!important;}
-  body.sprint-view .capacity-only,body.sprint-view .board-only{display:none!important;}
+  body.sprint-view .capacity-only{display:none!important;}
   body.sprint-view .sprint-only{display:block!important;}
-  body.board-view .app-body{grid-template-columns:290px minmax(0,1fr);}
-  body.board-view .app-body.sidebar-collapsed{grid-template-columns:38px minmax(0,1fr);}
   body.sprint-view .app-body{grid-template-columns:290px minmax(0,1fr);}
   body.sprint-view .app-body.sidebar-collapsed{grid-template-columns:38px minmax(0,1fr);}
-  body.board-view .right-panel,body.sprint-view .right-panel{display:none;}
-  body.board-view .workspace,body.sprint-view .workspace{max-height:calc(100vh - 92px);}
+  body.sprint-view .right-panel{display:none;}
+  body.sprint-view .workspace{max-height:calc(100vh - 92px);}
   .sprint-detail-layout{display:flex;flex-direction:column;gap:18px;min-width:0;}
   .sprint-detail-summary{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:3px;}
   .sprint-panels{display:flex;gap:12px;align-items:stretch;overflow-x:auto;overflow-y:hidden;padding:0 0 8px;min-width:0;scroll-snap-type:x proximity;}
@@ -443,6 +450,9 @@
   .sprint-story-grid{display:flex;flex-direction:column;gap:5px;min-height:84px;align-items:stretch;}
   .sprint-story-card{min-width:0;min-height:62px;padding:8px;border:1px solid;border-radius:7px;cursor:grab;user-select:none;display:flex;flex-direction:column;justify-content:space-between;gap:6px;transition:box-shadow .12s,opacity .12s;}
   .sprint-story-card:hover{box-shadow:0 2px 7px rgba(0,0,0,.1);}
+  .sprint-story-card.drop-before{box-shadow:inset 0 2px 0 #6a9fd8;}
+  .sprint-story-card.drop-after{box-shadow:inset 0 -2px 0 #6a9fd8;}
+  .sprint-story-card.is-linked-highlight,.sprint-source-card.is-linked-highlight{outline:2px solid rgba(70,126,180,.55);outline-offset:1px;box-shadow:0 0 0 4px rgba(106,159,216,.14),0 2px 7px rgba(0,0,0,.1);position:relative;z-index:1;}
   .sprint-story-card.is-dragging,.sprint-source-card.is-dragging{opacity:.35;}
   .sprint-story-card-name{font-size:11px;font-weight:600;line-height:1.3;overflow-wrap:anywhere;}
   .sprint-story-card-footer{display:flex;align-items:flex-end;justify-content:space-between;gap:6px;min-width:0;}
@@ -626,16 +636,8 @@
     </button>
     <div class="sidebar-inner" id="sidebarInner">
     <div class="view-toggle sidebar-view-toggle" role="tablist" aria-label="Planner view">
-      <button class="btn-sm active" id="capacityViewBtn" onclick="setView('capacity')" role="tab" aria-selected="true">Capacity</button>
-      <button class="btn-sm" id="boardViewBtn" onclick="setView('board')" role="tab" aria-selected="false">PI Board</button>
-      <button class="btn-sm" id="sprintViewBtn" onclick="setView('sprint')" role="tab" aria-selected="false">Sprint Detail</button>
-    </div>
-    <div class="board-only">
-      <div class="section-title">PI Planning setup</div>
-      <div class="field"><label class="field-label">PI name</label><input type="text" id="boardName" value="PI 2026 Q3" oninput="onBoardNameInput()"></div>
-      <div class="field"><label class="field-label">Iterations</label><input type="number" id="boardIterationCount" value="6" min="1" max="24"></div>
-      <button class="btn btn-primary" onclick="applyBoardSetup()">Apply board setup</button>
-      <div class="board-setup-note">Rows are the current team tabs. Drag capacity-planner work items onto the matching team row, then drag from a card's rope handle to another card to create a dependency.</div>
+      <button class="btn-sm active" id="capacityViewBtn" onclick="setView('capacity')" role="tab" aria-selected="true"><svg class="sidebar-view-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>Overview</button>
+      <button class="btn-sm" id="sprintViewBtn" onclick="setView('sprint')" role="tab" aria-selected="false"><svg class="sidebar-view-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="1.5" y="2.5" width="3.5" height="11" rx="1"/><rect x="6.25" y="2.5" width="3.5" height="11" rx="1"/><rect x="11" y="2.5" width="3.5" height="11" rx="1"/></svg>Sprint Detail</button>
     </div>
 
     <div class="capacity-only">
@@ -692,27 +694,6 @@
       <div class="backlog-list" id="backlogList"></div>
     </div>
 
-    <div class="board-only">
-      <div class="board-backlog-filter-wrap" id="boardBacklogFilterWrap">
-        <button class="board-filter-toggle" type="button" onclick="toggleBoardBacklogFilterPanel()" aria-expanded="false" aria-controls="boardBacklogFilterBody">
-          <span class="board-filter-toggle-left">
-            <span class="board-filter-title">Filters</span>
-            <span class="count-badge" id="boardBacklogFilterStatus">All</span>
-          </span>
-          <span class="board-filter-summary" id="boardBacklogFilterSummary">Point/type</span>
-          <svg class="board-filter-chevron" id="boardBacklogFilterChevron" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 4l4 4 4-4"/></svg>
-        </button>
-        <div class="board-filter-body closed" id="boardBacklogFilterBody">
-          <div class="board-filter-actions">
-            <button class="filter-link" type="button" onclick="setAllBoardBacklogFilters(true)">All</button>
-            <button class="filter-link" type="button" onclick="setAllBoardBacklogFilters(false)">Clear</button>
-          </div>
-          <div class="board-backlog-filters" id="boardBacklogFilters"></div>
-        </div>
-      </div>
-      <div class="section-title" style="display:flex;align-items:center;gap:6px;">Board backlog <span class="count-badge" id="boardBacklogCount">0</span></div>
-      <div class="board-backlog-list" id="boardBacklogList"></div>
-    </div>
     <div class="sprint-only">
       <div class="section-title">Sprint stories</div>
       <div class="sprint-story-groups" id="sprintStoryGroups"></div>
@@ -876,6 +857,19 @@
   </div>
 </div>
 
+<div class="modal-backdrop" id="boardActivityModal">
+  <div class="modal activity-modal">
+    <div class="modal-title" id="boardActivityTitle">Activity log</div>
+    <div class="modal-sub">Changes to this shared board, recorded with the account that made them.</div>
+    <div class="activity-list" id="boardActivityList" aria-live="polite"></div>
+    <div class="activity-error" id="boardActivityError" role="status"></div>
+    <div class="activity-more" id="boardActivityMore"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" style="width:auto" onclick="closeBoardActivityModal()">Done</button>
+    </div>
+  </div>
+</div>
+
 <div class="copyright-footer">© K M Schellens</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.108.2"></script>
@@ -977,6 +971,7 @@ function removeSprintPlacementsForFeature(team,featureId){
   Object.keys(team.sprintPlacements||{}).forEach(key=>{
     if(key===`story:${featureId}`||key.startsWith(`feature-story:${featureId}:`))delete team.sprintPlacements[key];
   });
+  if(Array.isArray(team.sprintStoryOrder))team.sprintStoryOrder=team.sprintStoryOrder.filter(key=>team.sprintPlacements?.[key]!==undefined);
 }
 function ensureSprintDividers(team){
   if(!team||typeof team!=='object')return;
@@ -1052,7 +1047,9 @@ function teamCapacityPts(t){
 function getGridRows(){const t=tab();const cap=teamCapacityPts(t);if(!t||!cap)return 0;return Math.ceil(Math.ceil(cap/PTS_PER_CELL)/getGridCols());}
 
 const UNDO_LIMIT=60;
-let undoStack=[],lastStateSnapshot=null,isRestoringState=false;
+let undoStack=[],lastStateSnapshot=null,isRestoringState=false,pendingBoardActivity=[],boardActivityQueueId=0;
+let boardActivityBoardId=null,boardActivityRows=[],boardActivityLoading=false,boardActivityError='',boardActivityOffset=0;
+const BOARD_ACTIVITY_PAGE_SIZE=50;
 function statePayload(){return{version:6,tabs,activeTabId,tabIdSeq,currentView,boardState,sidebarCollapsed,rightPanelCollapsed};}
 function syncedStatePayload(){return{version:6,tabs,tabIdSeq,boardState};}
 function currentStateSnapshot(){return JSON.stringify(statePayload());}
@@ -1064,6 +1061,131 @@ function syncedStateSnapshotFromSnapshot(snapshot){
     if(!s||!Array.isArray(s.tabs))return'';
     return JSON.stringify({version:6,tabs:s.tabs,tabIdSeq:s.tabIdSeq||s.tabs.length,boardState:s.boardState});
   }catch(e){return'';}
+}
+function activityWorkItemLabel(item){
+  if(!item)return'work item';
+  return`user story "${item.name}"${item.featureName?` in feature "${item.featureName}"`:''}`;
+}
+function activityFeatureLabel(feature){
+  return`${(feature?.type||'feature')==='story'?'user story':'feature'} "${feature?.name||'Untitled'}"`;
+}
+function activityColorName(feature){
+  const names={1:'blue',2:'green',3:'orange',4:'purple',5:'red'};
+  return names[getPalette(feature).id]||'unknown';
+}
+function activityPointsLabel(feature){
+  const points=SIZES(feature?.type||'feature',feature?.size)?.pts;
+  return Number.isFinite(points)?`${points} ${points===1?'point':'points'}`:`${feature?.size||'unknown'} size`;
+}
+function activityStoryChanges(oldFeature,newFeature){
+  const oldStories=Array.isArray(oldFeature.userStories)?oldFeature.userStories:[];
+  const newStories=Array.isArray(newFeature.userStories)?newFeature.userStories:[];
+  const storyKey=(story,index)=>String(story?.id??index);
+  const oldById=new Map(oldStories.map((story,index)=>[storyKey(story,index),story]));
+  const newById=new Map(newStories.map((story,index)=>[storyKey(story,index),story]));
+  for(const [id,story] of newById){
+    const previous=oldById.get(id);
+    if(!previous)return`Added user story "${story.name}" to feature "${newFeature.name}"${story.size!=null?` (${story.size} ${story.size===1?'point':'points'})`:''}`;
+    if(previous.name!==story.name)return`Renamed user story "${previous.name}" to "${story.name}" in feature "${newFeature.name}"`;
+    if(previous.size!==story.size){
+      const points=story.size==null?'no story points':`${story.size} ${story.size===1?'point':'points'}`;
+      return`Changed user story "${story.name}" in feature "${newFeature.name}" to ${points}`;
+    }
+  }
+  for(const [id,story] of oldById){
+    if(!newById.has(id))return`Removed user story "${story.name}" from feature "${oldFeature.name}"`;
+  }
+  return'';
+}
+function activitySprintChange(oldTeam,newTeam){
+  const oldPlacements=oldTeam.sprintPlacements||{},newPlacements=newTeam.sprintPlacements||{};
+  const items=new Map([...getSprintWorkItems(oldTeam),...getSprintWorkItems(newTeam)].map(item=>[item.key,item]));
+  for(const key of new Set([...Object.keys(oldPlacements),...Object.keys(newPlacements)])){
+    const oldSprint=oldPlacements[key],newSprint=newPlacements[key];
+    if(oldSprint===newSprint)continue;
+    const item=items.get(key),label=activityWorkItemLabel(item);
+    if(oldSprint==null)return`Planned ${label} in Sprint ${newSprint+1}`;
+    if(newSprint==null)return`Removed ${label} from Sprint ${oldSprint+1}`;
+    return`Moved ${label} from Sprint ${oldSprint+1} to Sprint ${newSprint+1}`;
+  }
+  if(JSON.stringify(oldTeam.sprintStoryOrder||[])!==JSON.stringify(newTeam.sprintStoryOrder||[])){
+    const oldOrder=oldTeam.sprintStoryOrder||[],newOrder=newTeam.sprintStoryOrder||[];
+    const movedKey=newOrder.find((key,index)=>oldOrder[index]!==key&&items.has(key));
+    if(movedKey){
+      const sprint=newPlacements[movedKey];
+      return`Reordered ${activityWorkItemLabel(items.get(movedKey))}${Number.isInteger(sprint)?` within Sprint ${sprint+1}`:''}`;
+    }
+  }
+  return'';
+}
+function plannerActivitySummary(previousSnapshot,nextSnapshot){
+  let previous,next;
+  try{previous=JSON.parse(previousSnapshot);next=JSON.parse(nextSnapshot);}
+  catch(e){return'Updated planner';}
+  const previousTabs=Array.isArray(previous?.tabs)?previous.tabs:[];
+  const nextTabs=Array.isArray(next?.tabs)?next.tabs:[];
+  const previousIds=new Set(previousTabs.map(team=>team.id));
+  const nextIds=new Set(nextTabs.map(team=>team.id));
+  if(previousTabs.length!==nextTabs.length||previousTabs.some(team=>!nextIds.has(team.id)))return'Updated teams';
+  if(nextTabs.some(team=>!previousIds.has(team.id)))return'Updated teams';
+  for(const team of nextTabs){
+    const oldTeam=previousTabs.find(item=>item.id===team.id);
+    if(!oldTeam)return'Updated teams';
+    const oldFeatures=new Map((oldTeam.features||[]).map(feature=>[String(feature.id),feature]));
+    const newFeatures=new Map((team.features||[]).map(feature=>[String(feature.id),feature]));
+    for(const [id,feature] of newFeatures){
+      const oldFeature=oldFeatures.get(id);
+      if(!oldFeature)return`Added ${activityFeatureLabel(feature)} (${activityPointsLabel(feature)})`;
+      if(oldFeature.name!==feature.name)return`Renamed ${activityFeatureLabel(oldFeature)} to "${feature.name}"`;
+      if(oldFeature.type!==feature.type||oldFeature.size!==feature.size){
+        const oldKindLabel=activityFeatureLabel(oldFeature);
+        const newKindLabel=activityFeatureLabel(feature);
+        const oldKind=(oldFeature.type||'feature')==='story'?'user story':'feature';
+        const newKind=(feature.type||'feature')==='story'?'user story':'feature';
+        let summary=oldKind===newKind
+          ?`Resized ${newKindLabel} to ${activityPointsLabel(feature)}`
+          :`Changed ${oldKindLabel} into ${newKind} (${activityPointsLabel(feature)})`;
+        const wasPlaced=!!oldTeam.placed?.[id],isParked=(team.parked||[]).some(item=>String(item)===id);
+        if(wasPlaced&&isParked)summary+=' and moved it from the committed grid to parked';
+        return summary;
+      }
+      if(oldFeature.paletteId!==feature.paletteId)return`Changed the color of ${activityFeatureLabel(feature)} from ${activityColorName(oldFeature)} to ${activityColorName(feature)}`;
+      if(oldFeature.description!==feature.description)return`Updated description for ${activityFeatureLabel(feature)}`;
+      const storyChange=activityStoryChanges(oldFeature,feature);
+      if(storyChange)return storyChange;
+    }
+    for(const [id,feature] of oldFeatures){
+      if(!newFeatures.has(id))return`Removed ${activityFeatureLabel(feature)}`;
+    }
+    const oldPlaced=oldTeam.placed||{},newPlaced=team.placed||{};
+    const oldParked=new Set((oldTeam.parked||[]).map(String)),newParked=new Set((team.parked||[]).map(String));
+    for(const featureId of new Set([...Object.keys(oldPlaced),...Object.keys(newPlaced),...oldParked,...newParked])){
+      const oldGrid=Object.prototype.hasOwnProperty.call(oldPlaced,featureId),newGrid=Object.prototype.hasOwnProperty.call(newPlaced,featureId);
+      const wasParked=oldParked.has(featureId),isParked=newParked.has(featureId);
+      if(oldGrid===newGrid&&wasParked===isParked&&(!oldGrid||JSON.stringify(oldPlaced[featureId])===JSON.stringify(newPlaced[featureId])))continue;
+      const feature=newFeatures.get(featureId)||oldFeatures.get(featureId);
+      const label=activityFeatureLabel(feature);
+      if(oldGrid&&isParked)return`Moved ${label} from the committed grid to parked`;
+      if(wasParked&&newGrid)return`Moved ${label} from parked to the committed grid`;
+      if(!oldGrid&&!wasParked&&newGrid)return`Moved ${label} to the committed grid`;
+      if(!oldGrid&&!wasParked&&isParked)return`Moved ${label} to parked`;
+      if(oldGrid&&newGrid)return`Repositioned ${label} on the committed grid`;
+      if(wasParked&&!isParked&&!newGrid)return`Moved ${label} out of parked`;
+    }
+    const sprintChange=activitySprintChange(oldTeam,team);
+    if(sprintChange)return sprintChange;
+    if(['sprintPlacements','sprintStoryOrder','sprintDividers'].some(key=>JSON.stringify(oldTeam[key]||[])!==JSON.stringify(team[key]||[])))return'Updated sprint plan';
+    if(['capacity','sprintDevs','sprintCount','sprintWeeks','sprintPtsPerDev','holidays'].some(key=>oldTeam[key]!==team[key]))return'Changed capacity settings';
+    if(oldTeam.gridCols!==team.gridCols)return'Changed committed grid width';
+    if(JSON.stringify(oldTeam)!==JSON.stringify(team))return'Updated team settings';
+  }
+  if(JSON.stringify(previous.boardState)!==JSON.stringify(next.boardState))return'Updated planning settings';
+  if(JSON.stringify(previousTabs.map(team=>team.id))!==JSON.stringify(nextTabs.map(team=>team.id)))return'Reordered teams';
+  return'Updated planner';
+}
+function queueBoardActivity(boardId,summary){
+  if(!boardId||!summary)return;
+  pendingBoardActivity.push({id:++boardActivityQueueId,boardId,summary});
 }
 function writeStateSnapshot(snapshot){
   if(authSession)return;
@@ -1165,7 +1287,7 @@ function collaborationColor(seed){
   let hash=0;for(const ch of String(seed||''))hash=((hash<<5)-hash+ch.charCodeAt(0))|0;
   return COLLABORATION_COLORS[(hash>>>0)%COLLABORATION_COLORS.length];
 }
-function collaborationLocation(){return currentView==='board'?'board':`${currentView==='sprint'?'sprint':'capacity'}:${activeTabId||''}`;}
+function collaborationLocation(){return`${currentView==='sprint'?'sprint':'capacity'}:${activeTabId||''}`;}
 function collaborationLocationLabel(location){
   if(location==='board')return'PI Board';
   const [view,rawTeamId]=String(location||'').split(':');
@@ -1451,6 +1573,7 @@ function renderRemoteBoardMenu(){
         :renaming
           ?"if(event.key==='Escape')cancelRenameRemoteBoard(event)"
           :`if(event.key==='Enter'||event.key===' '){event.preventDefault();openRemoteBoard('${board.id}')}`;
+      const activityButton=`<span class="board-menu-action activity" role="button" tabindex="0" title="Activity log" aria-label="Activity log for ${esc(board.name)}" onclick="openBoardActivityModal(event,'${board.id}')" onkeydown="if(event.key==='Enter'||event.key===' ')openBoardActivityModal(event,'${board.id}')"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v4l2.5 1.5"/><circle cx="12" cy="12" r="9"/></svg></span>`;
       const renameValue=pendingRenameRemoteBoardValue!==null?pendingRenameRemoteBoardValue:board.name;
       const renameErrorLabel=pendingRenameRemoteBoardError
         ?(pendingRenameRemoteBoardError.includes('already')?'Taken':'Name?')
@@ -1485,6 +1608,7 @@ function renderRemoteBoardMenu(){
             <span class="board-menu-action rename" role="button" tabindex="0" title="Rename board" aria-label="Rename ${esc(board.name)}" onclick="requestRenameRemoteBoard(event,'${board.id}')" onkeydown="if(event.key==='Enter'||event.key===' ')requestRenameRemoteBoard(event,'${board.id}')">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
             </span>
+            ${activityButton}
             <span class="board-menu-action settings" role="button" tabindex="0" title="Board settings" aria-label="Board settings for ${esc(board.name)}" onclick="openBoardShareModal(event,'${board.id}')" onkeydown="if(event.key==='Enter'||event.key===' ')openBoardShareModal(event,'${board.id}')">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 15a1.8 1.8 0 0 0 .36 1.98l.04.04a2.1 2.1 0 1 1-2.98 2.98l-.04-.04A1.8 1.8 0 0 0 14.8 19.6a1.8 1.8 0 0 0-1.08 1.65V21.3a2.1 2.1 0 1 1-4.2 0v-.06A1.8 1.8 0 0 0 8.45 19.6a1.8 1.8 0 0 0-1.98.36l-.04.04a2.1 2.1 0 1 1-2.98-2.98l.04-.04A1.8 1.8 0 0 0 3.85 15a1.8 1.8 0 0 0-1.65-1.08H2.1a2.1 2.1 0 1 1 0-4.2h.1a1.8 1.8 0 0 0 1.65-1.08 1.8 1.8 0 0 0-.36-1.98l-.04-.04a2.1 2.1 0 1 1 2.98-2.98l.04.04a1.8 1.8 0 0 0 1.98.36 1.8 1.8 0 0 0 1.08-1.65V2.1a2.1 2.1 0 1 1 4.2 0v.29a1.8 1.8 0 0 0 1.08 1.65 1.8 1.8 0 0 0 1.98-.36l.04-.04a2.1 2.1 0 1 1 2.98 2.98l-.04.04A1.8 1.8 0 0 0 19.4 8.6a1.8 1.8 0 0 0 1.65 1.08h.15a2.1 2.1 0 1 1 0 4.2h-.15A1.8 1.8 0 0 0 19.4 15Z"/></svg>
             </span>
@@ -1492,9 +1616,10 @@ function renderRemoteBoardMenu(){
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
             </span>
           </span>`:''}`;
+      const activityAction=owner?'':`<span class="board-menu-actions" aria-label="Board actions">${activityButton}</span>`;
       return `<div class="board-menu-item${active?' active':''}${confirming?' confirming':''}${renaming?' renaming':''}" role="button" tabindex="0" onclick="${rowClick}" onkeydown="${rowKeydown}">
         ${nameCell}
-        <span class="board-menu-side">${side}</span>
+        <span class="board-menu-side">${side}${activityAction}</span>
       </div>`;
     }).join('');
   }
@@ -1505,6 +1630,96 @@ function renderRemoteBoardMenu(){
     </button>`;
   menu.innerHTML=html;
   updateStorageStatus();
+}
+async function appendBoardActivity(boardId,summary){
+  if(!authSession||!boardId)return true;
+  const client=getSupabaseClient();
+  if(!client)return false;
+  try{
+    const {error}=await client.rpc('append_board_activity',{p_board_id:boardId,p_summary:summary});
+    if(error)throw error;
+    return true;
+  }catch(e){
+    console.warn('Could not write board activity',e);
+    return false;
+  }
+}
+function renderBoardActivity(){
+  const board=remoteBoards.find(item=>item.id===boardActivityBoardId);
+  const title=document.getElementById('boardActivityTitle');
+  const list=document.getElementById('boardActivityList');
+  const error=document.getElementById('boardActivityError');
+  const more=document.getElementById('boardActivityMore');
+  if(title)title.textContent=`Activity log${board?.name?`: ${board.name}`:''}`;
+  if(list){
+    if(boardActivityLoading&&!boardActivityRows.length)list.innerHTML='<div class="activity-loading">Loading activity...</div>';
+    else if(!boardActivityRows.length)list.innerHTML='<div class="activity-empty">No activity recorded yet.</div>';
+    else list.innerHTML=boardActivityRows.map(entry=>{
+      const date=new Date(entry.created_at);
+      const dateLabel=Number.isNaN(date.getTime())?'Unknown time':date.toLocaleString();
+      return`<article class="activity-entry"><div class="activity-summary">${esc(entry.summary)}</div><div class="activity-meta"><div>${esc(entry.actor_email||'Unknown user')}</div><div>${esc(dateLabel)}</div></div></article>`;
+    }).join('');
+  }
+  if(error)error.textContent=boardActivityError;
+  if(more){
+    more.innerHTML=boardActivityRows.length>=BOARD_ACTIVITY_PAGE_SIZE
+      ?`<button class="btn btn-secondary" type="button" onclick="loadMoreBoardActivity()" ${boardActivityLoading?'disabled':''}>${boardActivityLoading?'Loading...':'Load older activity'}</button>`
+      :'';
+  }
+}
+async function loadBoardActivity(reset=false){
+  const boardId=boardActivityBoardId;
+  if(!authSession||!boardId)return;
+  if(reset){boardActivityRows=[];boardActivityOffset=0;}
+  boardActivityLoading=true;
+  boardActivityError='';
+  renderBoardActivity();
+  try{
+    const client=getSupabaseClient();
+    if(!client)throw new Error('Supabase is unavailable.');
+    const from=boardActivityOffset,to=from+BOARD_ACTIVITY_PAGE_SIZE-1;
+    const {data,error}=await client.from('board_activity')
+      .select('id,actor_email,summary,created_at')
+      .eq('board_id',boardId)
+      .order('created_at',{ascending:false})
+      .order('id',{ascending:false})
+      .range(from,to);
+    if(error)throw error;
+    if(boardActivityBoardId!==boardId)return;
+    const rows=data||[];
+    boardActivityRows=reset?rows:[...boardActivityRows,...rows];
+    boardActivityOffset+=rows.length;
+  }catch(e){
+    if(boardActivityBoardId===boardId)boardActivityError=e.message||'Could not load activity log.';
+    console.warn('Could not load board activity',e);
+  }finally{
+    if(boardActivityBoardId===boardId){
+      boardActivityLoading=false;
+      renderBoardActivity();
+    }
+  }
+}
+function loadMoreBoardActivity(){if(!boardActivityLoading)loadBoardActivity(false);}
+async function openBoardActivityModal(event,id){
+  event?.preventDefault?.();
+  event?.stopPropagation?.();
+  if(!authSession||!id)return;
+  boardActivityBoardId=id;
+  boardActivityRows=[];
+  boardActivityOffset=0;
+  boardActivityError='';
+  boardActivityLoading=true;
+  document.getElementById('boardMenu')?.classList.remove('open');
+  document.getElementById('boardActivityModal')?.classList.add('open');
+  renderBoardActivity();
+  await loadBoardActivity(true);
+}
+function closeBoardActivityModal(){
+  document.getElementById('boardActivityModal')?.classList.remove('open');
+  boardActivityBoardId=null;
+  boardActivityRows=[];
+  boardActivityOffset=0;
+  boardActivityError='';
 }
 function toggleBoardMenu(event){
   event?.stopPropagation?.();
@@ -1687,6 +1902,7 @@ async function createRemoteBoard(){
   remoteSaveStatus='saved';
   updateRemoteBoardInPlace(data,true);
   subscribeToRemoteBoard(data.id);
+  if(!await appendBoardActivity(data.id,'Created board'))alert('The board was created, but its activity could not be recorded. Apply the activity-log SQL setup and try again.');
   renderRemoteBoardMenu();
   updateStorageStatus();
 }
@@ -1752,10 +1968,12 @@ async function confirmRenameRemoteBoard(event,id){
   }
   if(id===currentRemoteBoardId)currentRemoteBoardName=data.name;
   updateRemoteBoardInPlace(data,true);
+  const activityRecorded=await appendBoardActivity(id,'Renamed board');
   pendingRenameRemoteBoardId=null;
   pendingRenameRemoteBoardValue=null;
   pendingRenameRemoteBoardError='';
   renderRemoteBoardMenu();
+  if(!activityRecorded)alert('The board was renamed, but the activity could not be recorded. Apply the activity-log SQL setup.');
 }
 function requestDeleteRemoteBoard(event,id){
   event?.preventDefault?.();
@@ -1779,6 +1997,10 @@ async function confirmDeleteRemoteBoard(event,id){
   event?.stopPropagation?.();
   if(!authSession||!id||pendingDeleteRemoteBoardId!==id)return;
   const client=getSupabaseClient();if(!client)return;
+  if(!await appendBoardActivity(id,'Deleted board')){
+    alert('The board was not deleted because its activity could not be recorded. Apply the activity-log SQL setup and try again.');
+    return;
+  }
   const {error}=await client.from('boards').delete().eq('id',id);
   if(error){alert(error.message||'Could not delete board.');return;}
   pendingDeleteRemoteBoardId=null;
@@ -1904,6 +2126,8 @@ async function addBoardCollaborator(){
     return;
   }
   const client=getSupabaseClient();if(!client)return;
+  const existingCollaborator=boardShareEntries.find(item=>item.user_email===email);
+  const activityBoardId=boardShareBoardId;
   boardShareSaving=true;
   renderBoardShareModal();
   try{
@@ -1917,6 +2141,10 @@ async function addBoardCollaborator(){
     boardShareEntries.push({...data,permission:data.permission==='write'?'write':'read'});
     boardShareEntries.sort((a,b)=>String(a.user_email).localeCompare(String(b.user_email)));
     if(emailInput)emailInput.value='';
+    if(!await appendBoardActivity(activityBoardId,existingCollaborator?'Updated collaborator access':'Added collaborator')){
+      const errorEl=document.getElementById('boardShareError');
+      if(errorEl)errorEl.textContent='Access was saved, but the activity could not be recorded. Apply the activity-log SQL setup.';
+    }
   }catch(e){
     if(err)err.textContent=e.message||'Could not add user.';
   }finally{
@@ -1927,6 +2155,8 @@ async function addBoardCollaborator(){
 async function updateBoardCollaboratorPermission(id,permission){
   if(!authSession||!boardShareBoardId||boardShareSaving)return;
   permission=permission==='write'?'write':'read';
+  const activityBoardId=boardShareBoardId;
+  const collaborator=boardShareEntries.find(item=>item.id===id);
   const client=getSupabaseClient();if(!client)return;
   boardShareSaving=true;
   renderBoardShareModal();
@@ -1936,6 +2166,10 @@ async function updateBoardCollaboratorPermission(id,permission){
     const {data,error}=await client.from('board_collaborators').update({permission}).eq('id',id).eq('board_id',boardShareBoardId).select('id,user_email,permission,created_at').single();
     if(error)throw error;
     boardShareEntries=boardShareEntries.map(item=>item.id===id?{...data,permission:data.permission==='write'?'write':'read'}:item);
+    if(!await appendBoardActivity(activityBoardId,`Changed collaborator access to ${permission}`)){
+      const errorEl=document.getElementById('boardShareError');
+      if(errorEl)errorEl.textContent=`Access for ${collaborator?.user_email||'user'} was saved, but the activity could not be recorded. Apply the activity-log SQL setup.`;
+    }
   }catch(e){
     if(err)err.textContent=e.message||'Could not update permission.';
     await loadBoardCollaborators();
@@ -1946,6 +2180,8 @@ async function updateBoardCollaboratorPermission(id,permission){
 }
 async function removeBoardCollaborator(id){
   if(!authSession||!boardShareBoardId||boardShareSaving)return;
+  const activityBoardId=boardShareBoardId;
+  const collaborator=boardShareEntries.find(item=>item.id===id);
   const client=getSupabaseClient();if(!client)return;
   boardShareSaving=true;
   renderBoardShareModal();
@@ -1955,6 +2191,10 @@ async function removeBoardCollaborator(id){
     const {error}=await client.from('board_collaborators').delete().eq('id',id).eq('board_id',boardShareBoardId);
     if(error)throw error;
     boardShareEntries=boardShareEntries.filter(item=>item.id!==id);
+    if(!await appendBoardActivity(activityBoardId,'Removed collaborator access')){
+      const errorEl=document.getElementById('boardShareError');
+      if(errorEl)errorEl.textContent=`Access for ${collaborator?.user_email||'user'} was removed, but the activity could not be recorded. Apply the activity-log SQL setup.`;
+    }
   }catch(e){
     if(err)err.textContent=e.message||'Could not remove access.';
   }finally{
@@ -1978,6 +2218,7 @@ async function importAnonymousSnapshotToSupabase(snapshot,nameOverride=''){
     alert((error.message||'Could not import anonymous board.')+' Your anonymous board is still stored locally.');
     return false;
   }
+  if(!await appendBoardActivity(data.id,'Imported planner data'))alert('The board was imported, but its activity could not be recorded. Apply the activity-log SQL setup.');
   localStorage.removeItem(STORAGE_KEY);
   localStorage.removeItem(LEGACY_STORAGE_KEY);
   localStorage.removeItem(EDITED_KEY);
@@ -2130,35 +2371,49 @@ function scheduleRemoteBoardSave(){
   remoteSaveTimer=setTimeout(()=>{flushRemoteBoardSave();},700);
 }
 async function flushRemoteBoardSave(){
-  if(!authSession||!currentRemoteBoardId||isSavingRemoteBoard||!currentBoardCanWrite())return;
+  if(!authSession||!currentRemoteBoardId||isSavingRemoteBoard||!currentBoardCanWrite())return false;
   clearTimeout(remoteSaveTimer);
   remoteSaveTimer=null;
   const client=getSupabaseClient();
-  if(!client){remoteSaveStatus='error';updateStorageStatus();return;}
+  if(!client){remoteSaveStatus='error';updateStorageStatus();return false;}
   isSavingRemoteBoard=true;
   remoteSaveStatus='saving';
   updateStorageStatus();
-  const updatedAt=new Date().toISOString();
   const boardId=currentRemoteBoardId;
+  const savedState=syncedStatePayload();
+  const savedSnapshot=JSON.stringify(savedState);
+  const activityBatch=pendingBoardActivity.filter(event=>event.boardId===boardId).slice(0,100);
+  const activityIds=new Set(activityBatch.map(event=>event.id));
+  let saved=false;
   try{
-    const {data,error}=await client.from('boards').update({
-      state:syncedStatePayload(),
-      updated_at:updatedAt
-    }).eq('id',boardId).select('id,name,user_id,created_at,updated_at').single();
+    const {data,error}=await client.rpc('save_board_with_activity',{
+      p_board_id:boardId,
+      p_state:savedState,
+      p_summaries:activityBatch.map(event=>({summary:event.summary}))
+    });
     if(error)throw error;
-    if(data){
-      currentRemoteBoardName=data.name;
+    const row=Array.isArray(data)?data[0]:data;
+    if(row){
+      pendingBoardActivity=pendingBoardActivity.filter(event=>!activityIds.has(event.id));
+      currentRemoteBoardName=row.name;
       remoteSaveStatus='saved';
-      updateRemoteBoardInPlace(data,true);
+      updateRemoteBoardInPlace(row,true);
       renderRemoteBoardMenu();
+      saved=true;
+    }else{
+      throw new Error('The board save did not return a result.');
     }
   }catch(e){
     remoteSaveStatus='error';
-    console.warn('Could not save board',e);
+    console.warn('Could not save board and its activity log',e);
   }finally{
     isSavingRemoteBoard=false;
     updateStorageStatus();
+    if(currentRemoteBoardId===boardId&&(pendingBoardActivity.some(event=>event.boardId===boardId)||currentSyncedStateSnapshot()!==savedSnapshot)){
+      scheduleRemoteBoardSave();
+    }
   }
+  return saved;
 }
 async function initAuth(){
   const client=getSupabaseClient();
@@ -2312,6 +2567,9 @@ function saveState(){
     if(syncedChanged){
       undoStack.push(lastStateSnapshot);
       if(undoStack.length>UNDO_LIMIT)undoStack.shift();
+      if(authSession&&currentRemoteBoardId&&currentBoardCanWrite()){
+        queueBoardActivity(currentRemoteBoardId,plannerActivitySummary(previousSyncedSnapshot,syncedSnapshot));
+      }
     }
     if(!authSession){anonymousImportEligible=true;try{localStorage.setItem(EDITED_KEY,'1');}catch(e){}}
   }
@@ -2328,7 +2586,7 @@ function applyStateSnapshot(snapshot){
   tabs=s.tabs;
   const incomingActiveTabId=s.activeTabId;
   tabIdSeq=s.tabIdSeq||tabs.length;
-  if(['board','capacity','sprint'].includes(s.currentView))currentView=s.currentView;
+  currentView=s.currentView==='sprint'?'sprint':'capacity';
   if(Object.prototype.hasOwnProperty.call(s,'sidebarCollapsed'))sidebarCollapsed=!!s.sidebarCollapsed;
   if(Object.prototype.hasOwnProperty.call(s,'rightPanelCollapsed'))rightPanelCollapsed=!!s.rightPanelCollapsed;
   boardState=normalizeBoardState(s.boardState);
@@ -2384,6 +2642,11 @@ function normalizeTeamDefaults(t){
   t.sprintPlacements=Object.fromEntries(Object.entries(placements).filter(([key,index])=>
     validKeys.has(key)&&Number.isInteger(index)&&index>=0&&index<sprintCount
   ));
+  const validPlacedKeys=new Set(Object.keys(t.sprintPlacements));
+  const orderedKeys=Array.isArray(t.sprintStoryOrder)?t.sprintStoryOrder.filter((key,index,all)=>
+    validPlacedKeys.has(key)&&all.indexOf(key)===index
+  ):[];
+  t.sprintStoryOrder=[...orderedKeys,...validPlacedKeys].filter((key,index,all)=>all.indexOf(key)===index);
   ensureSprintDividers(t);
 }
 function normalizeAllTeams(){tabs.forEach(normalizeTeamDefaults);}
@@ -2392,7 +2655,7 @@ function loadState(){
     let s=JSON.parse(localStorage.getItem(STORAGE_KEY));
     if(s&&s.version===6&&Array.isArray(s.tabs)&&s.tabs.length){
       tabs=s.tabs;activeTabId=s.activeTabId;tabIdSeq=s.tabIdSeq||s.tabs.length;
-      currentView=['board','capacity','sprint'].includes(s.currentView)?s.currentView:'capacity';
+      currentView=s.currentView==='sprint'?'sprint':'capacity';
       sidebarCollapsed=!!s.sidebarCollapsed;
       rightPanelCollapsed=!!s.rightPanelCollapsed;
       boardState=normalizeBoardState(s.boardState);
@@ -2479,17 +2742,6 @@ function deleteTab(id){
 function switchTab(id){
   const isSameTab=id===activeTabId;
 
-  // When selecting a team tab from the PI Board, jump back to that team's
-  // Capacity view so the tab click behaves like "open this team".
-  if(currentView==='board'){
-    if(!isSameTab){
-      activeTabId=id;
-      renderTabBar();
-    }
-    setView('capacity');
-    return;
-  }
-
   if(isSameTab)return;
   activeTabId=id;
   saveState();
@@ -2498,10 +2750,10 @@ function switchTab(id){
   renderWorkspace();
   updateRealtimePresence();
 }
-function renameTab(id,name){const t=tabs.find(t=>t.id===id);if(t){t.name=name||t.name;saveState();if(currentView==='board'||id===activeTabId)renderWorkspace();}}
+function renameTab(id,name){const t=tabs.find(t=>t.id===id);if(t){t.name=name||t.name;saveState();if(id===activeTabId)renderWorkspace();}}
 function loadTabIntoSidebar(){
   const t=tab();if(!t)return;
-  loadSprintInputs();renderBacklog();loadBoardInputs();
+  loadSprintInputs();renderBacklog();
 }
 
 
@@ -2739,25 +2991,20 @@ function cleanupBoardState(){
   });
 }
 function syncViewUI(){
-  const isBoard=currentView==='board';
   const isSprint=currentView==='sprint';
-  document.body.classList.toggle('board-view',isBoard);
   document.body.classList.toggle('sprint-view',isSprint);
   const app=document.getElementById('appBody');
-  app?.classList.toggle('board-mode',isBoard);
   app?.classList.toggle('sprint-mode',isSprint);
-  const capBtn=document.getElementById('capacityViewBtn'),boardBtn=document.getElementById('boardViewBtn'),sprintBtn=document.getElementById('sprintViewBtn');
-  if(capBtn){capBtn.classList.toggle('active',!isBoard&&!isSprint);capBtn.setAttribute('aria-selected',String(!isBoard&&!isSprint));}
-  if(boardBtn){boardBtn.classList.toggle('active',isBoard);boardBtn.setAttribute('aria-selected',String(isBoard));}
+  const capBtn=document.getElementById('capacityViewBtn'),sprintBtn=document.getElementById('sprintViewBtn');
+  if(capBtn){capBtn.classList.toggle('active',!isSprint);capBtn.setAttribute('aria-selected',String(!isSprint));}
   if(sprintBtn){sprintBtn.classList.toggle('active',isSprint);sprintBtn.setAttribute('aria-selected',String(isSprint));}
   const title=document.querySelector('.topbar-title');
-  if(title)title.textContent=isBoard?'PI Planning Board':isSprint?'Sprint Detail':'PI Capacity Planner';
-  loadBoardInputs();
+  if(title)title.textContent=isSprint?'Sprint Detail':'PI Capacity Planner';
   syncSidebarUI();
   syncRightPanelUI();
 }
 function setView(view){
-  currentView=['board','sprint'].includes(view)?view:'capacity';
+  currentView=view==='sprint'?'sprint':'capacity';
   syncViewUI();
   saveState();
   loadTabIntoSidebar();
@@ -3219,6 +3466,16 @@ function sprintPointsLabel(points){
   return`${Number(points.toPrecision(12)).toString()} ${points===1?'pt':'pts'}`;
 }
 function sprintItemPointsLabel(item){return item.points?sprintPointsLabel(item.points):'No points';}
+function sprintStoryKeysForSprint(team,sprintIndex){
+  const placements=team.sprintPlacements||{},order=team.sprintStoryOrder||[];
+  return Object.keys(placements).filter(key=>placements[key]===sprintIndex).sort((a,b)=>{
+    const aIndex=order.indexOf(a),bIndex=order.indexOf(b);
+    if(aIndex<0&&bIndex<0)return 0;
+    if(aIndex<0)return 1;
+    if(bIndex<0)return-1;
+    return aIndex-bIndex;
+  });
+}
 function renderSprintStoryGroups(){
   const container=document.getElementById('sprintStoryGroups'),t=tab();
   if(!container)return;
@@ -3231,6 +3488,8 @@ function renderSprintStoryGroups(){
     card.className='sprint-source-card';card.draggable=true;card.dataset.itemKey=item.key;
     card.style.cssText=`background:${item.palette.bg};color:${item.palette.color};border-color:${item.palette.border};`;
     card.innerHTML=`<span class="sprint-source-dot" style="background:${item.palette.color}"></span><span class="sprint-source-name">${esc(item.name)}</span><span class="sprint-source-meta">${sprintItemPointsLabel(item)}</span>${assigned?`<span class="sprint-source-assignment">${assigned}</span>`:''}`;
+    card.addEventListener('pointerenter',highlightSprintStoryCounterpart);
+    card.addEventListener('pointerleave',clearSprintStoryCounterpartHighlight);
     card.addEventListener('dragstart',startSprintStoryDrag);
     card.addEventListener('dragend',resetSprintStoryDrag);
     return card;
@@ -3272,6 +3531,21 @@ function toggleSprintStoryGroup(key){
   saveState();
   renderSprintStoryGroups();
 }
+function highlightSprintStoryCounterpart(e){
+  const card=e.currentTarget,key=card.dataset.itemKey;
+  if(!key)return;
+  document.querySelectorAll('.sprint-source-card.is-linked-highlight,.sprint-story-card.is-linked-highlight').forEach(item=>item.classList.remove('is-linked-highlight'));
+  document.querySelectorAll('.sprint-source-card[data-item-key],.sprint-story-card[data-item-key]').forEach(item=>{
+    if(item!==card&&item.dataset.itemKey===key)item.classList.add('is-linked-highlight');
+  });
+}
+function clearSprintStoryCounterpartHighlight(e){
+  const key=e.currentTarget.dataset.itemKey;
+  if(!key)return;
+  document.querySelectorAll('.sprint-source-card.is-linked-highlight,.sprint-story-card.is-linked-highlight').forEach(item=>{
+    if(item.dataset.itemKey===key)item.classList.remove('is-linked-highlight');
+  });
+}
 function startSprintStoryDrag(e){
   const key=e.currentTarget.dataset.itemKey;
   if(!key){e.preventDefault();return;}
@@ -3301,6 +3575,50 @@ function onSprintPanelDrop(e){
   if(!t||!key||!getSprintWorkItems(t).some(item=>item.key===key)||!Number.isInteger(index)){resetSprintStoryDrag();return;}
   t.sprintPlacements=t.sprintPlacements||{};
   t.sprintPlacements[key]=index;
+  t.sprintStoryOrder=(t.sprintStoryOrder||[]).filter(itemKey=>itemKey!==key);
+  t.sprintStoryOrder.push(key);
+  resetSprintStoryDrag();
+  saveState();
+  renderWorkspace();
+}
+function onSprintStoryCardDragOver(e){
+  if(!sprintDragKey)return;
+  e.preventDefault();
+  e.stopPropagation();
+  const card=e.currentTarget,rect=card.getBoundingClientRect();
+  const after=e.clientY>=rect.top+rect.height/2;
+  card.classList.toggle('drop-before',!after);
+  card.classList.toggle('drop-after',after);
+  e.dataTransfer.dropEffect='move';
+}
+function onSprintStoryCardDragLeave(e){
+  if(!e.currentTarget.contains(e.relatedTarget))e.currentTarget.classList.remove('drop-before','drop-after');
+}
+function onSprintStoryCardDrop(e){
+  e.preventDefault();
+  e.stopPropagation();
+  const t=tab(),key=sprintDragKey,targetKey=e.currentTarget.dataset.itemKey;
+  const sprintIndex=Number(e.currentTarget.closest('.sprint-panel')?.dataset.sprint);
+  const itemKeys=new Set(getSprintWorkItems(t||{}).map(item=>item.key));
+  if(!t||!key||!targetKey||key===targetKey||!itemKeys.has(key)||!itemKeys.has(targetKey)||!Number.isInteger(sprintIndex)){
+    resetSprintStoryDrag();return;
+  }
+  const previousOrder=t.sprintStoryOrder||[];
+  const previousSprintKeys=sprintStoryKeysForSprint(t,sprintIndex);
+  const firstSprintKey=previousSprintKeys[0];
+  const insertionPoint=firstSprintKey
+    ?previousOrder.slice(0,previousOrder.indexOf(firstSprintKey)).filter(itemKey=>itemKey!==key).length
+    :previousOrder.filter(itemKey=>t.sprintPlacements?.[itemKey]!==sprintIndex&&itemKey!==key).length;
+  const ordered=previousSprintKeys.filter(itemKey=>itemKey!==key);
+  const targetIndex=ordered.indexOf(targetKey);
+  if(targetIndex<0){resetSprintStoryDrag();return;}
+  const after=e.clientY>=e.currentTarget.getBoundingClientRect().top+e.currentTarget.getBoundingClientRect().height/2;
+  ordered.splice(targetIndex+(after?1:0),0,key);
+  t.sprintPlacements=t.sprintPlacements||{};
+  t.sprintPlacements[key]=sprintIndex;
+  const unaffectedOrder=previousOrder.filter(itemKey=>!previousSprintKeys.includes(itemKey)&&itemKey!==key);
+  unaffectedOrder.splice(Math.min(insertionPoint,unaffectedOrder.length),0,...ordered);
+  t.sprintStoryOrder=unaffectedOrder;
   resetSprintStoryDrag();
   saveState();
   renderWorkspace();
@@ -3396,7 +3714,7 @@ function renderSprintDetailWorkspace(){
   const totalCapacity=Math.max(0,Number(teamCapacityPts(t))||0);
   const capacityPerSprint=totalCapacity/sprintCount;
   const sprintPanels=Array.from({length:sprintCount},(_,index)=>{
-    const sprintItems=items.filter(item=>placements[item.key]===index);
+    const sprintItems=sprintStoryKeysForSprint(t,index).map(key=>items.find(item=>item.key===key)).filter(Boolean);
     const dividers=t.sprintDividers.filter(divider=>divider.sprintIndex===index);
     const renderedDividerIds=new Set();
     const renderDividersAfter=afterKey=>dividers.filter(divider=>divider.afterKey===afterKey).map(divider=>{
@@ -3436,6 +3754,11 @@ function renderSprintDetailWorkspace(){
     panel.addEventListener('drop',onSprintPanelDrop);
   });
   ws.querySelectorAll('.sprint-story-card').forEach(card=>{
+    card.addEventListener('pointerenter',highlightSprintStoryCounterpart);
+    card.addEventListener('pointerleave',clearSprintStoryCounterpartHighlight);
+    card.addEventListener('dragover',onSprintStoryCardDragOver);
+    card.addEventListener('dragleave',onSprintStoryCardDragLeave);
+    card.addEventListener('drop',onSprintStoryCardDrop);
     card.addEventListener('dragstart',startSprintStoryDrag);
     card.addEventListener('dragend',resetSprintStoryDrag);
   });
@@ -3477,7 +3800,6 @@ function remapBoardStateForImportedTabs(incomingState,idMap){
 
 function renderWorkspace(){
   requestAnimationFrame(positionAllRemoteCursors);
-  if(currentView==='board'){renderPIBoardWorkspace();return;}
   if(currentView==='sprint'){renderSprintDetailWorkspace();return;}
   const ws=document.getElementById('workspace'),t=tab();
   if(!t||!t.capacity){
@@ -3605,7 +3927,7 @@ function updateGridCreatePreview(e){
   }
 }
 function onGridCreatePointerDown(e){
-  if(currentView==='board'||e.button!==0)return;
+  if(e.button!==0)return;
   if(e.target.closest('.feat-tile')||e.target.closest('.drop-ghost'))return;
   const cell=gridCellFromPointer(e);if(!cell)return;
   if(!canPlace(cell.col,cell.row,1,1,-1))return;
@@ -3693,7 +4015,6 @@ function updateTileResizePreview(e){
   }
 }
 function startTileResize(event,id){
-  if(currentView==='board')return;
   event?.preventDefault?.();
   event?.stopPropagation?.();
   closeSizeMenu();
@@ -3912,7 +4233,6 @@ function resizeWorkItem(id,type,size){
   renderTiles();
   updateParked();
   updateRightPanel();
-  renderBoardBacklog();
   if(currentView!=='capacity')renderWorkspace();
 }
 
@@ -4034,7 +4354,7 @@ function closeDescriptionEditor(){
   const nameInput=document.getElementById('userStoryName'),sizeInput=document.getElementById('userStorySize');
   if((nameInput?.value.trim()||sizeInput?.value.trim())&&!confirm('This new user story has not been added yet. Close without adding it?'))return;
   flushDescriptionEditorSave();
-  renderBacklog();renderTiles();updateParked();updateRightPanel();renderBoardBacklog();
+  renderBacklog();renderTiles();updateParked();updateRightPanel();
   if(currentView!=='capacity')renderWorkspace();
   editingDescriptionId=null;
   editingUserStories=[];
@@ -4253,7 +4573,7 @@ function addFeature(){
   document.getElementById('featureName').value='';
   document.getElementById('featureDescription').value='';
   cleanupBoardState();saveState();
-  if(currentView==='capacity')renderWorkspace();else{renderBacklog();renderBoardBacklog();}
+  if(currentView==='capacity')renderWorkspace();else{renderBacklog();renderWorkspace();}
 }
 function removeFeature(id){
   const t=tab();if(!t)return;
@@ -4343,7 +4663,6 @@ function startParkedEdit(id,event){
       renderTiles();
       renderBacklog();
       updateRightPanel();
-      if(currentView==='board')renderWorkspace();
     }
     updateParked();
   }
@@ -4366,8 +4685,19 @@ function toggleExportDropdown(){document.getElementById('exportDropdown').classL
 document.addEventListener('click',e=>{if(!document.getElementById('exportDropWrap').contains(e.target))document.getElementById('exportDropdown').classList.remove('open');});
 document.addEventListener('click',e=>{if(!document.getElementById('boardMenuWrap')?.contains(e.target))document.getElementById('boardMenu')?.classList.remove('open');});
 function downloadJSON(obj,fn){const b=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}),u=URL.createObjectURL(b),a=Object.assign(document.createElement('a'),{href:u,download:fn});a.click();URL.revokeObjectURL(u);}
-function exportCurrentTab(){document.getElementById('exportDropdown').classList.remove('open');const t=tab();if(!t)return;downloadJSON({version:6,type:'single',tab:t},`capacity-${slug(t.name)}.json`);}
-function exportAllTabs(){document.getElementById('exportDropdown').classList.remove('open');downloadJSON({version:6,type:'all',tabs,boardState},'capacity-all-teams.json');}
+async function exportCurrentTab(){
+  document.getElementById('exportDropdown').classList.remove('open');
+  const t=tab();if(!t)return;
+  const logged=await appendBoardActivity(currentRemoteBoardId,'Exported team data');
+  downloadJSON({version:6,type:'single',tab:t},`capacity-${slug(t.name)}.json`);
+  if(!logged)alert('The export completed, but its activity could not be recorded.');
+}
+async function exportAllTabs(){
+  document.getElementById('exportDropdown').classList.remove('open');
+  const logged=await appendBoardActivity(currentRemoteBoardId,'Exported all team data');
+  downloadJSON({version:6,type:'all',tabs,boardState},'capacity-all-teams.json');
+  if(!logged)alert('The export completed, but its activity could not be recorded.');
+}
 function slug(s){return s.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');}
 function openImport(){
   document.getElementById('exportDropdown')?.classList.remove('open');
@@ -4555,7 +4885,7 @@ setInterval(()=>{
   remoteCursors.forEach((entry,clientId)=>{if(now-entry.lastSeen>10000)removeRemoteCursor(clientId);else positionRemoteCursor(entry);});
 },1000);
 window.addEventListener('beforeunload',()=>{remoteBoardChannel?.untrack?.();});
-window.addEventListener('resize',()=>{if(currentView==='board')renderBoardDependencies();positionAllRemoteCursors();});
+window.addEventListener('resize',positionAllRemoteCursors);
 init();
 </script>
 </body>

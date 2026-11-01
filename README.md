@@ -8,17 +8,15 @@ Try it: https://kmschellens.github.io/PI-Capacity-Planner/
 
 <img width="1721" height="1270" alt="picp2" src="https://github.com/user-attachments/assets/44499e24-fed3-45b4-b156-0d5337e892cb" />
 
-## 🔒 Client-only
+## Data storage
 
-**No data leaves your browser.**
+- Anonymous plans are stored locally in your browser and work offline.
+- When signed in to a shared board, its plan and append-only activity log are stored in Supabase and visible to board collaborators.
+- No analytics or tracking.
 
-- No backend
-- No accounts
-- No tracking
-- Works offline
-- All data stored locally in the browser
+## Activity log setup
 
-The only way data leaves your machine is if **you export it yourself**.
+Apply [`supabase-local/dev/activity-log.sql`](./supabase-local/dev/activity-log.sql) once to an existing Supabase project using its SQL editor. Fresh local development databases load it automatically after the seed schema. Entries are never automatically pruned; entries for deleted boards are retained but no longer shown in a board's history.
 
 ## Features
 
@@ -29,7 +27,7 @@ The only way data leaves your machine is if **you export it yourself**.
 - Editable feature names, even after placement
 - Attach feature-specific user stories with optional story points and a progress tracker
 - Sprint Detail view with horizontally scrollable sprint columns, per-sprint dividers, and labels
-- Drag stories between sprints, with feature-specific stories inheriting their feature's color
+- Drag stories between sprints or reorder them within a sprint, with feature-specific stories inheriting their feature's color
 - Backlog + parked area for items that don’t fit
 - Team tabs with separate plans
 - Import/export (single tab or all tabs)
