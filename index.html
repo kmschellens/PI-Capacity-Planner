@@ -23,11 +23,20 @@
   .btn-sm.danger{color:#b52020;}.btn-sm.danger:hover{background:#fceaea;border-color:#e89090;}
   .tabbar{background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:stretch;padding:0 1.5rem;overflow-x:auto;min-height:40px;position:sticky;top:52px;z-index:29;}
   .tabbar::-webkit-scrollbar{height:0;}
-  .tab-item{display:flex;align-items:center;gap:6px;padding:0 14px;border-bottom:2px solid transparent;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap;transition:color .12s,border-color .12s;user-select:none;min-height:40px;}
-  .tab-item:hover{color:var(--text);}.tab-item.active{color:var(--text);border-bottom-color:var(--text);}
+  .tab-item{display:flex;align-items:center;gap:2px;padding:0 14px;margin:5px 2px 0;background:#f7f6f3;border:1px solid transparent;border-bottom:2px solid transparent;border-radius:6px 6px 0 0;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap;transition:color .12s,background .12s,border-color .12s;user-select:none;min-height:35px;}
+  .tab-item:hover{color:var(--text);background:#f0efeb;}.tab-item.active{color:var(--text);background:var(--surface);border-color:var(--border);border-bottom-color:var(--surface);}
   .tab-item.tab-dragging{opacity:.45;}.tab-item.tab-drop-target{background:#eef5fc;border-bottom-color:#6a9fd8;}
   .tab-name-input{background:none;border:none;outline:none;font:inherit;color:inherit;width:100px;padding:0;cursor:default;}
   .tab-name-input:focus{background:var(--bg);border-radius:3px;padding:0 4px;margin:0 -4px;cursor:text;}
+  .tab-status-wrap{position:relative;display:inline-flex;align-items:center;flex:none;}
+  .tab-status-wrap::after{content:'⌄';position:absolute;right:1px;top:50%;transform:translateY(-55%);font-size:10px;line-height:1;pointer-events:none;opacity:0;transition:opacity .12s;}
+  .tab-name-input:hover+.tab-status-wrap::after{opacity:.65;}
+  .tab-status{appearance:none;width:auto;max-width:none;border:0;border-radius:0;padding:1px 10px 1px 0;background:transparent;font:10px var(--sans);cursor:pointer;}
+  .tab-status:focus{border:0;box-shadow:none;}
+  .tab-status:focus-visible{outline:2px solid #6a9fd8;outline-offset:1px;}
+  .tab-status.current{color:#28633a;}
+  .tab-status.past{color:#696965;}
+  .tab-status.upcoming{color:#285d95;}
   .tab-del{background:none;border:none;cursor:pointer;color:var(--border2);font-size:13px;padding:1px 3px;border-radius:3px;opacity:0;transition:opacity .12s,color .12s;}
   .tab-item:hover .tab-del,.tab-item.active .tab-del{opacity:.6;}
   .tab-del:hover{color:#b52020;opacity:1!important;}
@@ -2348,7 +2357,7 @@ function resetTabDrag(){
   document.querySelectorAll('.tab-item.tab-dragging').forEach(el=>el.classList.remove('tab-dragging'));
 }
 function onTeamTabDragStart(e){
-  if(e.target.closest('.tab-del')||!e.currentTarget.dataset.teamId){e.preventDefault();return;}
+  if(e.target.closest('.tab-del,.tab-status')||!e.currentTarget.dataset.teamId){e.preventDefault();return;}
   const teamId=+e.currentTarget.dataset.teamId;
   if(!teamId)return;
   tabDragTeamId=teamId;
@@ -2393,7 +2402,7 @@ function renderTabBar(){
     el.title='Drag to reorder team tabs';
     el.addEventListener('click',e=>{
       if(suppressNextTabClick){suppressNextTabClick=false;return;}
-      if(e.target.closest('.tab-del'))return;
+      if(e.target.closest('.tab-del,.tab-status'))return;
       if(e.target.closest('.tab-name-input')&&!e.target.readOnly)return;
       switchTab(t.id);
     });
@@ -2408,10 +2417,25 @@ function renderTabBar(){
     inp.addEventListener('blur',()=>{inp.readOnly=true;renameTab(t.id,inp.value.trim()||t.name);inp.value=t.name;});
     inp.addEventListener('keydown',e=>{if(e.key==='Enter')inp.blur();if(e.key==='Escape'){inp.value=t.name;inp.blur();}});
     inp.addEventListener('mousedown',e=>{if(inp.readOnly)e.preventDefault();});
+    const statusWrap=document.createElement('span');
+    statusWrap.className='tab-status-wrap';
+    const status=document.createElement('select');
+    status.className='tab-status'+(['current','past','upcoming'].includes(t.status)?` ${t.status}`:'');
+    status.setAttribute('aria-label',`Status for ${t.name}`);
+    status.title='Set team status';
+    status.innerHTML='<option value="">Status</option><option value="current">Current</option><option value="past">Past</option><option value="upcoming">Upcoming</option>';
+    status.value=['current','past','upcoming'].includes(t.status)?t.status:'';
+    status.addEventListener('click',e=>e.stopPropagation());
+    status.addEventListener('change',()=>{
+      t.status=status.value;
+      saveState();
+      renderTabBar();
+    });
+    statusWrap.appendChild(status);
     const del=document.createElement('button');
     del.className='tab-del';del.textContent='×';
     del.addEventListener('click',e=>{e.stopPropagation();deleteTab(t.id);});
-    el.append(inp,del);bar.appendChild(el);
+    el.append(inp,statusWrap,del);bar.appendChild(el);
   });
   const add=document.createElement('div');
   add.className='tab-add';add.textContent='+';
