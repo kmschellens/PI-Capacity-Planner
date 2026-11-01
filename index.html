@@ -28,15 +28,10 @@
   .tab-item.tab-dragging{opacity:.45;}.tab-item.tab-drop-target{background:#eef5fc;border-bottom-color:#6a9fd8;}
   .tab-name-input{background:none;border:none;outline:none;font:inherit;color:inherit;width:100px;padding:0;cursor:default;}
   .tab-name-input:focus{background:var(--bg);border-radius:3px;padding:0 4px;margin:0 -4px;cursor:text;}
-  .tab-status-wrap{position:relative;display:inline-flex;align-items:center;flex:none;}
-  .tab-status-wrap::after{content:'⌄';position:absolute;right:1px;top:50%;transform:translateY(-55%);font-size:10px;line-height:1;pointer-events:none;opacity:0;transition:opacity .12s;}
-  .tab-name-input:hover+.tab-status-wrap::after{opacity:.65;}
-  .tab-status{appearance:none;width:auto;max-width:none;border:0;border-radius:0;padding:1px 10px 1px 0;background:transparent;font:10px var(--sans);cursor:pointer;}
-  .tab-status:focus{border:0;box-shadow:none;}
-  .tab-status:focus-visible{outline:2px solid #6a9fd8;outline-offset:1px;}
-  .tab-status.current{color:#28633a;background:#e8f3eb;border-radius:4px;padding:1px 14px 1px 5px;}
-  .tab-status.past{color:#696965;}
-  .tab-status.upcoming{color:#285d95;background:#e9f1fa;border-radius:4px;padding:1px 14px 1px 5px;}
+  .tab-status-label{display:inline-flex;align-items:center;border-radius:4px;padding:1px 5px;font:10px var(--sans);line-height:1.4;cursor:inherit;}
+  .tab-status-label.current{color:#28633a;background:#e8f3eb;}
+  .tab-status-label.past{color:#696965;background:#f0efeb;}
+  .tab-status-label.upcoming{color:#285d95;background:#e9f1fa;}
   .tab-del{background:none;border:none;cursor:pointer;color:var(--border2);font-size:13px;padding:1px 3px;border-radius:3px;opacity:0;transition:opacity .12s,color .12s;}
   .tab-item:hover .tab-del,.tab-item.active .tab-del{opacity:.6;}
   .tab-del:hover{color:#b52020;opacity:1!important;}
@@ -89,6 +84,13 @@
   .workspace{padding:1.5rem;display:flex;flex-direction:column;gap:.75rem;overflow-y:auto;overflow-x:auto;max-height:calc(100vh - 92px);}
   .ws-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;}
   .ws-title{font-size:15px;font-weight:600;letter-spacing:-.01em;}
+  .ws-title-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .ws-status{appearance:none;display:inline-flex;align-items:center;width:auto;border:0;border-radius:4px;padding:1px 14px 1px 5px;font:10px var(--sans);font-weight:500;line-height:1.4;cursor:pointer;background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);background-position:calc(100% - 5px) 50%,calc(100% - 2px) 50%;background-size:3px 3px;background-repeat:no-repeat;}
+  .ws-status:focus-visible{outline:2px solid #6a9fd8;outline-offset:2px;}
+  .ws-status:not(.current):not(.past):not(.upcoming){color:var(--muted);background-color:#f0efeb;}
+  .ws-status.current{color:#28633a;background-color:#e8f3eb;}
+  .ws-status.past{color:#696965;background-color:#f0efeb;}
+  .ws-status.upcoming{color:#285d95;background-color:#e9f1fa;}
   .ws-sub{font-size:10px;color:var(--muted);margin-top:0;font-family:var(--mono);display:flex;align-items:center;flex-wrap:wrap;gap:4px;}
   .ws-header>div:first-child{min-width:0;flex:1 1 240px;}
   .ws-header>div:last-child{gap:8px!important;flex:0 1 auto;}
@@ -173,9 +175,10 @@
   .parked-empty{font-size:12px;color:var(--muted);}
   .capacity-section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;}
   .capacity-section-head .box-label{margin-bottom:0;}
-  .capacity-trash{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1.5px dashed var(--border2);border-radius:999px;background:var(--surface);color:var(--muted);font-size:11px;font-weight:600;font-family:var(--mono);text-transform:uppercase;letter-spacing:.04em;cursor:default;transition:background .12s,border-color .12s,color .12s,transform .12s;}
+  .parked-bottom-row{display:grid;grid-template-columns:minmax(0,9fr) minmax(64px,1fr);gap:10px;align-items:stretch;}
+  .capacity-trash{display:flex;min-width:0;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:8px 4px;border:1.5px dashed var(--border2);border-radius:10px;background:var(--surface);color:var(--muted);font-size:9px;font-weight:600;font-family:var(--mono);text-align:center;text-transform:uppercase;letter-spacing:.03em;line-height:1.3;cursor:default;transition:background .12s,border-color .12s,color .12s;}
   .capacity-trash svg{flex-shrink:0;}
-  .capacity-trash.drag-over{background:#fceaea;border-color:#e89090;color:#b52020;transform:scale(1.02);}
+  .capacity-trash.drag-over{background:#fceaea;border-color:#e89090;color:#b52020;}
   .ws-placeholder{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--muted);text-align:center;min-height:300px;}
   .right-panel{background:var(--surface);border-left:1px solid var(--border);padding:1.25rem;display:flex;flex-direction:column;gap:1rem;overflow-y:auto;max-height:calc(100vh - 92px);}
   .app-body.right-panel-collapsed{grid-template-columns:290px minmax(0,1fr) 38px;}
@@ -408,7 +411,14 @@
   .existing-board-chip{display:inline-flex;max-width:100%;border:1px solid var(--border);background:var(--surface);border-radius:999px;padding:3px 8px;font-size:11px;color:var(--text);}
   .existing-board-chip.taken{background:#ececec;border-color:#d2d2d2;color:#8a8a8a;text-decoration:line-through;}
   .existing-board-empty{font-size:12px;color:var(--muted);}
-  .share-modal{max-width:560px;}
+  .share-modal{max-width:560px;max-height:90vh;overflow-y:auto;}
+  .board-settings-section+.board-settings-section{border-top:1px solid var(--border);margin-top:18px;padding-top:16px;}
+  .board-settings-section-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);margin-bottom:10px;}
+  .board-settings-auth-message{font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5;}
+  .board-settings-data-actions{display:flex;flex-wrap:wrap;gap:8px;}
+  .board-settings-data-actions .btn{width:auto;}
+  .board-settings-data-actions .btn.danger{color:#b52020;}
+  .board-settings-data-actions .btn.danger:hover{background:#fceaea;border-color:#e89090;}
   .share-owner{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 10px;margin-bottom:10px;}
   .share-owner-email,.share-user-email{font-size:12px;font-family:var(--mono);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .share-permission-pill{font-size:10px;font-weight:600;font-family:var(--mono);text-transform:uppercase;letter-spacing:.04em;background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:2px 7px;color:var(--muted);white-space:nowrap;}
@@ -613,27 +623,6 @@
       <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4L2 8l4 4"/><path d="M3 8h7a4 4 0 010 8"/></svg>
       Undo
     </button>
-    <div class="dropdown-wrap" id="exportDropWrap">
-      <button class="btn-sm" onclick="toggleExportDropdown()">
-        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h10v3H3z"/><path d="M3 10h10v3H3z"/><path d="M5 6v4M11 6v4"/></svg>
-        Data
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 3.5l3 3 3-3"/></svg>
-      </button>
-      <div class="dropdown-menu" id="exportDropdown">
-        <button class="dropdown-item" onclick="exportCurrentTab()">Export current team</button>
-        <button class="dropdown-item" onclick="exportAllTabs()">Export all teams</button>
-        <div class="dropdown-divider"></div>
-        <button class="dropdown-item" onclick="openImport()">
-          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 11V2M4 5l4-4 4 4"/><path d="M2 12v1a1 1 0 001 1h10a1 1 0 001-1v-1"/></svg>
-          Import
-        </button>
-        <div class="dropdown-divider"></div>
-        <button class="dropdown-item danger" onclick="clearAll()">
-          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h12M5 4V2h6v2M6 7v5M10 7v5M3 4l1 9a1 1 0 001 1h6a1 1 0 001-1l1-9"/></svg>
-          Clear all
-        </button>
-      </div>
-    </div>
     <div class="online-users" id="onlineUsers" role="status" aria-live="polite" hidden></div>
     <div class="storage-status local" id="storageStatus" role="status" aria-live="polite" title="You are not signed in. Changes are saved in this browser only and are not shared.">
       <span class="storage-status-mark" aria-hidden="true"></span>
@@ -912,18 +901,35 @@
 <div class="modal-backdrop" id="boardShareModal">
   <div class="modal share-modal">
     <div class="modal-title" id="boardShareTitle">Board settings</div>
-    <div class="modal-sub" id="boardShareSub">Add users by email and choose whether they can read or write this board.</div>
-    <div class="share-owner">
-      <span class="share-owner-email" id="boardShareOwnerEmail">Owner</span>
-      <span class="share-permission-pill">Owner</span>
-    </div>
-    <div class="share-add-row">
-      <div class="field" style="margin-bottom:0;"><label class="field-label" for="boardShareEmail">User email</label><input type="email" id="boardShareEmail" placeholder="teammate@example.com" autocomplete="off"></div>
-      <div class="field" style="margin-bottom:0;"><label class="field-label" for="boardSharePermission">Permission</label><select id="boardSharePermission"><option value="read">Read</option><option value="write">Write</option></select></div>
-      <button class="btn btn-secondary" style="width:auto;padding:7px 12px;" id="boardShareAddBtn" onclick="addBoardCollaborator()">Add</button>
-    </div>
-    <div class="share-list" id="boardShareList"></div>
-    <div class="modal-error" id="boardShareError"></div>
+    <div class="modal-sub" id="boardShareSub">Manage access and data for this workspace.</div>
+    <section class="board-settings-section" aria-labelledby="boardAuthorizationHeading">
+      <div class="board-settings-section-title" id="boardAuthorizationHeading">Authorization</div>
+      <div class="board-settings-auth-message" id="boardAuthorizationMessage"></div>
+      <div id="boardAuthorizationControls">
+        <div class="share-owner">
+          <span class="share-owner-email" id="boardShareOwnerEmail">Owner</span>
+          <span class="share-permission-pill">Owner</span>
+        </div>
+        <div class="share-add-row">
+          <div class="field" style="margin-bottom:0;"><label class="field-label" for="boardShareEmail">User email</label><input type="email" id="boardShareEmail" placeholder="teammate@example.com" autocomplete="off"></div>
+          <div class="field" style="margin-bottom:0;"><label class="field-label" for="boardSharePermission">Permission</label><select id="boardSharePermission"><option value="read">Read</option><option value="write">Write</option></select></div>
+          <button class="btn btn-secondary" style="width:auto;padding:7px 12px;" id="boardShareAddBtn" onclick="addBoardCollaborator()">Add</button>
+        </div>
+        <div class="share-list" id="boardShareList"></div>
+        <div class="modal-error" id="boardShareError"></div>
+      </div>
+      <button class="btn btn-secondary" id="boardAuthorizationLoginBtn" type="button" style="width:auto;display:none" onclick="closeBoardShareModal();openAuthModal('login')">Log in to manage access</button>
+    </section>
+    <section class="board-settings-section" aria-labelledby="boardDataHeading">
+      <div class="board-settings-section-title" id="boardDataHeading">Data settings</div>
+      <div class="board-settings-auth-message">These actions apply to the workspace currently open in the planner.</div>
+      <div class="board-settings-data-actions">
+        <button class="btn btn-secondary" type="button" onclick="exportCurrentTab()">Export current team</button>
+        <button class="btn btn-secondary" type="button" onclick="exportAllTabs()">Export all teams</button>
+        <button class="btn btn-secondary" type="button" onclick="openImport()">Import</button>
+        <button class="btn btn-secondary danger" type="button" onclick="clearAll()">Clear all</button>
+      </div>
+    </section>
     <div class="modal-actions">
       <button class="btn btn-primary" style="width:auto" onclick="closeBoardShareModal()">Done</button>
     </div>
@@ -1128,6 +1134,18 @@ let remoteBoardChannelReady=false,onlineBoardPresences=[],remoteCursors=new Map(
 function freshBoardState(){return{name:defaultPIName(),iterationCount:6,iterationNames:[],placements:{},dependencies:[],teamOrder:[],backlogFilters:defaultBoardBacklogFilters(),backlogFiltersOpen:false};}
 let boardState=freshBoardState();
 function tab(){return tabs.find(t=>t.id===activeTabId);}
+function workspaceStatusMarkup(team){
+  const status=['current','past','upcoming'].includes(team?.status)?team.status:'';
+  return `<select class="ws-status${status?` ${status}`:''}" aria-label="Team status" title="Click to change team status" onchange="setActiveTeamStatus(this.value)"><option value=""${status?'':' selected'}>Set status</option><option value="current"${status==='current'?' selected':''}>Current</option><option value="past"${status==='past'?' selected':''}>Past</option><option value="upcoming"${status==='upcoming'?' selected':''}>Upcoming</option></select>`;
+}
+function setActiveTeamStatus(status){
+  const team=tab();
+  if(!team||!['','current','past','upcoming'].includes(status))return;
+  team.status=status;
+  saveState();
+  renderTabBar();
+  renderWorkspace();
+}
 function workspacePreferences(){
   try{
     const preferences=JSON.parse(localStorage.getItem(WORKSPACE_PREFERENCES_KEY)||'{}');
@@ -2262,8 +2280,26 @@ function renderBoardShareModal(){
   const list=document.getElementById('boardShareList');
   const err=document.getElementById('boardShareError');
   const addBtn=document.getElementById('boardShareAddBtn');
-  if(title)title.textContent=board?`Board settings: ${board.name}`:'Board settings';
-  if(sub)sub.textContent=boardShareLoading?'Loading shared users...':'Add users by email and choose whether they can read or write this board.';
+  const isCurrentRemoteBoard=!!boardShareBoardId&&boardShareBoardId===currentRemoteBoardId;
+  const permission=board?.permission||(isCurrentRemoteBoard?currentRemoteBoardPermission:null);
+  const canManageAuthorization=!!authSession&&!!boardShareBoardId&&permission==='owner';
+  const authMessage=document.getElementById('boardAuthorizationMessage');
+  const authControls=document.getElementById('boardAuthorizationControls');
+  const loginButton=document.getElementById('boardAuthorizationLoginBtn');
+  const boardName=board?.name||(isCurrentRemoteBoard?currentRemoteBoardName:'');
+  if(title)title.textContent=boardName?`Board settings: ${boardName}`:'Board settings';
+  if(sub)sub.textContent='Manage authorization and data settings for this workspace.';
+  if(authMessage){
+    authMessage.textContent=canManageAuthorization
+      ?'Manage who can access this shared board.'
+      :!authSession
+        ?'This workspace is saved in this browser. Sign in if you want to share a board and manage collaborator access.'
+        :boardShareBoardId
+          ?`You have ${boardPermissionLabel(permission)} access. Only the board owner can manage authorization.`
+          :'This workspace is saved in this browser. Authorization is available for shared boards.';
+  }
+  if(authControls)authControls.hidden=!canManageAuthorization;
+  if(loginButton)loginButton.style.display=!authSession?'inline-flex':'none';
   if(owner)owner.textContent=authSession?.user?.email||'Owner';
   if(addBtn)addBtn.disabled=boardShareLoading||boardShareSaving;
   if(err&&!boardShareSaving)err.textContent=err.textContent||'';
@@ -3053,7 +3089,7 @@ function renderTabBar(){
     el.title='Drag to reorder team tabs';
     el.addEventListener('click',e=>{
       if(suppressNextTabClick){suppressNextTabClick=false;return;}
-      if(e.target.closest('.tab-del,.tab-status'))return;
+      if(e.target.closest('.tab-del'))return;
       if(e.target.closest('.tab-name-input')&&!e.target.readOnly)return;
       switchTab(t.id);
     });
@@ -3068,25 +3104,18 @@ function renderTabBar(){
     inp.addEventListener('blur',()=>{inp.readOnly=true;renameTab(t.id,inp.value.trim()||t.name);inp.value=t.name;});
     inp.addEventListener('keydown',e=>{if(e.key==='Enter')inp.blur();if(e.key==='Escape'){inp.value=t.name;inp.blur();}});
     inp.addEventListener('mousedown',e=>{if(inp.readOnly)e.preventDefault();});
-    const statusWrap=document.createElement('span');
-    statusWrap.className='tab-status-wrap';
-    const status=document.createElement('select');
-    status.className='tab-status'+(['current','past','upcoming'].includes(t.status)?` ${t.status}`:'');
-    status.setAttribute('aria-label',`Status for ${t.name}`);
-    status.title='Set team status';
-    status.innerHTML='<option value="">Status</option><option value="current">Current</option><option value="past">Past</option><option value="upcoming">Upcoming</option>';
-    status.value=['current','past','upcoming'].includes(t.status)?t.status:'';
-    status.addEventListener('click',e=>e.stopPropagation());
-    status.addEventListener('change',()=>{
-      t.status=status.value;
-      saveState();
-      renderTabBar();
-    });
-    statusWrap.appendChild(status);
+    if(['current','past','upcoming'].includes(t.status)){
+      const status=document.createElement('span');
+      status.className=`tab-status-label ${t.status}`;
+      status.textContent=t.status[0].toUpperCase()+t.status.slice(1);
+      el.append(inp,status);
+    }else{
+      el.append(inp);
+    }
     const del=document.createElement('button');
     del.className='tab-del';del.textContent='×';
     del.addEventListener('click',e=>{e.stopPropagation();deleteTab(t.id);});
-    el.append(inp,statusWrap,del);bar.appendChild(el);
+    el.append(del);bar.appendChild(el);
   });
   const add=document.createElement('div');
   add.className='tab-add';add.textContent='+';
@@ -4014,7 +4043,7 @@ function renderSprintDetailWorkspace(){
     </section>`;
   }).join('');
   ws.innerHTML=`<div class="sprint-detail-layout">
-    <div class="ws-header"><div><div class="ws-title">${esc(t.name||'Team')} · Sprint Detail</div><div class="sprint-detail-summary">${sprintCount} ${sprintCount===1?'sprint':'sprints'} · ${sprintPointsLabel(totalCapacity)} total capacity${t.sprintWeeks?` · ${t.sprintWeeks} weeks per sprint`:''}</div></div></div>
+    <div class="ws-header"><div><div class="ws-title-row"><div class="ws-title">${esc(t.name||'Team')} · Sprint Detail</div>${workspaceStatusMarkup(t)}</div><div class="sprint-detail-summary">${sprintCount} ${sprintCount===1?'sprint':'sprints'} · ${sprintPointsLabel(totalCapacity)} total capacity${t.sprintWeeks?` · ${t.sprintWeeks} weeks per sprint`:''}</div></div></div>
     <div class="sprint-panels">${sprintPanels}</div>
   </div>`;
   ws.scrollLeft=workspaceScrollLeft;
@@ -4199,7 +4228,7 @@ function renderWorkspace(){
   ws.innerHTML=`
     <div class="ws-header">
       <div>
-        <div class="ws-title" id="wsTitle">${esc(t.name||'Team')}</div>
+        <div class="ws-title-row"><div class="ws-title" id="wsTitle">${esc(t.name||'Team')}</div>${workspaceStatusMarkup(t)}</div>
         <div class="ws-sub">
           <span>${sprintLine}</span><span>·</span>
           <span style="display:inline-flex;align-items:center;gap:3px;cursor:pointer;" onclick="promptGridCols()" title="Edit grid width">
@@ -4221,10 +4250,6 @@ function renderWorkspace(){
     <div>
       <div class="capacity-section-head">
         <div class="box-label">Committed grid — drag empty cells to create an item · hover a feature tile and click ✂ to split into user stories</div>
-        <div class="capacity-trash" id="capacityTrash" title="Drag a committed or parked item here to permanently delete it">
-          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h12M5 4V2h6v2M6 7v5M10 7v5M3 4l1 9a1 1 0 001 1h6a1 1 0 001-1l1-9"/></svg>
-          Recycle bin
-        </div>
       </div>
       <div class="tetris-outer" id="tetrisOuter">
         <div class="tetris-grid" id="tetrisGrid"
@@ -4238,7 +4263,13 @@ function renderWorkspace(){
       <div class="capacity-section-head">
         <div class="box-label">Parked items — not committed <span class="count-badge" id="parkedCount" style="display:none"></span></div>
       </div>
-      <div class="parked-outer" id="parkedOuter"><div class="parked-chips" id="parkedChips"></div></div>
+      <div class="parked-bottom-row">
+        <div class="parked-outer" id="parkedOuter"><div class="parked-chips" id="parkedChips"></div></div>
+        <div class="capacity-trash" id="capacityTrash" title="Drag a committed or parked item here to permanently delete it">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4h12M5 4V2h6v2M6 7v5M10 7v5M3 4l1 9a1 1 0 001 1h6a1 1 0 001-1l1-9"/></svg>
+          <span>Recycle bin</span>
+        </div>
+      </div>
     </div>`;
   const outer=document.getElementById('tetrisOuter');
   outer.addEventListener('dragover',onGridDragOver);
@@ -5056,26 +5087,22 @@ function promptGridCols(){
   t.gridCols=n;saveState();renderWorkspace();
 }
 
-function toggleExportDropdown(){document.getElementById('exportDropdown').classList.toggle('open');}
-document.addEventListener('click',e=>{if(!document.getElementById('exportDropWrap').contains(e.target))document.getElementById('exportDropdown').classList.remove('open');});
 document.addEventListener('click',e=>{if(!document.getElementById('boardMenuWrap')?.contains(e.target))document.getElementById('boardMenu')?.classList.remove('open');});
 function downloadJSON(obj,fn){const b=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}),u=URL.createObjectURL(b),a=Object.assign(document.createElement('a'),{href:u,download:fn});a.click();URL.revokeObjectURL(u);}
 async function exportCurrentTab(){
-  document.getElementById('exportDropdown').classList.remove('open');
   const t=tab();if(!t)return;
   const logged=await appendBoardActivity(currentRemoteBoardId,'Exported team data');
   downloadJSON({version:6,type:'single',tab:t},`capacity-${slug(t.name)}.json`);
   if(!logged)alert('The export completed, but its activity could not be recorded.');
 }
 async function exportAllTabs(){
-  document.getElementById('exportDropdown').classList.remove('open');
   const logged=await appendBoardActivity(currentRemoteBoardId,'Exported all team data');
   downloadJSON({version:6,type:'all',tabs,boardState},'capacity-all-teams.json');
   if(!logged)alert('The export completed, but its activity could not be recorded.');
 }
 function slug(s){return s.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');}
 function openImport(){
-  document.getElementById('exportDropdown')?.classList.remove('open');
+  closeBoardShareModal();
   document.getElementById('importText').value='';
   document.getElementById('importError').textContent='';
   const fileInput=document.getElementById('importFile');
@@ -5133,8 +5160,8 @@ function doImport(){
 }
 
 function clearAll(){
-  document.getElementById('exportDropdown')?.classList.remove('open');
   if(!confirm('Clear all teams and start fresh?'))return;
+  closeBoardShareModal();
   if(authSession){
     resetPlannerToFreshDefaults();
     renderPlannerState();

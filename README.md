@@ -30,8 +30,8 @@ Apply [`supabase-local/dev/activity-log.sql`](./supabase-local/dev/activity-log.
 - Per-sprint developer absences by name, days, and optional notes, with a capacity breakdown and net-capacity tracker
 - Drag stories between sprints or reorder them within a sprint, with feature-specific stories inheriting their feature's color
 - Backlog + parked area for items that don’t fit
-- Team tabs with separate plans
-- Import/export (single tab or all tabs)
+- Team tabs with separate plans and non-editable status labels; change a team's status beside its workspace title
+- Board Settings modal with separate Authorization and Data settings sections, including import/export (single tab or all tabs) and clear-all controls
 - Local persistence in the browser, including the selected team tab and Overview/Sprint Detail view across refreshes (shared-board preferences are browser-local)
 
 ## Capacity calculator
