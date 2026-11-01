@@ -82,7 +82,13 @@
   .empty-state{font-size:12px;color:var(--muted);text-align:center;padding:12px 0;}
   .count-badge{display:inline-flex;align-items:center;justify-content:center;background:var(--subtle);border:1px solid var(--border);border-radius:10px;padding:0 6px;height:18px;font-size:10px;font-weight:600;color:var(--muted);font-family:var(--mono);}
   .workspace{padding:1.5rem;display:flex;flex-direction:column;gap:.75rem;overflow-y:auto;overflow-x:auto;max-height:calc(100vh - 92px);}
+  .workspace:fullscreen,body.sprint-view .workspace:fullscreen{width:100vw;height:100vh;max-height:none;overflow:auto;padding:24px;background:var(--bg);}
+  body.workspace-fullscreen-mode #workspace{position:fixed;inset:0;z-index:1000;width:100vw;height:100vh;max-height:none;overflow:auto;padding:24px;background:var(--bg);}
   .ws-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;}
+  .workspace-fullscreen-btn{display:inline-flex;align-items:center;justify-content:center;flex:none;width:30px;height:30px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--muted);cursor:pointer;}
+  .workspace-fullscreen-btn:hover{background:var(--subtle);border-color:var(--border2);color:var(--text);}
+  .workspace-fullscreen-btn:focus-visible{outline:2px solid #6a9fd8;outline-offset:2px;}
+  .workspace-fullscreen-btn svg{width:15px;height:15px;}
   .ws-title{font-size:15px;font-weight:600;letter-spacing:-.01em;}
   .ws-title-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
   .ws-status{appearance:none;display:inline-flex;align-items:center;width:auto;border:0;border-radius:4px;padding:1px 14px 1px 5px;font:10px var(--sans);font-weight:500;line-height:1.4;cursor:pointer;background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);background-position:calc(100% - 5px) 50%,calc(100% - 2px) 50%;background-size:3px 3px;background-repeat:no-repeat;}
@@ -127,7 +133,13 @@
   .color-legend-help summary:hover,.color-legend-help[open] summary{color:var(--text);background:var(--subtle);}
   .color-legend-help-content{position:absolute;z-index:20;right:0;top:calc(100% + 6px);width:240px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);box-shadow:0 4px 16px rgba(0,0,0,.1);color:var(--muted);font-size:11px;line-height:1.5;}
   .color-legend-list{display:flex;flex-direction:column;gap:2px;}
-  .color-legend-item{display:grid;grid-template-columns:22px minmax(0,1fr);align-items:center;gap:5px;}
+  .color-legend-item{display:grid;grid-template-columns:16px 22px minmax(0,1fr);align-items:center;gap:4px;padding:1px 2px;border-radius:5px;}
+  .color-legend-item.drag-over{background:var(--subtle);}
+  .color-legend-item.is-dragging{opacity:.45;}
+  .color-legend-reorder{display:flex;align-items:center;justify-content:center;width:16px;height:20px;padding:0;border:0;border-radius:4px;background:transparent;color:var(--muted);cursor:grab;touch-action:none;}
+  .color-legend-reorder:hover{background:var(--subtle);color:var(--text);}
+  .color-legend-reorder:active{cursor:grabbing;}
+  .color-legend-reorder svg{width:12px;height:12px;fill:currentColor;}
   .color-legend-input{min-width:0;width:100%;padding:2px 5px!important;border-color:transparent!important;background:transparent!important;font-size:11px!important;}
   .color-legend-input:hover{border-color:var(--border)!important;background:var(--bg)!important;}
   .color-legend-input:focus{border-color:#6a9fd8!important;background:var(--surface)!important;}
@@ -479,19 +491,16 @@
   body.sprint-view .workspace{height:calc(100vh - 92px);max-height:none;}
   .sprint-detail-layout{display:flex;flex-direction:column;gap:18px;min-width:0;height:100%;}
   .sprint-detail-summary{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:3px;}
-  .sprint-panels{display:flex;flex:1;gap:12px;align-items:stretch;overflow-x:auto;overflow-y:hidden;padding:0 0 18px;min-width:0;min-height:0;scroll-snap-type:x proximity;}
-  .sprint-panel{flex:0 0 300px;min-width:0;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;transition:border-color .12s,background .12s;scroll-snap-align:start;}
+  .sprint-panels{display:flex;flex:1;gap:12px;align-items:flex-start;overflow:auto;padding:0 0 18px;min-width:0;min-height:0;scroll-snap-type:x proximity;}
+  .sprint-panel{flex:0 0 300px;height:max-content;min-height:100%;min-width:0;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;transition:border-color .12s,background .12s;scroll-snap-align:start;}
   .sprint-panel.drag-over{border-color:#6a9fd8;background:#f4f8fc;}
   .sprint-panel-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px;}
   .sprint-panel-title{font-size:13px;font-weight:600;}
   .sprint-panel-capacity-group{display:flex;align-items:center;gap:5px;min-width:0;}
-  .sprint-panel-capacity{font:10px var(--mono);color:var(--muted);white-space:nowrap;}
+  .sprint-panel-capacity{font:10px var(--mono);color:var(--muted);white-space:nowrap;text-align:right;}
   .sprint-capacity-edit{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;flex:none;border:0;border-radius:5px;background:transparent;color:var(--muted);cursor:pointer;}
   .sprint-capacity-edit:hover{background:var(--subtle);color:var(--text);}
   .sprint-capacity-edit svg{width:13px;height:13px;}
-  .sprint-capacity-breakdown{display:flex;flex-direction:column;gap:2px;margin:-3px 0 8px;font:9px var(--mono);color:var(--muted);}
-  .sprint-capacity-deduction{overflow-wrap:anywhere;}
-  .sprint-capacity-net{margin-top:2px;color:var(--text);font-weight:600;}
   .sprint-panel-load{font-size:10px;color:var(--muted);font-family:var(--mono);margin-bottom:8px;}
   .sprint-absence-modal{width:680px;max-width:95vw;max-height:90vh;display:flex;flex-direction:column;}
   .sprint-absence-modal-list{display:flex;flex-direction:column;gap:8px;overflow:auto;min-height:0;}
@@ -513,10 +522,26 @@
   .sprint-load-track{height:3px;background:var(--subtle);border-radius:3px;overflow:hidden;margin-bottom:10px;}
   .sprint-load-fill{height:100%;background:#7c9a83;transition:width .15s;}
   .sprint-load-fill.over{background:#bd7777;}
-  .sprint-story-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;min-height:72px;align-items:start;}
-  .sprint-story-slot{display:flex;flex-direction:column;gap:3px;min-width:0;}
-  .sprint-story-slot.sprint-empty-slot{grid-column:1 / -1;}
-  .sprint-story-card{position:relative;min-width:0;min-height:48px;padding:6px 22px 6px 6px;border:1px solid;border-radius:6px;cursor:grab;user-select:none;display:flex;flex-direction:column;justify-content:space-between;gap:4px;transition:box-shadow .12s,opacity .12s;}
+  .sprint-story-grid{display:flex;flex-direction:column;align-items:stretch;min-height:72px;}
+  .sprint-sections{display:flex;flex-direction:column;gap:8px;align-items:stretch;}
+  .sprint-section{min-width:0;padding:7px;border:1px solid var(--border);border-radius:8px;background:rgba(255,255,255,.32);transition:border-color .12s,background .12s;}
+  .sprint-section.drag-over{border-color:#6a9fd8;background:#f0f6fc;}
+  .sprint-section-header{display:flex;align-items:center;gap:6px;min-height:20px;margin-bottom:5px;}
+  .sprint-section-title{border:0;background:transparent;color:var(--muted);font:10px var(--mono);font-weight:600;text-align:left;min-width:0;max-width:180px;padding:2px 4px;border-radius:4px;cursor:text;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .sprint-section-title:hover{background:var(--subtle);color:var(--text);}
+  .sprint-section-input{width:140px!important;max-width:55%;border:0!important;box-shadow:none!important;border-radius:4px!important;background:var(--subtle)!important;color:var(--text)!important;font:10px var(--mono)!important;padding:3px 5px!important;}
+  .sprint-section-remove{margin-left:auto;border:0;background:transparent;color:var(--muted);font-size:12px;line-height:1;padding:2px 4px;opacity:0;cursor:pointer;border-radius:4px;}
+  .sprint-section:hover .sprint-section-remove,.sprint-section-remove:focus-visible{opacity:.65;}
+  .sprint-section-remove:hover{opacity:1!important;color:#b52020;background:#fceaea;}
+  .sprint-section-body{display:flex;flex-direction:column;gap:5px;min-height:58px;}
+  .sprint-section-empty{height:58px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:10px;}
+  .sprint-section-add{align-self:flex-start;border:0;background:transparent;color:var(--muted);font:9px var(--mono);padding:3px 4px;cursor:pointer;opacity:.5;}
+  .sprint-section-add:hover,.sprint-section-add:focus-visible{opacity:1;color:var(--text);outline:none;}
+  .sprint-section-add-placeholder{visibility:hidden;pointer-events:none;}
+  .sprint-story-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;height:58px;flex:none;}
+  .sprint-story-slot{display:flex;min-width:0;min-height:0;}
+  .sprint-story-slot.sprint-blank-slot{pointer-events:none;}
+  .sprint-story-card{position:relative;width:100%;min-width:0;height:58px;min-height:0;padding:6px 22px 6px 6px;border:1px solid;border-radius:6px;cursor:grab;user-select:none;display:flex;flex-direction:column;justify-content:space-between;gap:4px;transition:box-shadow .12s,opacity .12s;}
   .sprint-story-card:hover{box-shadow:0 2px 7px rgba(0,0,0,.1);}
   .sprint-story-remove{position:absolute;top:3px;right:3px;display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;padding:0;border:0;border-radius:4px;background:transparent;color:inherit;opacity:.5;cursor:pointer;}
   .sprint-story-remove:hover,.sprint-story-remove:focus-visible{background:rgba(0,0,0,.08);opacity:1;outline:none;}
@@ -525,24 +550,11 @@
   .sprint-story-card.drop-after{box-shadow:inset 0 -2px 0 #6a9fd8;}
   .sprint-story-card.is-linked-highlight,.sprint-source-card.is-linked-highlight{outline:2px solid rgba(70,126,180,.55);outline-offset:1px;box-shadow:0 0 0 4px rgba(106,159,216,.14),0 2px 7px rgba(0,0,0,.1);position:relative;z-index:1;}
   .sprint-story-card.is-dragging,.sprint-source-card.is-dragging{opacity:.35;}
-  .sprint-story-card-name{font-size:10px;font-weight:600;line-height:1.25;overflow-wrap:anywhere;}
+  .sprint-story-card-name{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:10px;font-weight:600;line-height:1.25;overflow-wrap:anywhere;}
   .sprint-story-card-footer{display:flex;align-items:flex-end;justify-content:space-between;gap:4px;min-width:0;}
   .sprint-story-card-meta{font:8px var(--mono);opacity:.72;flex:none;}
   .sprint-story-card-feature{font-size:8px;line-height:1.15;opacity:.58;text-align:right;flex:0 1 65%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-left:auto;}
-  .sprint-empty{min-height:74px;border:1px dashed var(--border2);border-radius:7px;display:flex;align-items:center;justify-content:center;padding:10px;text-align:center;color:var(--muted);font-size:11px;}
-  .sprint-divider{display:flex;align-items:center;gap:6px;min-height:18px;padding:1px 0;color:var(--muted);}
-  .sprint-divider-line{height:1px;background:var(--border);flex:1;min-width:12px;}
-  .sprint-divider-label{border:0;background:transparent;color:var(--muted);font:9px var(--mono);max-width:110px;padding:1px 3px;border-radius:3px;cursor:text;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .sprint-divider-label:hover{background:var(--subtle);color:var(--text);}
-  .sprint-divider-input{width:90px!important;max-width:35%;border:0!important;box-shadow:none!important;border-radius:3px!important;background:var(--subtle)!important;color:var(--muted)!important;font:9px var(--mono)!important;padding:2px 4px!important;}
-  .sprint-divider-remove{border:0;background:transparent;color:var(--muted);font-size:12px;line-height:1;padding:1px 3px;opacity:0;cursor:pointer;border-radius:3px;}
-  .sprint-divider:hover .sprint-divider-remove,.sprint-divider-remove:focus-visible{opacity:.65;}
-  .sprint-divider-remove:hover{opacity:1!important;color:#b52020;background:#fceaea;}
-  .sprint-add-divider{display:flex;align-items:center;gap:5px;width:100%;border:0;background:transparent;color:var(--muted);font:9px var(--mono);padding:2px 0;cursor:pointer;opacity:0;transition:opacity .12s;}
-  .sprint-add-divider::before{content:"";height:1px;flex:1;background:var(--border2);}
-  .sprint-add-divider::after{content:"";height:1px;flex:1;background:var(--border2);}
-  .sprint-story-slot:hover .sprint-add-divider,.sprint-story-slot:focus-within .sprint-add-divider{opacity:.42;}
-  .sprint-add-divider:hover,.sprint-add-divider:focus-visible{opacity:1;outline:none;}
+  .sprint-empty{height:58px;min-height:58px;border:1px dashed var(--border2);border-radius:7px;display:flex;align-items:center;justify-content:center;padding:6px;text-align:center;color:var(--muted);font-size:10px;grid-column:1 / -1;}
   .sprint-story-groups{display:flex;flex-direction:column;gap:14px;}
   .sprint-story-group{min-width:0;}
   .sprint-story-group-header{display:flex;align-items:center;gap:6px;width:100%;border:0;background:transparent;text-align:left;cursor:pointer;padding:2px 3px;border-radius:4px;margin-bottom:5px;}
@@ -1050,6 +1062,26 @@ function compactTypeLabel(f){
   return'US';
 }
 function getPalette(f){const pid=f.paletteId!=null?f.paletteId:(SIZES(f.type,f.size)?.paletteId||1);return PALETTES.find(p=>p.id===pid)||PALETTES[0];}
+let colorLegendDragPaletteId=null;
+function getColorLegendOrder(team){
+  const saved=Array.isArray(team?.colorLegendOrder)?team.colorLegendOrder:[];
+  const order=saved.filter((id,index)=>PALETTES.some(palette=>palette.id===id)&&saved.indexOf(id)===index);
+  PALETTES.forEach(palette=>{if(!order.includes(palette.id))order.push(palette.id);});
+  return order;
+}
+function moveColorLegendEntry(team,sourceId,targetId,after){
+  if(sourceId===targetId||!PALETTES.some(palette=>palette.id===sourceId)||!PALETTES.some(palette=>palette.id===targetId))return false;
+  const order=getColorLegendOrder(team);
+  const sourceIndex=order.indexOf(sourceId);
+  order.splice(sourceIndex,1);
+  const targetIndex=order.indexOf(targetId);
+  if(targetIndex<0)return false;
+  order.splice(targetIndex+(after?1:0),0,sourceId);
+  team.colorLegendOrder=order;
+  saveState();
+  renderWorkspace();
+  return true;
+}
 function renderColorLegend(team){
   const legend=document.getElementById('colorLegend');
   if(!legend)return;
@@ -1062,7 +1094,8 @@ function renderColorLegend(team){
       usedPalettes.set(palette.id,palette);
     }
   });
-  const palettes=PALETTES.filter(palette=>usedPalettes.has(palette.id));
+  const order=getColorLegendOrder(team);
+  const palettes=order.map(id=>usedPalettes.get(id)).filter(Boolean);
   legend.innerHTML=`<div class="color-legend-header">
     <div class="color-legend-title">Color legend</div>
     <details class="color-legend-help">
@@ -1071,14 +1104,58 @@ function renderColorLegend(team){
     </details>
   </div>
   ${palettes.length
-    ?`<div class="color-legend-list">${palettes.map(palette=>`<label class="color-legend-item">
+    ?`<div class="color-legend-list">${palettes.map(palette=>`<div class="color-legend-item" data-color-legend-row="${palette.id}">
+      <button class="color-legend-reorder" type="button" draggable="true" data-color-legend-handle="${palette.id}" aria-label="Reorder ${palette.color} legend entry" title="Drag to reorder; use Alt+Up or Alt+Down to move with the keyboard"><svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="4" cy="3" r="1"></circle><circle cx="8" cy="3" r="1"></circle><circle cx="4" cy="6" r="1"></circle><circle cx="8" cy="6" r="1"></circle><circle cx="4" cy="9" r="1"></circle><circle cx="8" cy="9" r="1"></circle></svg></button>
       <details class="color-legend-picker">
         <summary class="color-legend-picker-trigger" title="Change ${palette.color} color" aria-label="Change the color of ${palette.color} items"><span class="color-legend-swatch" style="background:${palette.color}"></span></summary>
         <div class="color-legend-picker-options" role="group" aria-label="Available colors">${PALETTES.map(option=>{const inUse=usedFeaturePaletteIds.has(option.id);return`<button class="color-legend-option" type="button" data-color-legend-from="${palette.id}" data-color-legend-to="${option.id}" style="background:${option.color}" title="${inUse?'Already in use':option.color}" aria-label="${inUse?`${option.color} is already in use`:`Change to ${option.color}`}" aria-pressed="${option.id===palette.id}"${inUse?' disabled':''}></button>`;}).join('')}</div>
       </details>
       <input class="color-legend-input" type="text" maxlength="80" data-color-legend-id="${palette.id}" aria-label="Meaning for ${palette.color} items" placeholder="Add meaning" value="${esc(team.colorLegend?.[palette.id]||'')}">
-    </label>`).join('')}</div>`
+    </div>`).join('')}</div>`
     :'<div class="color-legend-empty">Colors used by committed features will appear here.</div>'}`;
+  legend.querySelectorAll('.color-legend-reorder').forEach(handle=>{
+    const row=handle.closest('[data-color-legend-row]');
+    handle.addEventListener('dragstart',event=>{
+      colorLegendDragPaletteId=Number(row.dataset.colorLegendRow);
+      row.classList.add('is-dragging');
+      event.dataTransfer.effectAllowed='move';
+      event.dataTransfer.setData('text/plain',String(colorLegendDragPaletteId));
+    });
+    handle.addEventListener('keydown',event=>{
+      if(!event.altKey||!['ArrowUp','ArrowDown'].includes(event.key))return;
+      event.preventDefault();
+      const visibleIds=palettes.map(palette=>palette.id);
+      const sourceId=Number(row.dataset.colorLegendRow);
+      const currentIndex=visibleIds.indexOf(sourceId);
+      const targetIndex=currentIndex+(event.key==='ArrowUp'?-1:1);
+      if(targetIndex<0||targetIndex>=visibleIds.length)return;
+      const moved=moveColorLegendEntry(team,sourceId,visibleIds[targetIndex],event.key==='ArrowDown');
+      if(moved)requestAnimationFrame(()=>document.querySelector(`[data-color-legend-handle="${sourceId}"]`)?.focus());
+    });
+  });
+  legend.querySelectorAll('[data-color-legend-row]').forEach(row=>{
+    row.addEventListener('dragover',event=>{
+      if(colorLegendDragPaletteId===null)return;
+      event.preventDefault();
+      event.dataTransfer.dropEffect='move';
+      row.classList.add('drag-over');
+    });
+    row.addEventListener('dragleave',event=>{
+      if(!row.contains(event.relatedTarget))row.classList.remove('drag-over');
+    });
+    row.addEventListener('drop',event=>{
+      event.preventDefault();
+      const sourceId=colorLegendDragPaletteId;
+      const targetId=Number(row.dataset.colorLegendRow);
+      const after=event.clientY>row.getBoundingClientRect().top+row.getBoundingClientRect().height/2;
+      colorLegendDragPaletteId=null;
+      moveColorLegendEntry(team,sourceId,targetId,after);
+    });
+    row.addEventListener('dragend',()=>{
+      colorLegendDragPaletteId=null;
+      legend.querySelectorAll('.color-legend-item').forEach(item=>item.classList.remove('is-dragging','drag-over'));
+    });
+  });
   legend.querySelectorAll('[data-color-legend-from]').forEach(option=>{
     option.addEventListener('click',()=>{
       const currentTeam=tabs.find(item=>item.id===activeTabId);
@@ -1141,7 +1218,33 @@ function ensureSprintDividers(team){
     used.add(id);
     const match=id.match(/^sd-(\d+)$/);
     if(match)counter=Math.max(counter,Number(match[1]));
-    return{id,sprintIndex:divider.sprintIndex,afterKey:typeof divider.afterKey==='string'?divider.afterKey:null,label:typeof divider.label==='string'?divider.label:''};
+    const afterKey=typeof divider.afterKey==='string'?divider.afterKey:null;
+    const storyKeys=sprintStoryKeysForSprint(team,divider.sprintIndex);
+    const afterIndex=afterKey?storyKeys.indexOf(afterKey):-1;
+    const rowIndex=Number.isInteger(divider.rowIndex)&&divider.rowIndex>=0
+      ?divider.rowIndex
+      :afterIndex>=0?Math.ceil((afterIndex+1)/2):afterKey?Math.ceil(storyKeys.length/2):0;
+    return{id,sprintIndex:divider.sprintIndex,afterKey,rowIndex,sectionIndex:Number.isInteger(divider.sectionIndex)&&divider.sectionIndex>=0?divider.sectionIndex:null,label:typeof divider.label==='string'?divider.label:''};
+  }).sort((a,b)=>(a.sectionIndex??a.rowIndex)-(b.sectionIndex??b.rowIndex)).map((divider,index)=>({...divider,sectionIndex:index}));
+  const validSectionCount=team.sprintDividers.length+1;
+  const sections=team.sprintStorySectionAssignments&&typeof team.sprintStorySectionAssignments==='object'&&!Array.isArray(team.sprintStorySectionAssignments)
+    ?team.sprintStorySectionAssignments:{};
+  team.sprintStorySectionAssignments={};
+  Object.keys(team.sprintPlacements||{}).forEach(key=>{
+    const sprintIndex=team.sprintPlacements[key];
+    const existing=Number(sections[key]);
+    if(Number.isInteger(existing)&&existing>=0&&existing<validSectionCount){
+      team.sprintStorySectionAssignments[key]=existing;
+      return;
+    }
+    const storyIndex=sprintStoryKeysForSprint({...team,sprintStorySectionAssignments:{}},sprintIndex).indexOf(key);
+    const rowIndex=storyIndex>=0?Math.floor(storyIndex/2):0;
+    team.sprintStorySectionAssignments[key]=Math.min(validSectionCount-1,team.sprintDividers.filter(divider=>divider.rowIndex<=rowIndex).length);
+  });
+  const sectionLabels=Array.isArray(team.sprintSectionLabels)?team.sprintSectionLabels:[];
+  team.sprintSectionLabels=Array.from({length:validSectionCount},(_,index)=>{
+    const label=typeof sectionLabels[index]==='string'?sectionLabels[index]:index===0?'Section 1':team.sprintDividers[index-1]?.label||`Section ${index+1}`;
+    return label.trim()||`Section ${index+1}`;
   });
   team.sprintDividerIdCounter=counter;
 }
@@ -1164,7 +1267,7 @@ function ensureSprintAbsences(team){
   });
   team.sprintAbsenceIdCounter=counter;
 }
-let sprintDividerEditId=null;
+let sprintSectionEditIndex=null,sprintDividerEditSprintIndex=null;
 function getSprintWorkItems(team){
   const items=[];
   (team?.features||[]).forEach(feature=>{
@@ -1211,6 +1314,53 @@ function tab(){return tabs.find(t=>t.id===activeTabId);}
 function workspaceStatusMarkup(team){
   const status=['current','past','upcoming'].includes(team?.status)?team.status:'';
   return `<select class="ws-status${status?` ${status}`:''}" aria-label="Team status" title="Click to change team status" onchange="setActiveTeamStatus(this.value)"><option value=""${status?'':' selected'}>Set status</option><option value="current"${status==='current'?' selected':''}>Current</option><option value="past"${status==='past'?' selected':''}>Past</option><option value="upcoming"${status==='upcoming'?' selected':''}>Upcoming</option></select>`;
+}
+function workspaceFullscreenButtonMarkup(){
+  const isFullscreen=document.fullscreenElement===document.getElementById('workspace')||document.body.classList.contains('workspace-fullscreen-mode');
+  const label=isFullscreen?'Exit fullscreen':'Enter fullscreen';
+  const icon=isFullscreen
+    ?'<path d="M3 9h6V3M13 7H7v6"/>'
+    :'<path d="M3 6V3h3M10 3h3v3M13 10v3h-3M6 13H3v-3"/>';
+  return`<button class="workspace-fullscreen-btn" type="button" onclick="toggleWorkspaceFullscreen()" aria-label="${label}" title="${label}"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icon}</svg></button>`;
+}
+function syncWorkspaceFullscreenButton(){
+  const button=document.querySelector('#workspace .workspace-fullscreen-btn');
+  if(!button)return;
+  const label=document.fullscreenElement===document.getElementById('workspace')||document.body.classList.contains('workspace-fullscreen-mode')?'Exit fullscreen':'Enter fullscreen';
+  button.setAttribute('aria-label',label);
+  button.title=label;
+  button.querySelector('svg').innerHTML=label==='Exit fullscreen'
+    ?'<path d="M3 9h6V3M13 7H7v6"/>'
+    :'<path d="M3 6V3h3M10 3h3v3M13 10v3h-3M6 13H3v-3"/>';
+}
+document.addEventListener('fullscreenchange',syncWorkspaceFullscreenButton);
+document.addEventListener('keydown',event=>{
+  if(event.key==='Escape'&&document.body.classList.contains('workspace-fullscreen-mode')){
+    document.body.classList.remove('workspace-fullscreen-mode');
+    syncWorkspaceFullscreenButton();
+  }
+});
+async function toggleWorkspaceFullscreen(){
+  const workspace=document.getElementById('workspace');
+  if(!workspace)return;
+  if(document.fullscreenElement===workspace){
+    await document.exitFullscreen();
+    syncWorkspaceFullscreenButton();
+    return;
+  }
+  if(document.body.classList.contains('workspace-fullscreen-mode')){
+    document.body.classList.remove('workspace-fullscreen-mode');
+    syncWorkspaceFullscreenButton();
+    return;
+  }
+  try{
+    await workspace.requestFullscreen();
+    syncWorkspaceFullscreenButton();
+  }catch(error){
+    console.warn('Browser fullscreen was unavailable; using workspace-only fullscreen.',error);
+    document.body.classList.add('workspace-fullscreen-mode');
+    syncWorkspaceFullscreenButton();
+  }
 }
 function setActiveTeamStatus(status){
   const team=tab();
@@ -1416,7 +1566,7 @@ function plannerActivitySummary(previousSnapshot,nextSnapshot){
     if(sprintChange)return sprintChange;
     const absenceChange=activitySprintAbsenceChange(oldTeam,team);
     if(absenceChange)return absenceChange;
-    if(['sprintPlacements','sprintStoryOrder','sprintDividers'].some(key=>JSON.stringify(oldTeam[key]||[])!==JSON.stringify(team[key]||[])))return'Updated sprint plan';
+    if(['sprintPlacements','sprintStoryOrder','sprintDividers','sprintStorySectionAssignments','sprintSectionLabels'].some(key=>JSON.stringify(oldTeam[key]||[])!==JSON.stringify(team[key]||[])))return'Updated sprint plan';
     if(['capacity','sprintDevs','sprintCount','sprintWeeks','sprintPtsPerDev','holidays'].some(key=>oldTeam[key]!==team[key]))return'Changed capacity settings';
     if(oldTeam.gridCols!==team.gridCols)return'Changed committed grid width';
     if(JSON.stringify(oldTeam)!==JSON.stringify(team))return'Updated team settings';
@@ -3779,6 +3929,7 @@ function renderPIBoardWorkspace(){
       <div class="pi-board-actions">
         <button class="btn-sm" onclick="applyBoardSetup()">Refresh board</button>
         <button class="btn-sm danger" onclick="clearBoardDependencies()">Clear ropes</button>
+        ${workspaceFullscreenButtonMarkup()}
       </div>
     </div>
     <div class="pi-board-wrap">
@@ -3812,23 +3963,16 @@ function sprintPointsLabel(points){
   return`${rounded} ${rounded===1?'pt':'pts'}`;
 }
 function sprintItemPointsLabel(item){return item.points?sprintPointsLabel(item.points):'No points';}
-function renderSprintCapacityBreakdown(team,sprintIndex){
-  const base=sprintBaseCapacityPts(team),net=sprintCapacityPts(team,sprintIndex),rows=sprintAbsenceRows(team,sprintIndex);
-  const deductions=rows.filter(absence=>Number(absence.days)>0).map(absence=>{
-    const points=Number(absence.days)*(Number(team.sprintPtsPerDev)||0)/((Number(team.sprintWeeks)||1)*5);
-    return`<div class="sprint-capacity-deduction">− ${sprintPointsLabel(points)} (${esc(absence.name.trim()||'Unnamed developer')})</div>`;
-  });
-  const holidays=sprintHolidayPoints(team);
-  if(holidays>0)deductions.push(`<div class="sprint-capacity-deduction">− ${sprintPointsLabel(holidays)} (General holidays)</div>`);
+function sprintCapacityLabel(team,sprintIndex){
+  const base=sprintBaseCapacityPts(team),net=sprintCapacityPts(team,sprintIndex);
   const remaining=base>0?Math.round(net/base*100):0;
-  return`<div class="sprint-capacity-breakdown" data-capacity-breakdown="${sprintIndex}">
-    ${deductions.join('')}
-    <div class="sprint-capacity-net">Net cap: ${Number(net.toFixed(2))}/${Number(base.toFixed(2))} pts (${remaining}%)</div>
-  </div>`;
+  return`${Number(net.toFixed(2))}/${Number(base.toFixed(2))} pts capacity (${remaining}%)`;
 }
 function sprintStoryKeysForSprint(team,sprintIndex){
-  const placements=team.sprintPlacements||{},order=team.sprintStoryOrder||[];
+  const placements=team.sprintPlacements||{},order=team.sprintStoryOrder||[],sections=team.sprintStorySectionAssignments||{};
   return Object.keys(placements).filter(key=>placements[key]===sprintIndex).sort((a,b)=>{
+    const sectionDifference=(Number(sections[a])||0)-(Number(sections[b])||0);
+    if(sectionDifference)return sectionDifference;
     const aIndex=order.indexOf(a),bIndex=order.indexOf(b);
     if(aIndex<0&&bIndex<0)return 0;
     if(aIndex<0)return 1;
@@ -3908,12 +4052,12 @@ function clearSprintStoryCounterpartHighlight(e){
   });
 }
 function startSprintStoryDrag(e){
-  const key=e.currentTarget.dataset.itemKey;
+  const card=e.currentTarget,key=card.dataset.itemKey;
   if(!key){e.preventDefault();return;}
   sprintDragKey=key;
   e.dataTransfer.effectAllowed='move';
   e.dataTransfer.setData('text/plain',key);
-  setTimeout(()=>e.currentTarget.classList.add('is-dragging'),0);
+  setTimeout(()=>card.classList.add('is-dragging'),0);
 }
 function resetSprintStoryDrag(e){
   e?.currentTarget?.classList.remove('is-dragging');
@@ -3923,21 +4067,51 @@ function resetSprintStoryDrag(e){
 function onSprintPanelDragOver(e){
   if(!sprintDragKey)return;
   e.preventDefault();
+  e.currentTarget.querySelectorAll('.sprint-section.drag-over').forEach(section=>section.classList.remove('drag-over'));
+  e.target.closest('.sprint-section')?.classList.add('drag-over');
   e.currentTarget.classList.add('drag-over');
   e.dataTransfer.dropEffect='move';
 }
 function onSprintPanelDragLeave(e){
-  if(!e.currentTarget.contains(e.relatedTarget))e.currentTarget.classList.remove('drag-over');
+  if(!e.currentTarget.contains(e.relatedTarget)){
+    e.currentTarget.classList.remove('drag-over');
+    e.currentTarget.querySelectorAll('.sprint-section.drag-over').forEach(section=>section.classList.remove('drag-over'));
+  }
 }
 function onSprintPanelDrop(e){
   e.preventDefault();
   const t=tab(),key=sprintDragKey,index=Number(e.currentTarget.dataset.sprint);
   e.currentTarget.classList.remove('drag-over');
+  e.currentTarget.querySelectorAll('.sprint-section.drag-over').forEach(section=>section.classList.remove('drag-over'));
   if(!t||!key||!getSprintWorkItems(t).some(item=>item.key===key)||!Number.isInteger(index)){resetSprintStoryDrag();return;}
+  const sections=[...e.currentTarget.querySelectorAll('.sprint-section')];
+  const hoveredSection=e.target.closest('.sprint-section');
+  let sectionIndex=Number(hoveredSection?.dataset.sectionIndex);
+  if(!Number.isInteger(sectionIndex)){
+    const targetSection=sections.find(section=>{
+      const rect=section.getBoundingClientRect();
+      return e.clientY>=rect.top&&e.clientY<=rect.bottom;
+    });
+    sectionIndex=targetSection?Number(targetSection.dataset.sectionIndex):0;
+  }
+  const existingKeys=sprintStoryKeysForSprint(t,index).filter(itemKey=>itemKey!==key);
+  const sectionKeys=existingKeys.filter(itemKey=>(Number(t.sprintStorySectionAssignments?.[itemKey])||0)===sectionIndex);
+  const previousOrder=(t.sprintStoryOrder||[]).filter(itemKey=>itemKey!==key);
+  let insertionIndex=previousOrder.length;
+  if(sectionKeys.length){
+    const lastKey=sectionKeys.at(-1),lastIndex=previousOrder.indexOf(lastKey);
+    if(lastIndex>=0)insertionIndex=lastIndex+1;
+  }else{
+    const nextKey=existingKeys.find(itemKey=>(Number(t.sprintStorySectionAssignments?.[itemKey])||0)>sectionIndex);
+    const nextIndex=nextKey?previousOrder.indexOf(nextKey):-1;
+    if(nextIndex>=0)insertionIndex=nextIndex;
+  }
+  previousOrder.splice(insertionIndex,0,key);
   t.sprintPlacements=t.sprintPlacements||{};
   t.sprintPlacements[key]=index;
-  t.sprintStoryOrder=(t.sprintStoryOrder||[]).filter(itemKey=>itemKey!==key);
-  t.sprintStoryOrder.push(key);
+  t.sprintStorySectionAssignments=t.sprintStorySectionAssignments||{};
+  t.sprintStorySectionAssignments[key]=sectionIndex;
+  t.sprintStoryOrder=previousOrder;
   resetSprintStoryDrag();
   saveState();
   renderWorkspace();
@@ -3977,6 +4151,8 @@ function onSprintStoryCardDrop(e){
   ordered.splice(targetIndex+(after?1:0),0,key);
   t.sprintPlacements=t.sprintPlacements||{};
   t.sprintPlacements[key]=sprintIndex;
+  t.sprintStorySectionAssignments=t.sprintStorySectionAssignments||{};
+  t.sprintStorySectionAssignments[key]=Number(t.sprintStorySectionAssignments[targetKey])||0;
   const unaffectedOrder=previousOrder.filter(itemKey=>!previousSprintKeys.includes(itemKey)&&itemKey!==key);
   unaffectedOrder.splice(Math.min(insertionPoint,unaffectedOrder.length),0,...ordered);
   t.sprintStoryOrder=unaffectedOrder;
@@ -3988,6 +4164,7 @@ function removeSprintStoryFromSprint(key){
   const t=tab();
   if(!t||!key||!Object.prototype.hasOwnProperty.call(t.sprintPlacements||{},key))return;
   delete t.sprintPlacements[key];
+  if(t.sprintStorySectionAssignments)delete t.sprintStorySectionAssignments[key];
   t.sprintStoryOrder=(t.sprintStoryOrder||[]).filter(itemKey=>itemKey!==key);
   saveState();
   renderWorkspace();
@@ -4007,66 +4184,96 @@ function onSprintStoriesDrop(e){
   e.currentTarget.classList.remove('drag-over');
   if(!t||!key)return;
   delete t.sprintPlacements?.[key];
+  if(t.sprintStorySectionAssignments)delete t.sprintStorySectionAssignments[key];
   resetSprintStoryDrag();
   saveState();
   renderWorkspace();
 }
-function sprintDividerMarkup(divider){
-  const label=divider.label||'';
-  const labelElement=sprintDividerEditId===divider.id
-    ?`<input class="sprint-divider-input" type="text" value="${esc(label)}" data-original-label="${esc(label)}" placeholder="Section name" aria-label="Divider name" data-divider-id="${esc(divider.id)}">`
-    :`<button class="sprint-divider-label" type="button" data-divider-id="${esc(divider.id)}" title="Click to name this divider">${esc(label||'Name divider')}</button>`;
-  return`<div class="sprint-divider" data-divider-id="${esc(divider.id)}"><span class="sprint-divider-line"></span>${labelElement}<span class="sprint-divider-line"></span><button class="sprint-divider-remove" type="button" data-divider-id="${esc(divider.id)}" aria-label="Remove divider" title="Remove divider">×</button></div>`;
+function sprintSectionMarkup(sectionIndex,sprintIndex){
+  const t=tab(),label=t?.sprintSectionLabels?.[sectionIndex]||`Section ${sectionIndex+1}`;
+  const divider=sectionIndex>0?t?.sprintDividers?.[sectionIndex-1]:null;
+  const isEditing=sprintSectionEditIndex===sectionIndex&&sprintDividerEditSprintIndex===sprintIndex;
+  const labelElement=isEditing
+    ?`<input class="sprint-section-input" type="text" value="${esc(label)}" data-original-label="${esc(label)}" placeholder="Section name" aria-label="Section name" data-section-index="${sectionIndex}" data-sprint="${sprintIndex}">`
+    :`<button class="sprint-section-title" type="button" data-section-index="${sectionIndex}" data-sprint="${sprintIndex}" title="Click to rename this section">${esc(label)}</button>`;
+  const removeButton=sprintIndex===0&&divider?`<button class="sprint-section-remove" type="button" data-divider-id="${esc(divider.id)}" aria-label="Remove section" title="Remove section">×</button>`:'';
+  return`<div class="sprint-section-header">${labelElement}${removeButton}</div>`;
 }
-function sprintDividerAddButton(sprintIndex,afterKey){
-  return`<button class="sprint-add-divider" type="button" data-sprint="${sprintIndex}" data-after-key="${esc(afterKey||'')}" aria-label="Add divider">+ divider</button>`;
+function sprintSectionAddButton(sprintIndex,sectionIndex){
+  return`<button class="sprint-section-add${sprintIndex===0?'':' sprint-section-add-placeholder'}" type="button" data-section-index="${sectionIndex}" aria-label="Add section"${sprintIndex===0?'':' aria-hidden="true" tabindex="-1" disabled'}>+ Add section</button>`;
 }
-function addSprintDivider(sprintIndex,afterKey){
+function addSprintSection(sectionIndex){
   const t=tab();
-  if(!t||!Number.isInteger(sprintIndex))return;
+  if(!t||!Number.isInteger(sectionIndex))return;
   ensureSprintDividers(t);
+  const sprintIndex=0;
+  const storyKeys=sprintStoryKeysForSprint(t,sprintIndex);
+  const sameSectionKeys=storyKeys.filter(key=>(Number(t.sprintStorySectionAssignments?.[key])||0)===sectionIndex);
+  const afterIndex=sameSectionKeys.length-1;
+  const insertAt=sectionIndex+1;
   t.sprintDividerIdCounter++;
   const id=`sd-${t.sprintDividerIdCounter}`;
-  t.sprintDividers.push({id,sprintIndex,afterKey:afterKey||null,label:''});
-  sprintDividerEditId=id;
+  const previousSections=t.sprintStorySectionAssignments||{};
+  t.sprintStorySectionAssignments={};
+  Object.keys(t.sprintPlacements||{}).forEach(key=>{
+    const keySection=Number(previousSections[key])||0;
+    const keySprint=t.sprintPlacements[key];
+    const keyIndex=sprintStoryKeysForSprint({...t,sprintStorySectionAssignments:previousSections},keySprint).filter(itemKey=>(Number(previousSections[itemKey])||0)===sectionIndex).indexOf(key);
+    t.sprintStorySectionAssignments[key]=keySection>sectionIndex||(keySprint===sprintIndex&&keySection===sectionIndex&&keyIndex>afterIndex)?keySection+1:keySection;
+  });
+  const rowIndex=afterIndex>=0?Math.ceil((afterIndex+1)/2):0;
+  t.sprintDividers.splice(insertAt,0,{id,sprintIndex,afterKey:sameSectionKeys.at(-1)||null,rowIndex,sectionIndex:insertAt-1,label:''});
+  t.sprintSectionLabels.splice(insertAt,0,`Section ${insertAt+1}`);
+  sprintSectionEditIndex=insertAt;
+  sprintDividerEditSprintIndex=sprintIndex;
   saveState();
   renderWorkspace();
-  requestAnimationFrame(()=>document.querySelector(`.sprint-divider-input[data-divider-id="${id}"]`)?.focus());
+  requestAnimationFrame(()=>document.querySelector(`.sprint-section-input[data-section-index="${insertAt}"][data-sprint="${sprintIndex}"]`)?.focus());
 }
-function editSprintDivider(id){
-  sprintDividerEditId=id;
+function editSprintSection(sectionIndex,sprintIndex){
+  sprintSectionEditIndex=sectionIndex;
+  sprintDividerEditSprintIndex=sprintIndex;
   renderWorkspace();
   requestAnimationFrame(()=>{
-    const input=document.querySelector(`.sprint-divider-input[data-divider-id="${id}"]`);
+    const input=document.querySelector(`.sprint-section-input[data-section-index="${sectionIndex}"][data-sprint="${sprintIndex}"]`);
     input?.focus();input?.select();
   });
 }
-function saveSprintDividerLabel(id,label){
-  const t=tab(),divider=t?.sprintDividers?.find(item=>item.id===id);
-  if(!divider)return;
-  divider.label=label.trim();
-  sprintDividerEditId=null;
+function saveSprintSectionLabel(sectionIndex,label){
+  const t=tab();
+  if(!t||!Number.isInteger(sectionIndex)||!Array.isArray(t.sprintSectionLabels))return;
+  t.sprintSectionLabels[sectionIndex]=label.trim()||`Section ${sectionIndex+1}`;
+  sprintSectionEditIndex=null;
+  sprintDividerEditSprintIndex=null;
   saveState();
   renderWorkspace();
 }
 function handleSprintDividerKeydown(e){
   if(e.key==='Enter'){
     e.preventDefault();
-    saveSprintDividerLabel(e.currentTarget.dataset.dividerId,e.currentTarget.value);
+    saveSprintSectionLabel(Number(e.currentTarget.dataset.sectionIndex),e.currentTarget.value);
   }
   if(e.key==='Escape'){
     e.preventDefault();
     e.currentTarget.dataset.cancelled='true';
-    const t=tab(),divider=t?.sprintDividers?.find(item=>item.id===e.currentTarget.dataset.dividerId);
-    if(divider)divider.label=e.currentTarget.dataset.originalLabel||'';
-    sprintDividerEditId=null;
+    const t=tab(),sectionIndex=Number(e.currentTarget.dataset.sectionIndex);
+    if(t?.sprintSectionLabels&&Number.isInteger(sectionIndex))t.sprintSectionLabels[sectionIndex]=e.currentTarget.dataset.originalLabel||`Section ${sectionIndex+1}`;
+    sprintSectionEditIndex=null;
+    sprintDividerEditSprintIndex=null;
     renderWorkspace();
   }
 }
 function removeSprintDivider(id){
   const t=tab();if(!t)return;
-  t.sprintDividers=(t.sprintDividers||[]).filter(divider=>divider.id!==id);
-  if(sprintDividerEditId===id)sprintDividerEditId=null;
+  const dividerIndex=(t.sprintDividers||[]).findIndex(divider=>divider.id===id);
+  if(dividerIndex<0)return;
+  t.sprintDividers.splice(dividerIndex,1);
+  t.sprintSectionLabels.splice(dividerIndex+1,1);
+  Object.keys(t.sprintStorySectionAssignments||{}).forEach(key=>{
+    const sectionIndex=Number(t.sprintStorySectionAssignments[key])||0;
+    if(sectionIndex>dividerIndex)t.sprintStorySectionAssignments[key]=sectionIndex-1;
+  });
+  if(sprintSectionEditIndex===dividerIndex+1){sprintSectionEditIndex=null;sprintDividerEditSprintIndex=null;}
   saveState();
   renderWorkspace();
 }
@@ -4083,43 +4290,59 @@ function renderSprintDetailWorkspace(){
   const items=getSprintWorkItems(t),placements=t.sprintPlacements||{};
   const sprintCount=Math.max(1,parseInt(t.sprintCount)||1);
   const totalCapacity=Math.max(0,Number(teamCapacityPts(t))||0);
+  const sectionCount=t.sprintDividers.length+1;
+  const sectionRowCounts=Array(sectionCount).fill(1);
+  for(let sprintIndex=0;sprintIndex<sprintCount;sprintIndex++){
+    const sprintKeys=sprintStoryKeysForSprint(t,sprintIndex);
+    for(let sectionIndex=0;sectionIndex<sectionCount;sectionIndex++){
+      const count=sprintKeys.filter(key=>(Number(t.sprintStorySectionAssignments?.[key])||0)===sectionIndex).length;
+      sectionRowCounts[sectionIndex]=Math.max(sectionRowCounts[sectionIndex],Math.ceil(count/2));
+    }
+  }
   const sprintPanels=Array.from({length:sprintCount},(_,index)=>{
     const sprintItems=sprintStoryKeysForSprint(t,index).map(key=>items.find(item=>item.key===key)).filter(Boolean);
-    const dividers=t.sprintDividers.filter(divider=>divider.sprintIndex===index);
-    const renderedDividerIds=new Set();
-    const renderDividersAfter=afterKey=>dividers.filter(divider=>divider.afterKey===afterKey).map(divider=>{
-      renderedDividerIds.add(divider.id);
-      return sprintDividerMarkup(divider);
-    }).join('');
     const points=sprintItems.reduce((sum,item)=>sum+item.points,0);
-    const capacity=sprintCapacityPts(t,index),baseCapacity=sprintBaseCapacityPts(t);
+    const capacity=sprintCapacityPts(t,index);
     const over=points>capacity;
     const progress=capacity?Math.min(100,Math.round(points/capacity*100)):0;
-    let cards='';
-    sprintItems.forEach(item=>{
-      cards+=`<div class="sprint-story-slot"><div class="sprint-story-card" draggable="true" data-item-key="${esc(item.key)}" style="background:${item.palette.bg};color:${item.palette.color};border-color:${item.palette.border}"><button class="sprint-story-remove" type="button" data-unplan-story="${esc(item.key)}" aria-label="Return ${esc(item.name)} to the story list" title="Return to story list"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="m3 3 6 6M9 3 3 9"/></svg></button><div class="sprint-story-card-name">${esc(item.name)}</div><div class="sprint-story-card-footer"><div class="sprint-story-card-meta">${sprintItemPointsLabel(item)}</div>${item.featureName?`<div class="sprint-story-card-feature" title="Feature: ${esc(item.featureName)}">Feature: ${esc(item.featureName)}</div>`:''}</div></div>`;
-      cards+=renderDividersAfter(item.key);
-      cards+=sprintDividerAddButton(index,item.key);
-      cards+='</div>';
-    });
-    const unplacedDividers=dividers.filter(divider=>!renderedDividerIds.has(divider.id));
-    if(unplacedDividers.length)cards+=unplacedDividers.map(sprintDividerMarkup).join('');
-    if(!sprintItems.length){
-      if(!dividers.length)cards='<div class="sprint-empty">Drag user stories here</div>';
-      cards=`<div class="sprint-story-slot sprint-empty-slot">${cards}${sprintDividerAddButton(index,'')}</div>`;
+    let sectionsHtml='';
+    for(let sectionIndex=0;sectionIndex<sectionCount;sectionIndex++){
+      const sectionItems=sprintItems.filter(item=>(Number(t.sprintStorySectionAssignments?.[item.key])||0)===sectionIndex);
+      let sectionRows='';
+      if(sectionItems.length){
+        for(let row=0;row<sectionRowCounts[sectionIndex];row++){
+          const rowItems=sectionItems.slice(row*2,row*2+2);
+          sectionRows+='<div class="sprint-story-row">';
+          for(let column=0;column<2;column++){
+            const item=rowItems[column];
+            if(!item){sectionRows+='<div class="sprint-story-slot sprint-blank-slot" aria-hidden="true"></div>';continue;}
+            sectionRows+=`<div class="sprint-story-slot"><div class="sprint-story-card" draggable="true" data-item-key="${esc(item.key)}" style="background:${item.palette.bg};color:${item.palette.color};border-color:${item.palette.border}"><button class="sprint-story-remove" type="button" data-unplan-story="${esc(item.key)}" aria-label="Return ${esc(item.name)} to the story list" title="Return to story list"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="m3 3 6 6M9 3 3 9"/></svg></button><div class="sprint-story-card-name">${esc(item.name)}</div><div class="sprint-story-card-footer"><div class="sprint-story-card-meta">${sprintItemPointsLabel(item)}</div>${item.featureName?`<div class="sprint-story-card-feature" title="Feature: ${esc(item.featureName)}">Feature: ${esc(item.featureName)}</div>`:''}</div></div></div>`;
+          }
+          sectionRows+='</div>';
+        }
+      }
+      const emptyLabel=sectionItems.length?'':`<div class="sprint-section-empty" style="height:${sectionRowCounts[sectionIndex]*63-5}px">${index===0?'Drop stories here':''}</div>`;
+      sectionsHtml+=`<section class="sprint-section" data-section-index="${sectionIndex}">${sprintSectionMarkup(sectionIndex,index)}<div class="sprint-section-body">${emptyLabel}${sectionRows}</div></section>`;
     }
     return`<section class="sprint-panel" data-sprint="${index}">
-      <div class="sprint-panel-header"><div class="sprint-panel-title">Sprint ${index+1}</div><div class="sprint-panel-capacity-group"><div class="sprint-panel-capacity" data-sprint-capacity="${index}">${sprintPointsLabel(baseCapacity)} capacity</div><button class="sprint-capacity-edit" type="button" data-edit-sprint-absences="${index}" aria-label="Edit absences for Sprint ${index+1}" title="Edit absences"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.7 2.2h2.6l.4 1.4 1 .6 1.4-.3 1.3 2.2-1 1.1v1.2l1 1.1-1.3 2.2-1.4-.3-1 .6-.4 1.4H6.7l-.4-1.4-1-.6-1.4.3-1.3-2.2 1-1.1V7.2l-1-1.1 1.3-2.2 1.4.3 1-.6z"/><circle cx="8" cy="7.8" r="2"/></svg></button></div></div>
-      ${renderSprintCapacityBreakdown(t,index)}
+      <div class="sprint-panel-header"><div class="sprint-panel-title">Sprint ${index+1}</div><div class="sprint-panel-capacity-group"><div class="sprint-panel-capacity" data-sprint-capacity="${index}">${sprintCapacityLabel(t,index)}</div><button class="sprint-capacity-edit" type="button" data-edit-sprint-absences="${index}" aria-label="Edit absences for Sprint ${index+1}" title="Edit absences"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.7 2.2h2.6l.4 1.4 1 .6 1 .6 1.4-.3-1.3 2.2-1 1.1v1.2l1 1.1-1.3 2.2-1.4-.3-1 .6-.4 1.4H6.7l-.4-1.4-1-.6-1.4.3-1.3-2.2 1-1.1V7.2l-1-1.1 1.3-2.2 1.4.3 1-.6z"/><circle cx="8" cy="7.8" r="2"/></svg></button></div></div>
       <div class="sprint-panel-load${over?' over':''}">${sprintPointsLabel(points)} planned${over?' · over capacity':''}</div>
       <div class="sprint-load-track" aria-hidden="true"><div class="sprint-load-fill${over?' over':''}" style="width:${progress}%"></div></div>
-      <div class="sprint-story-grid">${cards}</div>
+      <div class="sprint-story-grid"><div class="sprint-sections">${sectionsHtml}</div>${sprintSectionAddButton(index,sectionCount-1)}</div>
     </section>`;
   }).join('');
   ws.innerHTML=`<div class="sprint-detail-layout">
-    <div class="ws-header"><div><div class="ws-title-row"><div class="ws-title">${esc(t.name||'Team')} · Sprint Detail</div>${workspaceStatusMarkup(t)}</div><div class="sprint-detail-summary">${sprintCount} ${sprintCount===1?'sprint':'sprints'} · ${sprintPointsLabel(totalCapacity)} total capacity${t.sprintWeeks?` · ${t.sprintWeeks} weeks per sprint`:''}</div></div></div>
+    <div class="ws-header"><div><div class="ws-title-row"><div class="ws-title">${esc(t.name||'Team')} · Sprint Detail</div>${workspaceStatusMarkup(t)}</div><div class="sprint-detail-summary">${sprintCount} ${sprintCount===1?'sprint':'sprints'} · ${sprintPointsLabel(totalCapacity)} total capacity${t.sprintWeeks?` · ${t.sprintWeeks} weeks per sprint`:''}</div></div>${workspaceFullscreenButtonMarkup()}</div>
     <div class="sprint-panels">${sprintPanels}</div>
   </div>`;
+  ws.querySelectorAll('.sprint-capacity-edit svg').forEach(svg=>{
+    svg.setAttribute('viewBox','0 0 24 24');
+    svg.setAttribute('stroke-width','2');
+    svg.querySelector('path').setAttribute('d','M19.4 15a1.8 1.8 0 0 0 .36 1.98l.04.04a2.1 2.1 0 1 1-2.98 2.98l-.04-.04A1.8 1.8 0 0 0 14.8 19.6a1.8 1.8 0 0 0-1.08 1.65V21.3a2.1 2.1 0 1 1-4.2 0v-.06A1.8 1.8 0 0 0 8.45 19.6a1.8 1.8 0 0 0-1.98.36l-.04.04a2.1 2.1 0 1 1-2.98-2.98l.04-.04A1.8 1.8 0 0 0 3.85 15a1.8 1.8 0 0 0-1.65-1.08H2.1a2.1 2.1 0 1 1 0-4.2h.1a1.8 1.8 0 0 0 1.65-1.08 1.8 1.8 0 0 0-.36-1.98l-.04-.04a2.1 2.1 0 1 1 2.98-2.98l.04.04a1.8 1.8 0 0 0 1.98.36 1.8 1.8 0 0 0 1.08-1.65V2.1a2.1 2.1 0 1 1 4.2 0v.29a1.8 1.8 0 0 0 1.08 1.65 1.8 1.8 0 0 0 1.98-.36l.04-.04a2.1 2.1 0 1 1 2.98 2.98l-.04.04A1.8 1.8 0 0 0 19.4 8.6a1.8 1.8 0 0 0 1.65 1.08h.15a2.1 2.1 0 1 1 0 4.2h-.15A1.8 1.8 0 0 0 19.4 15Z');
+    svg.querySelector('circle').setAttribute('cx','12');
+    svg.querySelector('circle').setAttribute('cy','12');
+    svg.querySelector('circle').setAttribute('r','3.5');
+  });
   ws.scrollLeft=workspaceScrollLeft;
   ws.querySelector('.sprint-panels').scrollLeft=sprintPanelsScrollLeft;
   ws.querySelectorAll('.sprint-panel').forEach(panel=>{
@@ -4145,18 +4368,18 @@ function renderSprintDetailWorkspace(){
       event.stopPropagation();
     });
   });
-  ws.querySelectorAll('.sprint-add-divider').forEach(button=>{
-    button.addEventListener('click',()=>addSprintDivider(Number(button.dataset.sprint),button.dataset.afterKey||null));
+  ws.querySelectorAll('.sprint-section-add').forEach(button=>{
+    button.addEventListener('click',()=>addSprintSection(Number(button.dataset.sectionIndex)));
   });
-  ws.querySelectorAll('.sprint-divider-label').forEach(button=>{
-    button.addEventListener('click',()=>editSprintDivider(button.dataset.dividerId));
+  ws.querySelectorAll('.sprint-section-title').forEach(button=>{
+    button.addEventListener('click',()=>editSprintSection(Number(button.dataset.sectionIndex),Number(button.dataset.sprint)));
   });
-  ws.querySelectorAll('.sprint-divider-input').forEach(input=>{
+  ws.querySelectorAll('.sprint-section-input').forEach(input=>{
     input.addEventListener('keydown',handleSprintDividerKeydown);
-    input.addEventListener('blur',()=>{if(input.dataset.cancelled!=='true')saveSprintDividerLabel(input.dataset.dividerId,input.value);});
-    if(input.dataset.dividerId===sprintDividerEditId)requestAnimationFrame(()=>input.focus());
+    input.addEventListener('blur',()=>{if(input.dataset.cancelled!=='true')saveSprintSectionLabel(Number(input.dataset.sectionIndex),input.value);});
+    if(Number(input.dataset.sectionIndex)===sprintSectionEditIndex&&Number(input.dataset.sprint)===sprintDividerEditSprintIndex)requestAnimationFrame(()=>input.focus());
   });
-  ws.querySelectorAll('.sprint-divider-remove').forEach(button=>{
+  ws.querySelectorAll('.sprint-section-remove').forEach(button=>{
     button.addEventListener('click',()=>removeSprintDivider(button.dataset.dividerId));
   });
   ws.querySelectorAll('[data-edit-sprint-absences]').forEach(button=>{
@@ -4323,6 +4546,7 @@ function renderWorkspace(){
           <div class="stat-item"><div class="stat-num" style="color:#1a5fa8">${usedPts}</div><div class="stat-lbl">committed</div></div>
           <div class="stat-item"><div class="stat-num">${t.capacity}</div><div class="stat-lbl">capacity</div></div>
         </div>
+        ${workspaceFullscreenButtonMarkup()}
       </div>
     </div>
     <div class="progress-wrap"><div class="progress-bar" style="width:${pct}%;background:${barColor}"></div></div>
