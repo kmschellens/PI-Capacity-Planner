@@ -477,18 +477,22 @@
   .sprint-load-track{height:3px;background:var(--subtle);border-radius:3px;overflow:hidden;margin-bottom:10px;}
   .sprint-load-fill{height:100%;background:#7c9a83;transition:width .15s;}
   .sprint-load-fill.over{background:#bd7777;}
-  .sprint-story-grid{display:flex;flex-direction:column;gap:5px;min-height:84px;align-items:stretch;}
-  .sprint-story-card{min-width:0;min-height:62px;padding:8px;border:1px solid;border-radius:7px;cursor:grab;user-select:none;display:flex;flex-direction:column;justify-content:space-between;gap:6px;transition:box-shadow .12s,opacity .12s;}
+  .sprint-story-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;min-height:72px;align-items:start;}
+  .sprint-story-slot{display:flex;flex-direction:column;gap:3px;min-width:0;}
+  .sprint-story-slot.sprint-empty-slot{grid-column:1 / -1;}
+  .sprint-story-card{position:relative;min-width:0;min-height:48px;padding:6px 22px 6px 6px;border:1px solid;border-radius:6px;cursor:grab;user-select:none;display:flex;flex-direction:column;justify-content:space-between;gap:4px;transition:box-shadow .12s,opacity .12s;}
   .sprint-story-card:hover{box-shadow:0 2px 7px rgba(0,0,0,.1);}
+  .sprint-story-remove{position:absolute;top:3px;right:3px;display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;padding:0;border:0;border-radius:4px;background:transparent;color:inherit;opacity:.5;cursor:pointer;}
+  .sprint-story-remove:hover,.sprint-story-remove:focus-visible{background:rgba(0,0,0,.08);opacity:1;outline:none;}
+  .sprint-story-remove svg{width:10px;height:10px;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;}
   .sprint-story-card.drop-before{box-shadow:inset 0 2px 0 #6a9fd8;}
   .sprint-story-card.drop-after{box-shadow:inset 0 -2px 0 #6a9fd8;}
   .sprint-story-card.is-linked-highlight,.sprint-source-card.is-linked-highlight{outline:2px solid rgba(70,126,180,.55);outline-offset:1px;box-shadow:0 0 0 4px rgba(106,159,216,.14),0 2px 7px rgba(0,0,0,.1);position:relative;z-index:1;}
   .sprint-story-card.is-dragging,.sprint-source-card.is-dragging{opacity:.35;}
-  .sprint-story-card-name{font-size:11px;font-weight:600;line-height:1.3;overflow-wrap:anywhere;}
-  .sprint-story-card-footer{display:flex;align-items:flex-end;justify-content:space-between;gap:6px;min-width:0;}
-  .sprint-story-card-meta{font:9px var(--mono);opacity:.72;flex:none;}
+  .sprint-story-card-name{font-size:10px;font-weight:600;line-height:1.25;overflow-wrap:anywhere;}
+  .sprint-story-card-footer{display:flex;align-items:flex-end;justify-content:space-between;gap:4px;min-width:0;}
+  .sprint-story-card-meta{font:8px var(--mono);opacity:.72;flex:none;}
   .sprint-story-card-feature{font-size:8px;line-height:1.15;opacity:.58;text-align:right;flex:0 1 65%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-left:auto;}
-  .sprint-story-slot{display:flex;flex-direction:column;gap:5px;min-width:0;}
   .sprint-empty{min-height:74px;border:1px dashed var(--border2);border-radius:7px;display:flex;align-items:center;justify-content:center;padding:10px;text-align:center;color:var(--muted);font-size:11px;}
   .sprint-divider{display:flex;align-items:center;gap:6px;min-height:18px;padding:1px 0;color:var(--muted);}
   .sprint-divider-line{height:1px;background:var(--border);flex:1;min-width:12px;}
@@ -514,6 +518,9 @@
   .sprint-story-group.collapsed .sprint-source-list{display:none;}
   .sprint-source-list{display:flex;flex-direction:column;gap:5px;}
   .sprint-source-card{display:flex;align-items:center;gap:7px;padding:7px 8px;border:1px solid;border-radius:7px;cursor:grab;user-select:none;min-width:0;}
+  .sprint-source-card.is-planned{background:#f1f2f1!important;color:#737873!important;border-color:#d8dbd8!important;}
+  .sprint-source-card.is-planned .sprint-source-dot{filter:grayscale(1);opacity:.65;}
+  .sprint-source-card.is-planned .sprint-source-meta{color:#737873;}
   .sprint-source-card:hover{box-shadow:0 1px 5px rgba(0,0,0,.08);}
   .sprint-source-dot{width:7px;height:7px;border-radius:50%;flex:none;}
   .sprint-source-name{min-width:0;flex:1;font-size:11px;line-height:1.25;overflow-wrap:anywhere;}
@@ -3712,7 +3719,7 @@ function renderSprintStoryGroups(){
     const assignedSprint=Number.isInteger(placements[item.key])?placements[item.key]:null;
     const assigned=assignedSprint===null?'':`<span class="sprint-source-assignment" aria-label="Placed in Sprint ${assignedSprint+1}" title="Placed in Sprint ${assignedSprint+1}"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="m2 6.2 2.5 2.4L10 3.4"/></svg><span>S${assignedSprint+1}</span></span>`;
     const card=document.createElement('div');
-    card.className='sprint-source-card';card.draggable=true;card.dataset.itemKey=item.key;
+    card.className=`sprint-source-card${assignedSprint===null?'':' is-planned'}`;card.draggable=true;card.dataset.itemKey=item.key;
     card.style.cssText=`background:${item.palette.bg};color:${item.palette.color};border-color:${item.palette.border};`;
     card.innerHTML=`<span class="sprint-source-dot" style="background:${item.palette.color}"></span><span class="sprint-source-name">${esc(item.name)}</span><span class="sprint-source-meta">${sprintItemPointsLabel(item)}</span>${assigned}`;
     card.addEventListener('pointerenter',highlightSprintStoryCounterpart);
@@ -3850,6 +3857,14 @@ function onSprintStoryCardDrop(e){
   saveState();
   renderWorkspace();
 }
+function removeSprintStoryFromSprint(key){
+  const t=tab();
+  if(!t||!key||!Object.prototype.hasOwnProperty.call(t.sprintPlacements||{},key))return;
+  delete t.sprintPlacements[key];
+  t.sprintStoryOrder=(t.sprintStoryOrder||[]).filter(itemKey=>itemKey!==key);
+  saveState();
+  renderWorkspace();
+}
 function onSprintStoriesDragOver(e){
   if(!sprintDragKey)return;
   e.preventDefault();
@@ -3930,6 +3945,7 @@ function removeSprintDivider(id){
 }
 function renderSprintDetailWorkspace(){
   const ws=document.getElementById('workspace'),t=tab();
+  const workspaceScrollLeft=ws.scrollLeft,sprintPanelsScrollLeft=ws.querySelector('.sprint-panels')?.scrollLeft||0;
   renderSprintStoryGroups();
   if(!t){
     ws.innerHTML='<div class="ws-placeholder"><p>Create a team tab to plan its sprints.</p></div>';
@@ -3954,7 +3970,7 @@ function renderSprintDetailWorkspace(){
     const progress=capacity?Math.min(100,Math.round(points/capacity*100)):0;
     let cards='';
     sprintItems.forEach(item=>{
-      cards+=`<div class="sprint-story-slot"><div class="sprint-story-card" draggable="true" data-item-key="${esc(item.key)}" style="background:${item.palette.bg};color:${item.palette.color};border-color:${item.palette.border}"><div class="sprint-story-card-name">${esc(item.name)}</div><div class="sprint-story-card-footer"><div class="sprint-story-card-meta">${sprintItemPointsLabel(item)}</div>${item.featureName?`<div class="sprint-story-card-feature" title="Feature: ${esc(item.featureName)}">Feature: ${esc(item.featureName)}</div>`:''}</div></div>`;
+      cards+=`<div class="sprint-story-slot"><div class="sprint-story-card" draggable="true" data-item-key="${esc(item.key)}" style="background:${item.palette.bg};color:${item.palette.color};border-color:${item.palette.border}"><button class="sprint-story-remove" type="button" data-unplan-story="${esc(item.key)}" aria-label="Return ${esc(item.name)} to the story list" title="Return to story list"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="m3 3 6 6M9 3 3 9"/></svg></button><div class="sprint-story-card-name">${esc(item.name)}</div><div class="sprint-story-card-footer"><div class="sprint-story-card-meta">${sprintItemPointsLabel(item)}</div>${item.featureName?`<div class="sprint-story-card-feature" title="Feature: ${esc(item.featureName)}">Feature: ${esc(item.featureName)}</div>`:''}</div></div>`;
       cards+=renderDividersAfter(item.key);
       cards+=sprintDividerAddButton(index,item.key);
       cards+='</div>';
@@ -3963,7 +3979,7 @@ function renderSprintDetailWorkspace(){
     if(unplacedDividers.length)cards+=unplacedDividers.map(sprintDividerMarkup).join('');
     if(!sprintItems.length){
       if(!dividers.length)cards='<div class="sprint-empty">Drag user stories here</div>';
-      cards=`<div class="sprint-story-slot">${cards}${sprintDividerAddButton(index,'')}</div>`;
+      cards=`<div class="sprint-story-slot sprint-empty-slot">${cards}${sprintDividerAddButton(index,'')}</div>`;
     }
     return`<section class="sprint-panel" data-sprint="${index}">
       <div class="sprint-panel-header"><div class="sprint-panel-title">Sprint ${index+1}</div><div class="sprint-panel-capacity-group"><div class="sprint-panel-capacity" data-sprint-capacity="${index}">${sprintPointsLabel(baseCapacity)} capacity</div><button class="sprint-capacity-edit" type="button" data-edit-sprint-absences="${index}" aria-label="Edit absences for Sprint ${index+1}" title="Edit absences"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.7 2.2h2.6l.4 1.4 1 .6 1.4-.3 1.3 2.2-1 1.1v1.2l1 1.1-1.3 2.2-1.4-.3-1 .6-.4 1.4H6.7l-.4-1.4-1-.6-1.4.3-1.3-2.2 1-1.1V7.2l-1-1.1 1.3-2.2 1.4.3 1-.6z"/><circle cx="8" cy="7.8" r="2"/></svg></button></div></div>
@@ -3977,6 +3993,8 @@ function renderSprintDetailWorkspace(){
     <div class="ws-header"><div><div class="ws-title">${esc(t.name||'Team')} · Sprint Detail</div><div class="sprint-detail-summary">${sprintCount} ${sprintCount===1?'sprint':'sprints'} · ${sprintPointsLabel(totalCapacity)} total capacity${t.sprintWeeks?` · ${t.sprintWeeks} weeks per sprint`:''}</div></div></div>
     <div class="sprint-panels">${sprintPanels}</div>
   </div>`;
+  ws.scrollLeft=workspaceScrollLeft;
+  ws.querySelector('.sprint-panels').scrollLeft=sprintPanelsScrollLeft;
   ws.querySelectorAll('.sprint-panel').forEach(panel=>{
     panel.addEventListener('dragover',onSprintPanelDragOver);
     panel.addEventListener('dragleave',onSprintPanelDragLeave);
@@ -3990,6 +4008,15 @@ function renderSprintDetailWorkspace(){
     card.addEventListener('drop',onSprintStoryCardDrop);
     card.addEventListener('dragstart',startSprintStoryDrag);
     card.addEventListener('dragend',resetSprintStoryDrag);
+    card.querySelector('[data-unplan-story]')?.addEventListener('click',event=>{
+      event.preventDefault();
+      event.stopPropagation();
+      removeSprintStoryFromSprint(card.dataset.itemKey);
+    });
+    card.querySelector('[data-unplan-story]')?.addEventListener('dragstart',event=>{
+      event.preventDefault();
+      event.stopPropagation();
+    });
   });
   ws.querySelectorAll('.sprint-add-divider').forEach(button=>{
     button.addEventListener('click',()=>addSprintDivider(Number(button.dataset.sprint),button.dataset.afterKey||null));
