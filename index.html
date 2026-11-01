@@ -947,7 +947,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.108.2"></script>
 <script>
-const STORAGE_KEY='capacityPlanner_v6',LEGACY_STORAGE_KEY='capacityPlanner_v5',EDITED_KEY='capacityPlanner_edited',CELL=53,PTS_PER_CELL=5;
+const STORAGE_KEY='capacityPlanner_v6',LEGACY_STORAGE_KEY='capacityPlanner_v5',EDITED_KEY='capacityPlanner_edited',WORKSPACE_PREFERENCES_KEY='capacityPlanner_workspacePreferences_v1',LAST_REMOTE_BOARD_KEY='capacityPlanner_lastRemoteBoard',CELL=53,PTS_PER_CELL=5;
 const SUPABASE_URL='http://localhost:8000';
 const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzgyNDk3NzU5LCJleHAiOjE5NDAxNzc3NTl9.gRnymGA3NI8nbzQW_HV2CQxKqJA-ZlKKFrHY_4Xgjv8';
 const PALETTES=[
@@ -1128,6 +1128,24 @@ let remoteBoardChannelReady=false,onlineBoardPresences=[],remoteCursors=new Map(
 function freshBoardState(){return{name:defaultPIName(),iterationCount:6,iterationNames:[],placements:{},dependencies:[],teamOrder:[],backlogFilters:defaultBoardBacklogFilters(),backlogFiltersOpen:false};}
 let boardState=freshBoardState();
 function tab(){return tabs.find(t=>t.id===activeTabId);}
+function workspacePreferences(){
+  try{
+    const preferences=JSON.parse(localStorage.getItem(WORKSPACE_PREFERENCES_KEY)||'{}');
+    return preferences&&typeof preferences==='object'&&!Array.isArray(preferences)?preferences:{};
+  }catch(e){return{};}
+}
+function saveWorkspacePreference(boardId){
+  if(!boardId)return;
+  const preferences=workspacePreferences();
+  preferences[boardId]={activeTabId,currentView};
+  try{localStorage.setItem(WORKSPACE_PREFERENCES_KEY,JSON.stringify(preferences));}catch(e){}
+}
+function restoreWorkspacePreference(boardId){
+  const preference=workspacePreferences()[boardId];
+  if(!preference)return;
+  if(tabs.some(team=>team.id===preference.activeTabId))activeTabId=preference.activeTabId;
+  if(preference.currentView==='capacity'||preference.currentView==='sprint')currentView=preference.currentView;
+}
 function getGridCols(){return tab()?.gridCols||12;}
 function teamCapacityPts(t){
   const d=Number(t?.sprintDevs)||0,sp=Number(t?.sprintCount)||0,p=Number(t?.sprintPtsPerDev)||0,w=Number(t?.sprintWeeks)||1,holidays=Number(t?.holidays)||0;
@@ -2469,6 +2487,8 @@ async function openRemoteBoard(id,options={}){
     currentRemoteBoardId=data.id;
     currentRemoteBoardName=data.name;
     currentRemoteBoardPermission=boardPermissionFromRow(data,new Map(remoteBoards.map(board=>[board.id,board.permission])));
+    restoreWorkspacePreference(data.id);
+    try{localStorage.setItem(LAST_REMOTE_BOARD_KEY,data.id);}catch(e){}
     remoteSaveStatus='saved';
     readOnlyWarningShown=false;
     updateRemoteBoardInPlace(data,true);
@@ -2530,7 +2550,10 @@ async function enterSupabaseBoardMode(){
   remoteSaveStatus='saved';
   const boards=await loadRemoteBoards(true)||[];
   if(boards.length){
-    await openRemoteBoard(boards[0].id,{skipFlush:true});
+    let lastBoardId=null;
+    try{lastBoardId=localStorage.getItem(LAST_REMOTE_BOARD_KEY);}catch(e){}
+    const board=boards.find(item=>item.id===lastBoardId)||boards[0];
+    await openRemoteBoard(board.id,{skipFlush:true});
   }else{
     resetPlannerToFreshDefaults();
     renderPlannerState();
@@ -2752,6 +2775,7 @@ function resetUndoBaseline(){
   updateUndoButton();
 }
 function saveState(){
+  if(authSession&&currentRemoteBoardId&&!isRestoringState)saveWorkspacePreference(currentRemoteBoardId);
   const snapshot=currentStateSnapshot();
   const syncedSnapshot=currentSyncedStateSnapshot();
   const previousSyncedSnapshot=syncedStateSnapshotFromSnapshot(lastStateSnapshot);

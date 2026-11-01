@@ -32,7 +32,7 @@ Apply [`supabase-local/dev/activity-log.sql`](./supabase-local/dev/activity-log.
 - Backlog + parked area for items that don’t fit
 - Team tabs with separate plans
 - Import/export (single tab or all tabs)
-- Local persistence in the browser
+- Local persistence in the browser, including the selected team tab and Overview/Sprint Detail view across refreshes (shared-board preferences are browser-local)
 
 ## Capacity calculator
 
