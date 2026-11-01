@@ -23,6 +23,7 @@ Apply [`supabase-local/dev/activity-log.sql`](./supabase-local/dev/activity-log.
 - Set quarter name and story point capacity
 - Grid-based planning where cells correspond to capacity
 - Tetris-style placement of features
+- Per-team color legend for colors used on committed features, with editable meanings and guidance on common color conventions
 - Feature sizes: S (40), M (60), L (80), XL (100)
 - Editable feature names, even after placement
 - Attach feature-specific user stories with optional story points and a progress tracker

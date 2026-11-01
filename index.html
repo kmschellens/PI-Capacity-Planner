@@ -105,8 +105,34 @@
   .progress-wrap{background:var(--border);border-radius:3px;height:4px;overflow:hidden;}
   .progress-bar{height:100%;border-radius:3px;transition:width .35s ease,background .3s;}
   .box-label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;display:flex;align-items:center;gap:6px;font-family:var(--mono);}
-  .tetris-outer{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;overflow:hidden;position:relative;width:100%;}
+  .tetris-outer{background:var(--surface);border:1.5px solid var(--border);border-radius:10px;overflow:hidden;position:relative;width:100%;container-type:inline-size;}
+  .tetris-board-layout{display:grid;grid-template-columns:minmax(var(--tile-grid-width),3fr) minmax(190px,1fr);gap:16px;align-items:stretch;padding:12px;}
   .tetris-grid{display:grid;position:relative;cursor:crosshair;}
+  .color-legend{min-width:0;border-left:1px solid var(--border);padding:4px 0 4px 16px;display:flex;flex-direction:column;gap:5px;}
+  .color-legend-header{display:flex;align-items:center;justify-content:space-between;gap:6px;}
+  .color-legend-title{font-size:10px;font-weight:600;color:var(--muted);font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;}
+  .color-legend-picker{position:relative;display:flex;align-items:center;}
+  .color-legend-picker-trigger{display:flex;align-items:center;justify-content:center;width:22px;height:22px;border:0;border-radius:5px;background:transparent;cursor:pointer;list-style:none;}
+  .color-legend-picker-trigger::-webkit-details-marker{display:none;}
+  .color-legend-picker-trigger:hover,.color-legend-picker[open] .color-legend-picker-trigger{background:var(--subtle);}
+  .color-legend-swatch{display:block;width:12px;height:12px;border-radius:50%;border:1px solid rgba(0,0,0,.18);}
+  .color-legend-picker-options{position:absolute;z-index:25;top:calc(100% + 3px);left:-4px;display:none;grid-template-columns:repeat(5,18px);gap:4px;padding:6px;border:1px solid var(--border);border-radius:7px;background:var(--surface);box-shadow:0 4px 14px rgba(0,0,0,.12);}
+  .color-legend-picker[open] .color-legend-picker-options{display:grid;}
+  .color-legend-option{width:18px;height:18px;border:1.5px solid rgba(0,0,0,.15);border-radius:50%;cursor:pointer;}
+  .color-legend-option:disabled{cursor:not-allowed;opacity:.38;}
+  .color-legend-option:hover,.color-legend-option[aria-pressed="true"]{outline:2px solid var(--surface);box-shadow:0 0 0 3px var(--border2);}
+  .color-legend-help{position:relative;flex:none;}
+  .color-legend-help summary{list-style:none;display:flex;width:16px;height:16px;align-items:center;justify-content:center;border:1px solid var(--border2);border-radius:50%;color:var(--muted);font:10px var(--sans);cursor:pointer;}
+  .color-legend-help summary::-webkit-details-marker{display:none;}
+  .color-legend-help summary:hover,.color-legend-help[open] summary{color:var(--text);background:var(--subtle);}
+  .color-legend-help-content{position:absolute;z-index:20;right:0;top:calc(100% + 6px);width:240px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);box-shadow:0 4px 16px rgba(0,0,0,.1);color:var(--muted);font-size:11px;line-height:1.5;}
+  .color-legend-list{display:flex;flex-direction:column;gap:2px;}
+  .color-legend-item{display:grid;grid-template-columns:22px minmax(0,1fr);align-items:center;gap:5px;}
+  .color-legend-input{min-width:0;width:100%;padding:2px 5px!important;border-color:transparent!important;background:transparent!important;font-size:11px!important;}
+  .color-legend-input:hover{border-color:var(--border)!important;background:var(--bg)!important;}
+  .color-legend-input:focus{border-color:#6a9fd8!important;background:var(--surface)!important;}
+  .color-legend-empty{font-size:11px;color:var(--muted);line-height:1.45;}
+  @container(max-width:870px){.tetris-board-layout{grid-template-columns:minmax(0,1fr);}.color-legend{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:6px 12px;border-left:0;border-top:1px solid var(--border);padding:5px 0 0;}.color-legend-header{justify-content:flex-start;}.color-legend-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:2px 8px;}.color-legend-picker-options{top:auto;bottom:calc(100% + 3px);}}
   .t-cell{width:var(--cell);height:var(--cell);border-right:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--bg);}
   .drop-ghost{position:absolute;border-radius:6px;border:2px dashed;pointer-events:none;z-index:5;display:none;opacity:.65;transition:left .04s,top .04s;}
   .drop-ghost.blocked{border-style:solid;opacity:.4;}
@@ -450,10 +476,10 @@
   body.sprint-view .app-body{grid-template-columns:290px minmax(0,1fr);}
   body.sprint-view .app-body.sidebar-collapsed{grid-template-columns:38px minmax(0,1fr);}
   body.sprint-view .right-panel{display:none;}
-  body.sprint-view .workspace{max-height:calc(100vh - 92px);}
-  .sprint-detail-layout{display:flex;flex-direction:column;gap:18px;min-width:0;}
+  body.sprint-view .workspace{height:calc(100vh - 92px);max-height:none;}
+  .sprint-detail-layout{display:flex;flex-direction:column;gap:18px;min-width:0;height:100%;}
   .sprint-detail-summary{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:3px;}
-  .sprint-panels{display:flex;gap:12px;align-items:stretch;overflow-x:auto;overflow-y:hidden;padding:0 0 8px;min-width:0;scroll-snap-type:x proximity;}
+  .sprint-panels{display:flex;flex:1;gap:12px;align-items:stretch;overflow-x:auto;overflow-y:hidden;padding:0 0 18px;min-width:0;min-height:0;scroll-snap-type:x proximity;}
   .sprint-panel{flex:0 0 300px;min-width:0;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;transition:border-color .12s,background .12s;scroll-snap-align:start;}
   .sprint-panel.drag-over{border-color:#6a9fd8;background:#f4f8fc;}
   .sprint-panel-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px;}
@@ -541,7 +567,7 @@
     body.sprint-view .app-body{grid-template-columns:minmax(0,1fr);}
     body.sprint-view .app-body.sidebar-collapsed{grid-template-columns:38px minmax(0,1fr);}
     body.sprint-view .sidebar{max-height:42vh;}
-    body.sprint-view .workspace{max-height:none;min-width:0;padding:1rem;}
+    body.sprint-view .workspace{height:auto;max-height:none;min-width:0;padding:1rem;}
   }
   .board-setup-note{font-size:11px;color:var(--muted);line-height:1.5;margin-top:8px;}
   .board-backlog-list{display:flex;flex-direction:column;gap:6px;min-height:70px;}
@@ -1024,6 +1050,54 @@ function compactTypeLabel(f){
   return'US';
 }
 function getPalette(f){const pid=f.paletteId!=null?f.paletteId:(SIZES(f.type,f.size)?.paletteId||1);return PALETTES.find(p=>p.id===pid)||PALETTES[0];}
+function renderColorLegend(team){
+  const legend=document.getElementById('colorLegend');
+  if(!legend)return;
+  const usedPalettes=new Map();
+  const usedFeaturePaletteIds=new Set((team?.features||[]).map(feature=>getPalette(feature).id));
+  Object.keys(team?.placed||{}).forEach(id=>{
+    const feature=team.features.find(item=>item.id===+id);
+    if(feature){
+      const palette=getPalette(feature);
+      usedPalettes.set(palette.id,palette);
+    }
+  });
+  const palettes=PALETTES.filter(palette=>usedPalettes.has(palette.id));
+  legend.innerHTML=`<div class="color-legend-header">
+    <div class="color-legend-title">Color legend</div>
+    <details class="color-legend-help">
+      <summary aria-label="About color meanings" title="About color meanings">?</summary>
+      <div class="color-legend-help-content">Colors can represent whatever you want to emphasize in this overview. A common structure is green for new features for this team, blue for features for other teams, orange for technical debt and refactoring, and red for calamities.</div>
+    </details>
+  </div>
+  ${palettes.length
+    ?`<div class="color-legend-list">${palettes.map(palette=>`<label class="color-legend-item">
+      <details class="color-legend-picker">
+        <summary class="color-legend-picker-trigger" title="Change ${palette.color} color" aria-label="Change the color of ${palette.color} items"><span class="color-legend-swatch" style="background:${palette.color}"></span></summary>
+        <div class="color-legend-picker-options" role="group" aria-label="Available colors">${PALETTES.map(option=>{const inUse=usedFeaturePaletteIds.has(option.id);return`<button class="color-legend-option" type="button" data-color-legend-from="${palette.id}" data-color-legend-to="${option.id}" style="background:${option.color}" title="${inUse?'Already in use':option.color}" aria-label="${inUse?`${option.color} is already in use`:`Change to ${option.color}`}" aria-pressed="${option.id===palette.id}"${inUse?' disabled':''}></button>`;}).join('')}</div>
+      </details>
+      <input class="color-legend-input" type="text" maxlength="80" data-color-legend-id="${palette.id}" aria-label="Meaning for ${palette.color} items" placeholder="Add meaning" value="${esc(team.colorLegend?.[palette.id]||'')}">
+    </label>`).join('')}</div>`
+    :'<div class="color-legend-empty">Colors used by committed features will appear here.</div>'}`;
+  legend.querySelectorAll('[data-color-legend-from]').forEach(option=>{
+    option.addEventListener('click',()=>{
+      const currentTeam=tabs.find(item=>item.id===activeTabId);
+      if(currentTeam)setTeamLegendColour(currentTeam,Number(option.dataset.colorLegendFrom),Number(option.dataset.colorLegendTo));
+    });
+  });
+  legend.querySelectorAll('[data-color-legend-id]').forEach(input=>{
+    input.addEventListener('change',()=>{
+      const currentTeam=tabs.find(item=>item.id===activeTabId);
+      if(!currentTeam)return;
+      if(!currentTeam.colorLegend||typeof currentTeam.colorLegend!=='object'||Array.isArray(currentTeam.colorLegend))currentTeam.colorLegend={};
+      const paletteId=input.dataset.colorLegendId;
+      const meaning=input.value.trim();
+      if(meaning)currentTeam.colorLegend[paletteId]=meaning;
+      else delete currentTeam.colorLegend[paletteId];
+      saveState();
+    });
+  });
+}
 function ensureFeatureUserStoryIds(feature){
   if(!feature||typeof feature!=='object')return;
   if(!Array.isArray(feature.userStories))return;
@@ -4212,6 +4286,11 @@ function renderWorkspace(){
   }
   reconcileUnassignedItems();
   const cols=getGridCols(),rows=getGridRows();
+  let gridHeight=rows*CELL;
+  Object.entries(t.placed||{}).forEach(([id,pos])=>{
+    const feature=t.features.find(item=>item.id===+id),size=feature&&SIZES(feature.type,feature.size);
+    if(size&&Number.isFinite(pos?.row))gridHeight=Math.max(gridHeight,(pos.row+size.rows)*CELL);
+  });
   const usedPts=Object.keys(t.placed).reduce((s,id)=>{const f=t.features.find(f=>f.id===+id);return s+(f?SIZES(f.type,f.size).pts:0);},0);
   const pct=Math.min(100,Math.round(usedPts/t.capacity*100)),rem=t.capacity-usedPts;
   const gridCap=cols*rows*PTS_PER_CELL;
@@ -4252,10 +4331,13 @@ function renderWorkspace(){
         <div class="box-label">Committed grid — drag empty cells to create an item · hover a feature tile and click ✂ to split into user stories</div>
       </div>
       <div class="tetris-outer" id="tetrisOuter">
-        <div class="tetris-grid" id="tetrisGrid"
-          style="grid-template-columns:repeat(${cols},${CELL}px);grid-template-rows:repeat(${rows},${CELL}px);width:${cols*CELL}px;min-width:100%;height:${rows*CELL}px;">
-          ${cellsHtml}
-          <div class="drop-ghost" id="dropGhost"></div>
+        <div class="tetris-board-layout" style="--tile-grid-width:${cols*CELL}px;">
+          <div class="tetris-grid" id="tetrisGrid"
+            style="grid-template-columns:repeat(${cols},${CELL}px);grid-template-rows:repeat(${rows},${CELL}px);width:${cols*CELL}px;min-width:100%;height:${gridHeight}px;">
+            ${cellsHtml}
+            <div class="drop-ghost" id="dropGhost"></div>
+          </div>
+          <aside class="color-legend" id="colorLegend" aria-label="Team color legend"></aside>
         </div>
       </div>
     </div>
@@ -4564,6 +4646,7 @@ function renderTiles(){
     tile.addEventListener('dragend',()=>{tile.classList.remove('is-dragging');hideGhost();document.getElementById('capacityTrash')?.classList.remove('drag-over');resetDrag();});
     grid.appendChild(tile);
   }
+  renderColorLegend(t);
 }
 
 
@@ -4651,6 +4734,17 @@ function setFeatureColour(id,pid){
   const t=tab();if(!t)return;
   const f=t.features.find(f=>f.id===id);if(!f)return;
   f.paletteId=pid;saveState();renderTiles();renderBacklog();updateParked();updateRightPanel();if(currentView!=='capacity')renderWorkspace();
+}
+function setTeamLegendColour(team,fromPaletteId,toPaletteId){
+  if(fromPaletteId===toPaletteId)return;
+  if(team.features.some(feature=>getPalette(feature).id===toPaletteId))return;
+  const affected=team.features.filter(feature=>getPalette(feature).id===fromPaletteId);
+  if(!affected.length)return;
+  affected.forEach(feature=>{feature.paletteId=toPaletteId;});
+  if(!team.colorLegend||typeof team.colorLegend!=='object'||Array.isArray(team.colorLegend))team.colorLegend={};
+  if(!team.colorLegend[toPaletteId]&&team.colorLegend[fromPaletteId])team.colorLegend[toPaletteId]=team.colorLegend[fromPaletteId];
+  delete team.colorLegend[fromPaletteId];
+  saveState();renderTiles();renderBacklog();updateParked();updateRightPanel();if(currentView!=='capacity')renderWorkspace();
 }
 
 function updateStats(){
