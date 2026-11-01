@@ -277,6 +277,11 @@
   .modal-error{font-size:12px;color:#b52020;margin-top:6px;min-height:16px;}
   .modal-actions{display:flex;gap:8px;margin-top:1rem;justify-content:flex-end;}
   .modal-actions .btn{width:auto;padding:7px 16px;}
+  @media(max-width:600px){
+    .sprint-absence-modal-head{display:none;}
+    .sprint-absence-modal-row{grid-template-columns:minmax(0,1fr) 88px 28px;gap:6px;}
+    .sprint-absence-modal-row [data-absence-draft-note]{grid-column:1 / 3;}
+  }
   .type-badge{display:inline-flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.04em;padding:1px 5px;border-radius:3px;border:1px solid;line-height:1.4;flex-shrink:0;}
   .type-badge.feature{color:#1a5fa8;background:#e8f1fb;border-color:#9dc0e8;}
   .type-badge.story{color:#7040b0;background:#f3edfb;border-color:#c9a8e8;}
@@ -395,6 +400,8 @@
   .auth-status.success{color:#2d7d4e;}
   .import-name-modal{max-width:430px;}
   .import-name-modal .modal-sub{line-height:1.45;}
+  .create-board-modal{max-width:460px;}
+  .create-board-modal .modal-sub{line-height:1.45;}
   .existing-board-wrap{margin-top:10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:9px 10px;}
   .existing-board-title{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);margin-bottom:6px;}
   .existing-board-list{display:flex;flex-wrap:wrap;gap:5px;max-height:92px;overflow:auto;}
@@ -441,8 +448,31 @@
   .sprint-panel.drag-over{border-color:#6a9fd8;background:#f4f8fc;}
   .sprint-panel-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px;}
   .sprint-panel-title{font-size:13px;font-weight:600;}
+  .sprint-panel-capacity-group{display:flex;align-items:center;gap:5px;min-width:0;}
   .sprint-panel-capacity{font:10px var(--mono);color:var(--muted);white-space:nowrap;}
+  .sprint-capacity-edit{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;flex:none;border:0;border-radius:5px;background:transparent;color:var(--muted);cursor:pointer;}
+  .sprint-capacity-edit:hover{background:var(--subtle);color:var(--text);}
+  .sprint-capacity-edit svg{width:13px;height:13px;}
+  .sprint-capacity-breakdown{display:flex;flex-direction:column;gap:2px;margin:-3px 0 8px;font:9px var(--mono);color:var(--muted);}
+  .sprint-capacity-deduction{overflow-wrap:anywhere;}
+  .sprint-capacity-net{margin-top:2px;color:var(--text);font-weight:600;}
   .sprint-panel-load{font-size:10px;color:var(--muted);font-family:var(--mono);margin-bottom:8px;}
+  .sprint-absence-modal{width:680px;max-width:95vw;max-height:90vh;display:flex;flex-direction:column;}
+  .sprint-absence-modal-list{display:flex;flex-direction:column;gap:8px;overflow:auto;min-height:0;}
+  .sprint-absence-modal-head,.sprint-absence-modal-row{display:grid;grid-template-columns:minmax(110px,1fr) 88px minmax(140px,1.3fr) 28px;align-items:center;gap:8px;}
+  .sprint-absence-modal-head{padding:0 4px;color:var(--muted);font-size:10px;font-weight:600;}
+  .sprint-absence-modal-row input{min-width:0;width:100%;padding:7px 8px;font-size:11px;}
+  .sprint-absence-modal-row input.invalid{border-color:#b52020;box-shadow:0 0 0 2px rgba(181,32,32,.1);}
+  .sprint-absence-days{display:flex;align-items:center;gap:4px;}
+  .sprint-absence-days input{width:60px;text-align:right;}
+  .sprint-absence-days span{font-size:9px;color:var(--muted);}
+  .sprint-absence-remove{width:26px;height:26px;border:0;border-radius:4px;background:transparent;color:var(--muted);font-size:15px;cursor:pointer;}
+  .sprint-absence-remove:hover{background:#fceaea;color:#b52020;}
+  .sprint-absence-error{min-height:0;margin-top:5px;color:#b52020;font-size:9px;}
+  .sprint-absence-error:empty{display:none;}
+  .sprint-absence-add{align-self:flex-start;border:0;background:transparent;padding:5px 0;color:#1a5fa8;font:11px var(--sans);cursor:pointer;}
+  .sprint-absence-add:hover{text-decoration:underline;}
+  .sprint-absence-add:disabled{color:var(--muted);cursor:default;text-decoration:none;}
   .sprint-panel-load.over{color:#b52020;}
   .sprint-load-track{height:3px;background:var(--subtle);border-radius:3px;overflow:hidden;margin-bottom:10px;}
   .sprint-load-fill{height:100%;background:#7c9a83;transition:width .15s;}
@@ -488,7 +518,8 @@
   .sprint-source-dot{width:7px;height:7px;border-radius:50%;flex:none;}
   .sprint-source-name{min-width:0;flex:1;font-size:11px;line-height:1.25;overflow-wrap:anywhere;}
   .sprint-source-meta{font:9px var(--mono);opacity:.72;white-space:nowrap;}
-  .sprint-source-assignment{font:9px var(--mono);color:#68806d;background:#eef3ee;border-radius:3px;padding:1px 4px;white-space:nowrap;}
+  .sprint-source-assignment{display:inline-flex;align-items:center;gap:3px;flex:none;font:9px var(--mono);font-weight:600;color:#27623b;background:#e6f3e9;border:1px solid #c5e1cc;border-radius:4px;padding:2px 5px;white-space:nowrap;}
+  .sprint-source-assignment svg{width:11px;height:11px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round;}
   @media(max-width:700px){
     body.sprint-view .app-body{grid-template-columns:minmax(0,1fr);}
     body.sprint-view .app-body.sidebar-collapsed{grid-template-columns:38px minmax(0,1fr);}
@@ -774,6 +805,21 @@
   </div>
 </div>
 
+<div class="modal-backdrop" id="sprintAbsenceModal">
+  <div class="modal sprint-absence-modal" role="dialog" aria-modal="true" aria-labelledby="sprintAbsenceModalTitle">
+    <div class="modal-title" id="sprintAbsenceModalTitle">Sprint absences</div>
+    <div class="modal-sub">Add each absent developer, their days away, and an optional note or date range.</div>
+    <div class="sprint-absence-modal-head" aria-hidden="true"><span>Developer</span><span>Days</span><span>Note or dates</span><span></span></div>
+    <div class="sprint-absence-modal-list" id="sprintAbsenceModalList"></div>
+    <button class="sprint-absence-add" id="sprintAbsenceAdd" type="button">+ Add developer absence</button>
+    <div class="sprint-absence-error" id="sprintAbsenceModalError" role="status" aria-live="polite"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" type="button" onclick="closeSprintAbsenceModal()">Cancel</button>
+      <button class="btn btn-primary" type="button" onclick="saveSprintAbsences()">Save</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-backdrop" id="importModal">
   <div class="modal">
     <div class="modal-title">Import</div>
@@ -832,6 +878,26 @@
     <div class="modal-actions import-name-actions">
       <button class="btn btn-secondary" style="width:auto" onclick="skipImportBoardName()">Skip, don't import</button>
       <button class="btn btn-primary" style="width:auto" id="importBoardNameSubmitBtn" onclick="submitImportBoardName()">Import board</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="createBoardModal">
+  <div class="modal create-board-modal">
+    <div class="modal-title">Create a new board</div>
+    <div class="modal-sub">Start with a fresh planner or make a separate copy of one of your existing boards.</div>
+    <div class="field">
+      <label class="field-label" for="createBoardSource">Start from</label>
+      <select id="createBoardSource" onchange="updateCreateBoardNameSuggestion()"></select>
+    </div>
+    <div class="field">
+      <label class="field-label" for="createBoardName">New board name</label>
+      <input type="text" id="createBoardName" autocomplete="off" placeholder="Board name" oninput="this.dataset.customized='true'" onkeydown="if(event.key==='Enter'){event.preventDefault();submitCreateRemoteBoard()}">
+    </div>
+    <div class="modal-error" id="createBoardError" role="status"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" style="width:auto" type="button" onclick="closeCreateBoardModal()">Cancel</button>
+      <button class="btn btn-primary" style="width:auto" id="createBoardSubmitBtn" type="button" onclick="submitCreateRemoteBoard()">Create board</button>
     </div>
   </div>
 </div>
@@ -992,6 +1058,25 @@ function ensureSprintDividers(team){
   });
   team.sprintDividerIdCounter=counter;
 }
+function ensureSprintAbsences(team){
+  if(!team||typeof team!=='object')return;
+  const maxSprint=Math.max(1,Math.floor(Number(team.sprintCount)||1));
+  const used=new Set();
+  let counter=Number.isInteger(team.sprintAbsenceIdCounter)?team.sprintAbsenceIdCounter:0;
+  const absences=Array.isArray(team.sprintAbsences)?team.sprintAbsences:[];
+  team.sprintAbsences=absences.filter(absence=>
+    absence&&typeof absence==='object'&&Number.isInteger(absence.sprintIndex)&&absence.sprintIndex>=0&&absence.sprintIndex<maxSprint&&Number.isFinite(Number(absence.days))&&Number(absence.days)>0
+  ).map(absence=>{
+    let id=typeof absence.id==='string'?absence.id:'';
+    if(!id||used.has(id))id=`sa-${++counter}`;
+    while(used.has(id))id=`sa-${++counter}`;
+    used.add(id);
+    const match=id.match(/^sa-(\d+)$/);
+    if(match)counter=Math.max(counter,Number(match[1]));
+    return{id,sprintIndex:absence.sprintIndex,name:String(absence.name||''),days:Number(absence.days),note:String(absence.note||'')};
+  });
+  team.sprintAbsenceIdCounter=counter;
+}
 let sprintDividerEditId=null;
 function getSprintWorkItems(team){
   const items=[];
@@ -1040,9 +1125,30 @@ function getGridCols(){return tab()?.gridCols||12;}
 function teamCapacityPts(t){
   const d=Number(t?.sprintDevs)||0,sp=Number(t?.sprintCount)||0,p=Number(t?.sprintPtsPerDev)||0,w=Number(t?.sprintWeeks)||1,holidays=Number(t?.holidays)||0;
   if(!d||!sp||!p)return Number(t?.capacity)||0;
-  const base=d*sp*p;
-  const holidayPts=p/(w||1)/5;
-  return Math.round(base - holidays*holidayPts);
+  return Math.max(0,Math.round(Array.from({length:Math.max(1,Math.floor(sp))},(_,index)=>sprintCapacityPts(t,index)).reduce((sum,capacity)=>sum+capacity,0)));
+}
+function sprintAbsenceRows(t,sprintIndex){
+  return(Array.isArray(t?.sprintAbsences)?t.sprintAbsences:[]).filter(absence=>absence.sprintIndex===sprintIndex);
+}
+function sprintAbsencePoints(t,sprintIndex){
+  const pointsPerDev=Number(t?.sprintPtsPerDev)||0,weeks=Number(t?.sprintWeeks)||1;
+  const pointsPerDay=pointsPerDev/(weeks*5);
+  return sprintAbsenceRows(t,sprintIndex).reduce((sum,absence)=>sum+(Number(absence.days)>0?Number(absence.days):0)*pointsPerDay,0);
+}
+function sprintBaseCapacityPts(t){
+  const devs=Number(t?.sprintDevs)||0,pointsPerDev=Number(t?.sprintPtsPerDev)||0;
+  if(!devs||!pointsPerDev)return Math.max(0,(Number(t?.capacity)||0)/Math.max(1,Math.floor(Number(t?.sprintCount)||1)));
+  return devs*pointsPerDev;
+}
+function sprintHolidayPoints(t){
+  const pointsPerDev=Number(t?.sprintPtsPerDev)||0,weeks=Number(t?.sprintWeeks)||1,sprintCount=Math.max(1,Math.floor(Number(t?.sprintCount)||1));
+  return(Number(t?.holidays)||0)*pointsPerDev/(weeks*5)/sprintCount;
+}
+function sprintCapacityPts(t,sprintIndex){
+  const devs=Number(t?.sprintDevs)||0,pointsPerDev=Number(t?.sprintPtsPerDev)||0;
+  const sprintCount=Math.max(1,Math.floor(Number(t?.sprintCount)||1));
+  if(!devs||!pointsPerDev)return Math.max(0,(Number(t?.capacity)||0)/sprintCount);
+  return Math.max(0,sprintBaseCapacityPts(t)-sprintAbsencePoints(t,sprintIndex)-sprintHolidayPoints(t));
 }
 function getGridRows(){const t=tab();const cap=teamCapacityPts(t);if(!t||!cap)return 0;return Math.ceil(Math.ceil(cap/PTS_PER_CELL)/getGridCols());}
 
@@ -1118,6 +1224,23 @@ function activitySprintChange(oldTeam,newTeam){
   }
   return'';
 }
+function activitySprintAbsenceChange(oldTeam,newTeam){
+  const oldAbsences=new Map((oldTeam.sprintAbsences||[]).map((absence,index)=>[String(absence.id||index),absence]));
+  const newAbsences=new Map((newTeam.sprintAbsences||[]).map((absence,index)=>[String(absence.id||index),absence]));
+  for(const [id,absence] of newAbsences){
+    const previous=oldAbsences.get(id),developer=absence.name?.trim()||'a developer';
+    const sprint=`Sprint ${absence.sprintIndex+1}`;
+    if(!previous)return`Recorded ${absence.days} absent day${absence.days===1?'':'s'} for ${developer} in ${sprint}`;
+    if(previous.name!==absence.name)return`Changed absent developer name to ${developer} in ${sprint}`;
+    if(previous.days!==absence.days)return`Changed ${developer}'s absence in ${sprint} to ${absence.days} day${absence.days===1?'':'s'}`;
+    if(String(previous.note||'')!==String(absence.note||''))return`Updated ${developer}'s absence note in ${sprint}`;
+    if(previous.sprintIndex!==absence.sprintIndex)return`Moved ${developer}'s absence to Sprint ${absence.sprintIndex+1}`;
+  }
+  for(const [id,absence] of oldAbsences){
+    if(!newAbsences.has(id))return`Removed ${absence.name?.trim()||'a developer'}'s absence from Sprint ${absence.sprintIndex+1}`;
+  }
+  return'';
+}
 function plannerActivitySummary(previousSnapshot,nextSnapshot){
   let previous,next;
   try{previous=JSON.parse(previousSnapshot);next=JSON.parse(nextSnapshot);}
@@ -1174,6 +1297,8 @@ function plannerActivitySummary(previousSnapshot,nextSnapshot){
     }
     const sprintChange=activitySprintChange(oldTeam,team);
     if(sprintChange)return sprintChange;
+    const absenceChange=activitySprintAbsenceChange(oldTeam,team);
+    if(absenceChange)return absenceChange;
     if(['sprintPlacements','sprintStoryOrder','sprintDividers'].some(key=>JSON.stringify(oldTeam[key]||[])!==JSON.stringify(team[key]||[])))return'Updated sprint plan';
     if(['capacity','sprintDevs','sprintCount','sprintWeeks','sprintPtsPerDev','holidays'].some(key=>oldTeam[key]!==team[key]))return'Changed capacity settings';
     if(oldTeam.gridCols!==team.gridCols)return'Changed committed grid width';
@@ -1874,37 +1999,116 @@ async function loadRemoteBoards(force=false){
   }
   return remoteBoards;
 }
+function suggestNewBoardName(base){
+  const root=String(base||'PI Capacity Board').trim()||'PI Capacity Board';
+  const existing=new Set(remoteBoards.map(board=>normalizeBoardName(board.name)));
+  if(!existing.has(normalizeBoardName(root)))return root;
+  for(let suffix=2;;suffix++){
+    const candidate=`${root} (${suffix})`;
+    if(!existing.has(normalizeBoardName(candidate)))return candidate;
+  }
+}
+function createFreshRemoteBoardState(){
+  const team={id:1,name:'Team A',capacity:240,gridCols:12,sprintDevs:4,sprintCount:6,sprintWeeks:2,sprintPtsPerDev:10,holidays:0,sprintAbsences:[],sprintAbsenceIdCounter:0,features:[],idCounter:0,placed:{},parked:[]};
+  DEFAULT_WORK_ITEMS.forEach(({name,size,type})=>team.features.push({id:++team.idCounter,name,size,type}));
+  const defaultPositions={
+    'mobile app':{col:0,row:0},
+    'user authentication':{col:5,row:0},
+    'profile page bug':{col:9,row:0},
+  };
+  team.features.forEach(feature=>{
+    const position=defaultPositions[String(feature.name).toLowerCase()];
+    if(position)team.placed[feature.id]={...position};
+  });
+  return{version:6,tabs:[team],tabIdSeq:1,boardState:freshBoardState()};
+}
+function updateCreateBoardNameSuggestion(){
+  const select=document.getElementById('createBoardSource'),name=document.getElementById('createBoardName');
+  if(!select||!name||name.dataset.customized==='true')return;
+  const source=remoteBoards.find(board=>board.id===select.value);
+  const base=source?`${source.name} copy`:boardState.name||tab()?.name||'PI Capacity Board';
+  name.value=suggestNewBoardName(base);
+}
 async function createRemoteBoard(){
   if(!authSession){openAuthModal('login');return;}
   pendingDeleteRemoteBoardId=null;
   pendingRenameRemoteBoardId=null;
   pendingRenameRemoteBoardValue=null;
   pendingRenameRemoteBoardError='';
-  let trimmed='';
-  for(;;){
-    const name=prompt('Name for the new board:',trimmed||currentRemoteBoardName||boardState.name||tab()?.name||'PI Capacity Board');
-    if(name===null)return;
-    trimmed=name.trim();
-    const error=await validateUniqueBoardName(trimmed);
-    if(!error)break;
-    alert(error);
+  document.getElementById('boardMenu')?.classList.remove('open');
+  const client=getSupabaseClient();
+  if(!client){alert('Supabase is unavailable.');return;}
+  try{
+    const {data,error}=await client.from('boards').select('id,name,user_id,created_at,updated_at').order('updated_at',{ascending:false});
+    if(error)throw error;
+    remoteBoards=await hydrateRemoteBoardPermissions(data||[]);
+    renderRemoteBoardMenu();
+  }catch(e){
+    alert(e.message||'Could not load boards.');
+    return;
   }
-  const client=getSupabaseClient();if(!client)return;
-  const {data,error}=await client.from('boards').insert({
-    user_id:authSession.user.id,
-    name:trimmed,
-    state:syncedStatePayload()
-  }).select('id,name,user_id,created_at,updated_at').single();
-  if(error){alert(error.message||'Could not create board.');return;}
-  currentRemoteBoardId=data.id;
-  currentRemoteBoardName=data.name;
-  currentRemoteBoardPermission='owner';
-  remoteSaveStatus='saved';
-  updateRemoteBoardInPlace(data,true);
-  subscribeToRemoteBoard(data.id);
-  if(!await appendBoardActivity(data.id,'Created board'))alert('The board was created, but its activity could not be recorded. Apply the activity-log SQL setup and try again.');
-  renderRemoteBoardMenu();
-  updateStorageStatus();
+  const select=document.getElementById('createBoardSource'),name=document.getElementById('createBoardName'),error=document.getElementById('createBoardError');
+  if(!select||!name)return;
+  select.innerHTML='<option value="">Start fresh</option>'+[...remoteBoards]
+    .sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')))
+    .map(board=>`<option value="${esc(board.id)}">Clone: ${esc(board.name)}</option>`).join('');
+  name.dataset.customized='false';
+  name.value='';
+  if(error)error.textContent='';
+  updateCreateBoardNameSuggestion();
+  document.getElementById('createBoardModal')?.classList.add('open');
+  setTimeout(()=>{name.focus();name.select();},0);
+}
+function closeCreateBoardModal(){
+  document.getElementById('createBoardModal')?.classList.remove('open');
+}
+async function submitCreateRemoteBoard(){
+  const button=document.getElementById('createBoardSubmitBtn'),errorEl=document.getElementById('createBoardError');
+  const sourceId=document.getElementById('createBoardSource')?.value||'';
+  const nameInput=document.getElementById('createBoardName'),name=(nameInput?.value||'').trim();
+  if(button?.disabled)return;
+  if(errorEl)errorEl.textContent='';
+  if(button)button.disabled=true;
+  try{
+    if(!authSession)throw new Error('Sign in before creating a board.');
+    const nameError=await validateUniqueBoardName(name);
+    if(nameError)throw new Error(nameError);
+    if(isSavingRemoteBoard)throw new Error('Wait for the current board to finish saving, then try again.');
+    const pendingCurrentActivity=pendingBoardActivity.some(item=>item.boardId===currentRemoteBoardId);
+    if(currentRemoteBoardId&&currentBoardCanWrite()&&(remoteSaveTimer||pendingCurrentActivity||remoteSaveStatus==='error')){
+      if(!await flushRemoteBoardSave())throw new Error('The current board could not be saved. Resolve the save issue before creating a new board.');
+    }
+
+    let state,activitySummary='Created fresh board';
+    if(sourceId){
+      const source=remoteBoards.find(board=>board.id===sourceId);
+      if(!source)throw new Error('The selected source board is no longer available. Reopen this dialog and try again.');
+      const {data:sourceRow,error:sourceError}=await getSupabaseClient().from('boards').select('id,name,state').eq('id',sourceId).single();
+      if(sourceError)throw sourceError;
+      if(!sourceRow?.state||!Array.isArray(sourceRow.state.tabs))throw new Error('The selected board does not contain a valid planner state.');
+      state=JSON.parse(JSON.stringify(sourceRow.state));
+      activitySummary=`Created board by cloning "${source.name}"`;
+    }else{
+      state=createFreshRemoteBoardState();
+    }
+    const {data,error}=await getSupabaseClient().from('boards').insert({
+      user_id:authSession.user.id,
+      name,
+      state
+    }).select('id,name,user_id,created_at,updated_at').single();
+    if(error)throw error;
+    updateRemoteBoardInPlace(data,true);
+    closeCreateBoardModal();
+    if(!await appendBoardActivity(data.id,activitySummary))alert('The board was created, but its activity could not be recorded. Apply the activity-log SQL setup.');
+    await openRemoteBoard(data.id,{skipFlush:true});
+    renderRemoteBoardMenu();
+    updateStorageStatus();
+  }catch(e){
+    if(errorEl)errorEl.textContent=e.message||'Could not create board.';
+    else alert(e.message||'Could not create board.');
+  }finally{
+    if(button)button.disabled=false;
+  }
 }
 function focusRemoteBoardRenameInput(){
   setTimeout(()=>{
@@ -2642,11 +2846,13 @@ function normalizeTeamDefaults(t){
   t.sprintPlacements=Object.fromEntries(Object.entries(placements).filter(([key,index])=>
     validKeys.has(key)&&Number.isInteger(index)&&index>=0&&index<sprintCount
   ));
+  ensureSprintAbsences(t);
   const validPlacedKeys=new Set(Object.keys(t.sprintPlacements));
   const orderedKeys=Array.isArray(t.sprintStoryOrder)?t.sprintStoryOrder.filter((key,index,all)=>
     validPlacedKeys.has(key)&&all.indexOf(key)===index
   ):[];
   t.sprintStoryOrder=[...orderedKeys,...validPlacedKeys].filter((key,index,all)=>all.indexOf(key)===index);
+  ensureSprintAbsences(t);
   ensureSprintDividers(t);
 }
 function normalizeAllTeams(){tabs.forEach(normalizeTeamDefaults);}
@@ -2684,8 +2890,10 @@ function onSprintInput(){
   if(!d||!sp||!p){prev.textContent='';return;}
   const base=Math.round(d*sp*p);
   const holidayPts=p/(w||1)/5;
-  const adjusted=Math.round(base - holidays*holidayPts);
-  prev.textContent=`${d} × ${sp} × ${p} = ${base} pts`+(w?` · ${sp*w}wks total`:'')+` · ${holidays} holiday day${holidays===1?'':'s'} = ${Math.round(holidays*holidayPts)} pts removed · effective capacity ${adjusted} pts`;
+  const t=tab(),absences=t?(t.sprintAbsences||[]).filter(absence=>absence.sprintIndex<sp):[];
+  const absentDevDays=absences.reduce((sum,absence)=>sum+(Number(absence.days)||0),0);
+  const adjusted=t?teamCapacityPts({...t,sprintDevs:d,sprintCount:sp,sprintWeeks:w,sprintPtsPerDev:p,holidays,sprintAbsences:absences}):Math.max(0,Math.round(base-holidays*holidayPts-absentDevDays*holidayPts));
+  prev.textContent=`${d} × ${sp} × ${p} = ${base} pts`+(w?` · ${sp*w}wks total`:'')+` · ${holidays} general holiday day${holidays===1?'':'s'} and ${absentDevDays} developer absence day${absentDevDays===1?'':'s'} · effective capacity ${adjusted} pts`;
 }
 function applySprintCapacity(){
   const d=parseFloat(document.getElementById('sprintDevs').value),
@@ -2696,12 +2904,15 @@ function applySprintCapacity(){
   if(!d||!sp||!p){alert('Fill in Developers, Sprints and Pts/dev/sprint.');return;}
   const t=tab();if(!t)return;
   const outsideSprints=Object.values(t.sprintPlacements||{}).some(index=>index>=sp);
-  if(sp<(Number(t.sprintCount)||0)&&outsideSprints&&!confirm('Reducing the sprint count will remove stories assigned to sprints beyond the new count. Continue?')){
+  const outsideAbsences=(t.sprintAbsences||[]).some(absence=>absence.sprintIndex>=sp);
+  if(sp<(Number(t.sprintCount)||0)&&(outsideSprints||outsideAbsences)&&!confirm('Reducing the sprint count will remove stories and developer absences assigned beyond the new count. Continue?')){
     document.getElementById('sprintCount').value=t.sprintCount;
     return;
   }
   if(sp<(Number(t.sprintCount)||0))Object.entries(t.sprintPlacements||{}).forEach(([key,index])=>{if(index>=sp)delete t.sprintPlacements[key];});
+  if(sp<(Number(t.sprintCount)||0))t.sprintAbsences=(t.sprintAbsences||[]).filter(absence=>absence.sprintIndex<sp);
   t.sprintDevs=d;t.sprintCount=sp;t.sprintWeeks=w;t.sprintPtsPerDev=p;t.holidays=holidays;
+  ensureSprintAbsences(t);
   t.capacity=teamCapacityPts(t);evictOutOfBounds();saveState();renderWorkspace();
 }
 function evictOutOfBounds(){
@@ -2726,7 +2937,7 @@ function loadSprintInputs(){
 function newTab(name){
   const id=++tabIdSeq;
   tabs.push({id,name:name||`Team ${id}`,capacity:240,gridCols:12,
-    sprintDevs:4,sprintCount:6,sprintWeeks:2,sprintPtsPerDev:10,holidays:0,
+    sprintDevs:4,sprintCount:6,sprintWeeks:2,sprintPtsPerDev:10,holidays:0,sprintAbsences:[],sprintAbsenceIdCounter:0,
     features:[],idCounter:0,placed:{},parked:[]});
   return tabs[tabs.length-1];
 }
@@ -3463,9 +3674,24 @@ function renderPIBoardWorkspace(){
   requestAnimationFrame(renderBoardDependencies);
 }
 function sprintPointsLabel(points){
-  return`${Number(points.toPrecision(12)).toString()} ${points===1?'pt':'pts'}`;
+  const rounded=Number(points.toFixed(2));
+  return`${rounded} ${rounded===1?'pt':'pts'}`;
 }
 function sprintItemPointsLabel(item){return item.points?sprintPointsLabel(item.points):'No points';}
+function renderSprintCapacityBreakdown(team,sprintIndex){
+  const base=sprintBaseCapacityPts(team),net=sprintCapacityPts(team,sprintIndex),rows=sprintAbsenceRows(team,sprintIndex);
+  const deductions=rows.filter(absence=>Number(absence.days)>0).map(absence=>{
+    const points=Number(absence.days)*(Number(team.sprintPtsPerDev)||0)/((Number(team.sprintWeeks)||1)*5);
+    return`<div class="sprint-capacity-deduction">− ${sprintPointsLabel(points)} (${esc(absence.name.trim()||'Unnamed developer')})</div>`;
+  });
+  const holidays=sprintHolidayPoints(team);
+  if(holidays>0)deductions.push(`<div class="sprint-capacity-deduction">− ${sprintPointsLabel(holidays)} (General holidays)</div>`);
+  const remaining=base>0?Math.round(net/base*100):0;
+  return`<div class="sprint-capacity-breakdown" data-capacity-breakdown="${sprintIndex}">
+    ${deductions.join('')}
+    <div class="sprint-capacity-net">Net cap: ${Number(net.toFixed(2))}/${Number(base.toFixed(2))} pts (${remaining}%)</div>
+  </div>`;
+}
 function sprintStoryKeysForSprint(team,sprintIndex){
   const placements=team.sprintPlacements||{},order=team.sprintStoryOrder||[];
   return Object.keys(placements).filter(key=>placements[key]===sprintIndex).sort((a,b)=>{
@@ -3483,11 +3709,12 @@ function renderSprintStoryGroups(){
   const items=getSprintWorkItems(t),placements=t.sprintPlacements||{};
   const collapsedSections=t.sprintStorySections||{};
   const renderCard=item=>{
-    const assigned=Number.isInteger(placements[item.key])?`Planned · S${placements[item.key]+1}`:'';
+    const assignedSprint=Number.isInteger(placements[item.key])?placements[item.key]:null;
+    const assigned=assignedSprint===null?'':`<span class="sprint-source-assignment" aria-label="Placed in Sprint ${assignedSprint+1}" title="Placed in Sprint ${assignedSprint+1}"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="m2 6.2 2.5 2.4L10 3.4"/></svg><span>S${assignedSprint+1}</span></span>`;
     const card=document.createElement('div');
     card.className='sprint-source-card';card.draggable=true;card.dataset.itemKey=item.key;
     card.style.cssText=`background:${item.palette.bg};color:${item.palette.color};border-color:${item.palette.border};`;
-    card.innerHTML=`<span class="sprint-source-dot" style="background:${item.palette.color}"></span><span class="sprint-source-name">${esc(item.name)}</span><span class="sprint-source-meta">${sprintItemPointsLabel(item)}</span>${assigned?`<span class="sprint-source-assignment">${assigned}</span>`:''}`;
+    card.innerHTML=`<span class="sprint-source-dot" style="background:${item.palette.color}"></span><span class="sprint-source-name">${esc(item.name)}</span><span class="sprint-source-meta">${sprintItemPointsLabel(item)}</span>${assigned}`;
     card.addEventListener('pointerenter',highlightSprintStoryCounterpart);
     card.addEventListener('pointerleave',clearSprintStoryCounterpartHighlight);
     card.addEventListener('dragstart',startSprintStoryDrag);
@@ -3709,10 +3936,10 @@ function renderSprintDetailWorkspace(){
     return;
   }
   ensureSprintDividers(t);
+  ensureSprintAbsences(t);
   const items=getSprintWorkItems(t),placements=t.sprintPlacements||{};
   const sprintCount=Math.max(1,parseInt(t.sprintCount)||1);
   const totalCapacity=Math.max(0,Number(teamCapacityPts(t))||0);
-  const capacityPerSprint=totalCapacity/sprintCount;
   const sprintPanels=Array.from({length:sprintCount},(_,index)=>{
     const sprintItems=sprintStoryKeysForSprint(t,index).map(key=>items.find(item=>item.key===key)).filter(Boolean);
     const dividers=t.sprintDividers.filter(divider=>divider.sprintIndex===index);
@@ -3722,8 +3949,9 @@ function renderSprintDetailWorkspace(){
       return sprintDividerMarkup(divider);
     }).join('');
     const points=sprintItems.reduce((sum,item)=>sum+item.points,0);
-    const over=points>capacityPerSprint;
-    const progress=capacityPerSprint?Math.min(100,Math.round(points/capacityPerSprint*100)):0;
+    const capacity=sprintCapacityPts(t,index),baseCapacity=sprintBaseCapacityPts(t);
+    const over=points>capacity;
+    const progress=capacity?Math.min(100,Math.round(points/capacity*100)):0;
     let cards='';
     sprintItems.forEach(item=>{
       cards+=`<div class="sprint-story-slot"><div class="sprint-story-card" draggable="true" data-item-key="${esc(item.key)}" style="background:${item.palette.bg};color:${item.palette.color};border-color:${item.palette.border}"><div class="sprint-story-card-name">${esc(item.name)}</div><div class="sprint-story-card-footer"><div class="sprint-story-card-meta">${sprintItemPointsLabel(item)}</div>${item.featureName?`<div class="sprint-story-card-feature" title="Feature: ${esc(item.featureName)}">Feature: ${esc(item.featureName)}</div>`:''}</div></div>`;
@@ -3738,7 +3966,8 @@ function renderSprintDetailWorkspace(){
       cards=`<div class="sprint-story-slot">${cards}${sprintDividerAddButton(index,'')}</div>`;
     }
     return`<section class="sprint-panel" data-sprint="${index}">
-      <div class="sprint-panel-header"><div class="sprint-panel-title">Sprint ${index+1}</div><div class="sprint-panel-capacity">${sprintPointsLabel(capacityPerSprint)} capacity</div></div>
+      <div class="sprint-panel-header"><div class="sprint-panel-title">Sprint ${index+1}</div><div class="sprint-panel-capacity-group"><div class="sprint-panel-capacity" data-sprint-capacity="${index}">${sprintPointsLabel(baseCapacity)} capacity</div><button class="sprint-capacity-edit" type="button" data-edit-sprint-absences="${index}" aria-label="Edit absences for Sprint ${index+1}" title="Edit absences"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.7 2.2h2.6l.4 1.4 1 .6 1.4-.3 1.3 2.2-1 1.1v1.2l1 1.1-1.3 2.2-1.4-.3-1 .6-.4 1.4H6.7l-.4-1.4-1-.6-1.4.3-1.3-2.2 1-1.1V7.2l-1-1.1 1.3-2.2 1.4.3 1-.6z"/><circle cx="8" cy="7.8" r="2"/></svg></button></div></div>
+      ${renderSprintCapacityBreakdown(t,index)}
       <div class="sprint-panel-load${over?' over':''}">${sprintPointsLabel(points)} planned${over?' · over capacity':''}</div>
       <div class="sprint-load-track" aria-hidden="true"><div class="sprint-load-fill${over?' over':''}" style="width:${progress}%"></div></div>
       <div class="sprint-story-grid">${cards}</div>
@@ -3776,6 +4005,101 @@ function renderSprintDetailWorkspace(){
   ws.querySelectorAll('.sprint-divider-remove').forEach(button=>{
     button.addEventListener('click',()=>removeSprintDivider(button.dataset.dividerId));
   });
+  ws.querySelectorAll('[data-edit-sprint-absences]').forEach(button=>{
+    button.addEventListener('click',()=>openSprintAbsenceModal(Number(button.dataset.editSprintAbsences)));
+  });
+}
+let sprintAbsenceModalSprint=null,sprintAbsenceModalTeamId=null,sprintAbsenceDraft=[],sprintAbsenceDraftSeq=0;
+function renderSprintAbsenceModal(){
+  const t=tabs.find(team=>team.id===sprintAbsenceModalTeamId);
+  if(!t||sprintAbsenceModalSprint===null)return;
+  const list=document.getElementById('sprintAbsenceModalList'),maxDays=Math.max(0.5,(Number(t.sprintWeeks)||1)*5);
+  const teamSize=Math.max(1,Math.floor(Number(t.sprintDevs)||1));
+  list.innerHTML=sprintAbsenceDraft.map((absence,index)=>`
+    <div class="sprint-absence-modal-row">
+      <input type="text" value="${esc(absence.name)}" placeholder="Developer name" aria-label="Absent developer name" data-absence-draft-field="name" data-draft-index="${index}">
+      <label class="sprint-absence-days"><input type="number" value="${esc(String(absence.days))}" min="0.5" max="${maxDays}" step="0.5" aria-label="Days absent" data-absence-draft-field="days" data-draft-index="${index}"><span>days</span></label>
+      <input type="text" value="${esc(absence.note)}" placeholder="e.g. 12-14 Nov" aria-label="Absence note or dates" data-absence-draft-note data-absence-draft-field="note" data-draft-index="${index}">
+      <button class="sprint-absence-remove" type="button" aria-label="Remove absence for ${esc(absence.name||'developer')}" title="Remove absence" data-remove-absence-draft="${index}">×</button>
+    </div>`).join('')||'<div class="sprint-empty" style="min-height:44px">No absences recorded</div>';
+  const add=document.getElementById('sprintAbsenceAdd');
+  add.disabled=sprintAbsenceDraft.length>=teamSize;
+  add.title=add.disabled?'All configured developers already have an absence entry':'';
+  list.querySelectorAll('[data-remove-absence-draft]').forEach(button=>button.addEventListener('click',()=>{
+    sprintAbsenceDraft.splice(Number(button.dataset.removeAbsenceDraft),1);
+    renderSprintAbsenceModal();
+  }));
+}
+function openSprintAbsenceModal(sprintIndex){
+  const t=tab();
+  if(!t||!Number.isInteger(sprintIndex)||sprintIndex<0||sprintIndex>=Math.max(1,Math.floor(Number(t.sprintCount)||1)))return;
+  ensureSprintAbsences(t);
+  sprintAbsenceModalSprint=sprintIndex;
+  sprintAbsenceModalTeamId=t.id;
+  sprintAbsenceDraft=sprintAbsenceRows(t,sprintIndex).map(absence=>({...absence}));
+  sprintAbsenceDraftSeq=0;
+  document.getElementById('sprintAbsenceModalTitle').textContent=`Sprint ${sprintIndex+1} absences`;
+  document.getElementById('sprintAbsenceModalError').textContent='';
+  renderSprintAbsenceModal();
+  document.getElementById('sprintAbsenceModal').classList.add('open');
+  requestAnimationFrame(()=>document.querySelector('[data-absence-draft-field="name"]')?.focus());
+}
+function closeSprintAbsenceModal(){
+  document.getElementById('sprintAbsenceModal').classList.remove('open');
+  sprintAbsenceModalSprint=null;
+  sprintAbsenceModalTeamId=null;
+  sprintAbsenceDraft=[];
+  document.getElementById('sprintAbsenceModalError').textContent='';
+}
+function addSprintAbsenceDraft(){
+  const t=tabs.find(team=>team.id===sprintAbsenceModalTeamId);
+  if(!t)return;
+  const teamSize=Math.max(1,Math.floor(Number(t.sprintDevs)||1));
+  if(sprintAbsenceDraft.length>=teamSize)return;
+  const maxDays=Math.max(0.5,(Number(t.sprintWeeks)||1)*5);
+  sprintAbsenceDraft.push({id:`draft-${++sprintAbsenceDraftSeq}`,sprintIndex:sprintAbsenceModalSprint,name:'',days:Math.min(1,maxDays),note:''});
+  renderSprintAbsenceModal();
+  requestAnimationFrame(()=>document.querySelector(`[data-draft-index="${sprintAbsenceDraft.length-1}"][data-absence-draft-field="name"]`)?.focus());
+}
+function saveSprintAbsences(){
+  const t=tabs.find(team=>team.id===sprintAbsenceModalTeamId),sprintIndex=sprintAbsenceModalSprint;
+  if(!t||sprintIndex===null)return;
+  const maxDays=Math.max(0.5,(Number(t.sprintWeeks)||1)*5),error=document.getElementById('sprintAbsenceModalError');
+  const fields=[...document.querySelectorAll('#sprintAbsenceModalList [data-absence-draft-field]')];
+  fields.forEach(input=>input.classList.remove('invalid'));
+  fields.forEach(input=>{
+    const index=Number(input.dataset.draftIndex),field=input.dataset.absenceDraftField;
+    if(sprintAbsenceDraft[index])sprintAbsenceDraft[index][field]=input.value;
+  });
+  const invalidIndex=sprintAbsenceDraft.findIndex(absence=>{
+    const days=Number(absence.days);
+    return!Number.isFinite(days)||days<=0||days>maxDays||!Number.isInteger(days*2);
+  });
+  if(invalidIndex>=0){
+    const invalidInput=document.querySelector(`#sprintAbsenceModalList [data-absence-draft-field="days"][data-draft-index="${invalidIndex}"]`);
+    invalidInput?.classList.add('invalid');
+    invalidInput?.setAttribute('aria-invalid','true');
+    error.textContent=`Enter between 0.5 and ${maxDays} days in half-day increments, or remove this absence.`;
+    invalidInput?.focus();
+    return;
+  }
+  const otherAbsences=(t.sprintAbsences||[]).filter(absence=>absence.sprintIndex!==sprintIndex);
+  const usedIds=new Set(otherAbsences.map(absence=>absence.id));
+  let counter=Number(t.sprintAbsenceIdCounter)||0;
+  const saved=sprintAbsenceDraft.map(absence=>{
+    let id=absence.id;
+    if(!id||id.startsWith('draft-')||usedIds.has(id)){
+      do{id=`sa-${++counter}`;}while(usedIds.has(id));
+    }
+    usedIds.add(id);
+    return{id,sprintIndex,name:String(absence.name||'').trim(),days:Number(absence.days),note:String(absence.note||'').trim()};
+  });
+  t.sprintAbsenceIdCounter=counter;
+  t.sprintAbsences=[...otherAbsences,...saved];
+  t.capacity=teamCapacityPts(t);
+  closeSprintAbsenceModal();
+  saveState();
+  renderWorkspace();
 }
 function clearBoardDependencies(){
   if(!boardState.dependencies.length)return;
@@ -4788,6 +5112,8 @@ document.getElementById('descriptionModal').addEventListener('click',e=>{if(e.ta
 document.addEventListener('visibilitychange',()=>{if(document.hidden)flushDescriptionEditorSave();});
 window.addEventListener('pagehide',flushDescriptionEditorSave);
 document.getElementById('splitModal').addEventListener('click',e=>{if(e.target===document.getElementById('splitModal'))cancelSplitFeature();});
+document.getElementById('sprintAbsenceModal').addEventListener('click',e=>{if(e.target===document.getElementById('sprintAbsenceModal'))closeSprintAbsenceModal();});
+document.getElementById('sprintAbsenceAdd').addEventListener('click',addSprintAbsenceDraft);
 document.getElementById('importModal').addEventListener('click',e=>{if(e.target===document.getElementById('importModal'))closeImport();});
 document.getElementById('authModal').addEventListener('click',e=>{if(e.target===document.getElementById('authModal'))closeAuthModal();});
 document.getElementById('boardShareModal').addEventListener('click',e=>{if(e.target===document.getElementById('boardShareModal'))closeBoardShareModal();});
@@ -4796,7 +5122,7 @@ document.getElementById('importBoardNameInput')?.addEventListener('keydown',e=>{
 document.getElementById('boardShareEmail')?.addEventListener('keydown',e=>{if(e.key==='Enter')addBoardCollaborator();});
 document.getElementById('authEmail')?.addEventListener('keydown',e=>{if(e.key==='Enter')submitAuthForm();});
 document.getElementById('authPassword')?.addEventListener('keydown',e=>{if(e.key==='Enter')submitAuthForm();});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDescriptionEditor();closeImport();closeAuthModal();closeBoardShareModal();}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDescriptionEditor();closeImport();closeAuthModal();closeCreateBoardModal();closeBoardShareModal();closeSprintAbsenceModal();}});
 
 function toggleSection(bodyId,chevronId){
   const body=document.getElementById(bodyId),chevron=document.getElementById(chevronId);if(!body)return;
