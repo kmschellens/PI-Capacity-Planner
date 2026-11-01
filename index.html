@@ -495,9 +495,17 @@
   .sprint-panel{flex:0 0 300px;height:max-content;min-height:100%;min-width:0;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;transition:border-color .12s,background .12s;scroll-snap-align:start;}
   .sprint-panel.drag-over{border-color:#6a9fd8;background:#f4f8fc;}
   .sprint-panel-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px;}
-  .sprint-panel-title{font-size:13px;font-weight:600;}
-  .sprint-panel-capacity-group{display:flex;align-items:center;gap:5px;min-width:0;}
+  .sprint-panel-title-group{display:flex;align-items:baseline;gap:6px;min-width:0;}
+  .sprint-panel-title{font-size:13px;font-weight:600;white-space:nowrap;}
+  .sprint-panel-capacity-group{display:flex;align-items:center;gap:4px;min-width:0;}
   .sprint-panel-capacity{font:10px var(--mono);color:var(--muted);white-space:nowrap;text-align:right;}
+  .sprint-date-range{display:inline-flex;align-items:center;gap:2px;color:var(--muted);font:8px var(--mono);white-space:nowrap;}
+  .sprint-date-separator{opacity:.7;}
+  .sprint-date-control{position:relative;display:inline-flex;align-items:center;justify-content:center;min-width:27px;height:18px;border-radius:3px;cursor:pointer;}
+  .sprint-date-control:hover{background:var(--subtle);color:var(--text);}
+  .sprint-date-label{pointer-events:none;}
+  .sprint-date-input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;}
+  .sprint-date-input:focus-visible{outline:2px solid #6a9fd8;border-radius:3px;}
   .sprint-capacity-edit{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;flex:none;border:0;border-radius:5px;background:transparent;color:var(--muted);cursor:pointer;}
   .sprint-capacity-edit:hover{background:var(--subtle);color:var(--text);}
   .sprint-capacity-edit svg{width:13px;height:13px;}
@@ -3965,8 +3973,32 @@ function sprintPointsLabel(points){
 function sprintItemPointsLabel(item){return item.points?sprintPointsLabel(item.points):'No points';}
 function sprintCapacityLabel(team,sprintIndex){
   const base=sprintBaseCapacityPts(team),net=sprintCapacityPts(team,sprintIndex);
-  const remaining=base>0?Math.round(net/base*100):0;
-  return`${Number(net.toFixed(2))}/${Number(base.toFixed(2))} pts capacity (${remaining}%)`;
+  return`${Number(net.toFixed(2))}/${Number(base.toFixed(2))} pts cap`;
+}
+function formatSprintDate(value){
+  const match=/^(\d{4})-(\d{2})-(\d{2})$/.exec(value||'');
+  const months=['jan','feb','mrt','apr','mei','jun','jul','aug','sep','okt','nov','dec'];
+  return match?`${Number(match[3])}-${months[Number(match[2])-1]||match[2]}`:'d-mmm';
+}
+function sprintDateRangeMarkup(team,sprintIndex){
+  const dates=team.sprintDateRanges?.[sprintIndex]||{};
+  return`<div class="sprint-date-range" aria-label="Sprint dates">
+    <label class="sprint-date-control" title="Choose sprint start date"><span class="sprint-date-label">${formatSprintDate(dates.start)}</span><input class="sprint-date-input" type="date" data-sprint-date="${sprintIndex}" data-sprint-date-field="start" value="${esc(dates.start||'')}" aria-label="Sprint ${sprintIndex+1} start date"></label>
+    <span class="sprint-date-separator"> - </span>
+    <label class="sprint-date-control" title="Choose sprint end date"><span class="sprint-date-label">${formatSprintDate(dates.end)}</span><input class="sprint-date-input" type="date" data-sprint-date="${sprintIndex}" data-sprint-date-field="end" value="${esc(dates.end||'')}" aria-label="Sprint ${sprintIndex+1} end date"></label>
+  </div>`;
+}
+function updateSprintDate(input){
+  const team=tab(),sprintIndex=Number(input.dataset.sprintDate),field=input.dataset.sprintDateField;
+  if(!team||!Number.isInteger(sprintIndex)||sprintIndex<0||!['start','end'].includes(field))return;
+  if(!team.sprintDateRanges||typeof team.sprintDateRanges!=='object'||Array.isArray(team.sprintDateRanges))team.sprintDateRanges={};
+  const range={...(team.sprintDateRanges[sprintIndex]||{})};
+  if(input.value)range[field]=input.value;
+  else delete range[field];
+  if(range.start||range.end)team.sprintDateRanges[sprintIndex]=range;
+  else delete team.sprintDateRanges[sprintIndex];
+  saveState();
+  renderWorkspace();
 }
 function sprintStoryKeysForSprint(team,sprintIndex){
   const placements=team.sprintPlacements||{},order=team.sprintStoryOrder||[],sections=team.sprintStorySectionAssignments||{};
@@ -4325,7 +4357,7 @@ function renderSprintDetailWorkspace(){
       sectionsHtml+=`<section class="sprint-section" data-section-index="${sectionIndex}">${sprintSectionMarkup(sectionIndex,index)}<div class="sprint-section-body">${emptyLabel}${sectionRows}</div></section>`;
     }
     return`<section class="sprint-panel" data-sprint="${index}">
-      <div class="sprint-panel-header"><div class="sprint-panel-title">Sprint ${index+1}</div><div class="sprint-panel-capacity-group"><div class="sprint-panel-capacity" data-sprint-capacity="${index}">${sprintCapacityLabel(t,index)}</div><button class="sprint-capacity-edit" type="button" data-edit-sprint-absences="${index}" aria-label="Edit absences for Sprint ${index+1}" title="Edit absences"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.7 2.2h2.6l.4 1.4 1 .6 1 .6 1.4-.3-1.3 2.2-1 1.1v1.2l1 1.1-1.3 2.2-1.4-.3-1 .6-.4 1.4H6.7l-.4-1.4-1-.6-1.4.3-1.3-2.2 1-1.1V7.2l-1-1.1 1.3-2.2 1.4.3 1-.6z"/><circle cx="8" cy="7.8" r="2"/></svg></button></div></div>
+      <div class="sprint-panel-header"><div class="sprint-panel-title-group"><div class="sprint-panel-title">Sprint ${index+1}</div>${sprintDateRangeMarkup(t,index)}</div><div class="sprint-panel-capacity-group"><div class="sprint-panel-capacity" data-sprint-capacity="${index}">${sprintCapacityLabel(t,index)}</div><button class="sprint-capacity-edit" type="button" data-edit-sprint-absences="${index}" aria-label="Edit absences for Sprint ${index+1}" title="Edit absences"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.7 2.2h2.6l.4 1.4 1 .6 1 .6 1.4-.3-1.3 2.2-1 1.1v1.2l1 1.1-1.3 2.2-1.4-.3-1 .6-.4 1.4H6.7l-.4-1.4-1-.6-1.4.3-1.3-2.2 1-1.1V7.2l-1-1.1 1.3-2.2 1.4.3-1 .6z"/><circle cx="8" cy="7.8" r="2"/></svg></button></div></div>
       <div class="sprint-panel-load${over?' over':''}">${sprintPointsLabel(points)} planned${over?' · over capacity':''}</div>
       <div class="sprint-load-track" aria-hidden="true"><div class="sprint-load-fill${over?' over':''}" style="width:${progress}%"></div></div>
       <div class="sprint-story-grid"><div class="sprint-sections">${sectionsHtml}</div>${sprintSectionAddButton(index,sectionCount-1)}</div>
@@ -4342,6 +4374,9 @@ function renderSprintDetailWorkspace(){
     svg.querySelector('circle').setAttribute('cx','12');
     svg.querySelector('circle').setAttribute('cy','12');
     svg.querySelector('circle').setAttribute('r','3.5');
+  });
+  ws.querySelectorAll('.sprint-date-input').forEach(input=>{
+    input.addEventListener('change',()=>updateSprintDate(input));
   });
   ws.scrollLeft=workspaceScrollLeft;
   ws.querySelector('.sprint-panels').scrollLeft=sprintPanelsScrollLeft;
