@@ -28,6 +28,8 @@ The only way data leaves your machine is if **you export it yourself**.
 - Feature sizes: S (40), M (60), L (80), XL (100)
 - Editable feature names, even after placement
 - Attach feature-specific user stories with optional story points and a progress tracker
+- Sprint Detail view with horizontally scrollable sprint columns, per-sprint dividers, and labels
+- Drag stories between sprints, with feature-specific stories inheriting their feature's color
 - Backlog + parked area for items that don’t fit
 - Team tabs with separate plans
 - Import/export (single tab or all tabs)

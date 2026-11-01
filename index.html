@@ -413,13 +413,78 @@
   .view-toggle{display:inline-flex;align-items:center;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:3px;}
   .view-toggle .btn-sm{border:0;background:transparent;padding:4px 9px;}
   .view-toggle .btn-sm.active{background:var(--surface);box-shadow:0 1px 4px rgba(0,0,0,.08);color:var(--text);}
+  .sidebar-view-toggle{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:2px;}
+  .sidebar-view-toggle .btn-sm{justify-content:center;padding:5px 3px;font-size:11px;}
   .board-only{display:none!important;}
+  .sprint-only{display:none!important;}
   body.board-view .capacity-only{display:none!important;}
   body.board-view .board-only{display:block!important;}
+  body.sprint-view .capacity-only,body.sprint-view .board-only{display:none!important;}
+  body.sprint-view .sprint-only{display:block!important;}
   body.board-view .app-body{grid-template-columns:290px minmax(0,1fr);}
   body.board-view .app-body.sidebar-collapsed{grid-template-columns:38px minmax(0,1fr);}
-  body.board-view .right-panel{display:none;}
-  body.board-view .workspace{max-height:calc(100vh - 92px);}
+  body.sprint-view .app-body{grid-template-columns:290px minmax(0,1fr);}
+  body.sprint-view .app-body.sidebar-collapsed{grid-template-columns:38px minmax(0,1fr);}
+  body.board-view .right-panel,body.sprint-view .right-panel{display:none;}
+  body.board-view .workspace,body.sprint-view .workspace{max-height:calc(100vh - 92px);}
+  .sprint-detail-layout{display:flex;flex-direction:column;gap:18px;min-width:0;}
+  .sprint-detail-summary{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:3px;}
+  .sprint-panels{display:flex;gap:12px;align-items:stretch;overflow-x:auto;overflow-y:hidden;padding:0 0 8px;min-width:0;scroll-snap-type:x proximity;}
+  .sprint-panel{flex:0 0 300px;min-width:0;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;transition:border-color .12s,background .12s;scroll-snap-align:start;}
+  .sprint-panel.drag-over{border-color:#6a9fd8;background:#f4f8fc;}
+  .sprint-panel-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px;}
+  .sprint-panel-title{font-size:13px;font-weight:600;}
+  .sprint-panel-capacity{font:10px var(--mono);color:var(--muted);white-space:nowrap;}
+  .sprint-panel-load{font-size:10px;color:var(--muted);font-family:var(--mono);margin-bottom:8px;}
+  .sprint-panel-load.over{color:#b52020;}
+  .sprint-load-track{height:3px;background:var(--subtle);border-radius:3px;overflow:hidden;margin-bottom:10px;}
+  .sprint-load-fill{height:100%;background:#7c9a83;transition:width .15s;}
+  .sprint-load-fill.over{background:#bd7777;}
+  .sprint-story-grid{display:flex;flex-direction:column;gap:5px;min-height:84px;align-items:stretch;}
+  .sprint-story-card{min-width:0;min-height:62px;padding:8px;border:1px solid;border-radius:7px;cursor:grab;user-select:none;display:flex;flex-direction:column;justify-content:space-between;gap:6px;transition:box-shadow .12s,opacity .12s;}
+  .sprint-story-card:hover{box-shadow:0 2px 7px rgba(0,0,0,.1);}
+  .sprint-story-card.is-dragging,.sprint-source-card.is-dragging{opacity:.35;}
+  .sprint-story-card-name{font-size:11px;font-weight:600;line-height:1.3;overflow-wrap:anywhere;}
+  .sprint-story-card-footer{display:flex;align-items:flex-end;justify-content:space-between;gap:6px;min-width:0;}
+  .sprint-story-card-meta{font:9px var(--mono);opacity:.72;flex:none;}
+  .sprint-story-card-feature{font-size:8px;line-height:1.15;opacity:.58;text-align:right;flex:0 1 65%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-left:auto;}
+  .sprint-story-slot{display:flex;flex-direction:column;gap:5px;min-width:0;}
+  .sprint-empty{min-height:74px;border:1px dashed var(--border2);border-radius:7px;display:flex;align-items:center;justify-content:center;padding:10px;text-align:center;color:var(--muted);font-size:11px;}
+  .sprint-divider{display:flex;align-items:center;gap:6px;min-height:18px;padding:1px 0;color:var(--muted);}
+  .sprint-divider-line{height:1px;background:var(--border);flex:1;min-width:12px;}
+  .sprint-divider-label{border:0;background:transparent;color:var(--muted);font:9px var(--mono);max-width:110px;padding:1px 3px;border-radius:3px;cursor:text;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .sprint-divider-label:hover{background:var(--subtle);color:var(--text);}
+  .sprint-divider-input{width:90px!important;max-width:35%;border:0!important;box-shadow:none!important;border-radius:3px!important;background:var(--subtle)!important;color:var(--muted)!important;font:9px var(--mono)!important;padding:2px 4px!important;}
+  .sprint-divider-remove{border:0;background:transparent;color:var(--muted);font-size:12px;line-height:1;padding:1px 3px;opacity:0;cursor:pointer;border-radius:3px;}
+  .sprint-divider:hover .sprint-divider-remove,.sprint-divider-remove:focus-visible{opacity:.65;}
+  .sprint-divider-remove:hover{opacity:1!important;color:#b52020;background:#fceaea;}
+  .sprint-add-divider{display:flex;align-items:center;gap:5px;width:100%;border:0;background:transparent;color:var(--muted);font:9px var(--mono);padding:2px 0;cursor:pointer;opacity:0;transition:opacity .12s;}
+  .sprint-add-divider::before{content:"";height:1px;flex:1;background:var(--border2);}
+  .sprint-add-divider::after{content:"";height:1px;flex:1;background:var(--border2);}
+  .sprint-story-slot:hover .sprint-add-divider,.sprint-story-slot:focus-within .sprint-add-divider{opacity:.42;}
+  .sprint-add-divider:hover,.sprint-add-divider:focus-visible{opacity:1;outline:none;}
+  .sprint-story-groups{display:flex;flex-direction:column;gap:14px;}
+  .sprint-story-group{min-width:0;}
+  .sprint-story-group-header{display:flex;align-items:center;gap:6px;width:100%;border:0;background:transparent;text-align:left;cursor:pointer;padding:2px 3px;border-radius:4px;margin-bottom:5px;}
+  .sprint-story-group-header:hover{background:var(--subtle);}
+  .sprint-story-group-title{min-width:0;flex:1;font-size:11px;font-weight:600;color:var(--muted);overflow-wrap:anywhere;}
+  .sprint-story-group-count{font:9px var(--mono);color:var(--muted);opacity:.8;}
+  .sprint-story-group-chevron{width:10px;height:10px;flex:none;color:var(--muted);transform:rotate(180deg);transition:transform .15s;}
+  .sprint-story-group.collapsed .sprint-story-group-chevron{transform:rotate(0);}
+  .sprint-story-group.collapsed .sprint-source-list{display:none;}
+  .sprint-source-list{display:flex;flex-direction:column;gap:5px;}
+  .sprint-source-card{display:flex;align-items:center;gap:7px;padding:7px 8px;border:1px solid;border-radius:7px;cursor:grab;user-select:none;min-width:0;}
+  .sprint-source-card:hover{box-shadow:0 1px 5px rgba(0,0,0,.08);}
+  .sprint-source-dot{width:7px;height:7px;border-radius:50%;flex:none;}
+  .sprint-source-name{min-width:0;flex:1;font-size:11px;line-height:1.25;overflow-wrap:anywhere;}
+  .sprint-source-meta{font:9px var(--mono);opacity:.72;white-space:nowrap;}
+  .sprint-source-assignment{font:9px var(--mono);color:#68806d;background:#eef3ee;border-radius:3px;padding:1px 4px;white-space:nowrap;}
+  @media(max-width:700px){
+    body.sprint-view .app-body{grid-template-columns:minmax(0,1fr);}
+    body.sprint-view .app-body.sidebar-collapsed{grid-template-columns:38px minmax(0,1fr);}
+    body.sprint-view .sidebar{max-height:42vh;}
+    body.sprint-view .workspace{max-height:none;min-width:0;padding:1rem;}
+  }
   .board-setup-note{font-size:11px;color:var(--muted);line-height:1.5;margin-top:8px;}
   .board-backlog-list{display:flex;flex-direction:column;gap:6px;min-height:70px;}
   .board-backlog-list.drag-over{outline:1.5px dashed var(--border2);outline-offset:5px;border-radius:8px;background:rgba(255,255,255,.35);}
@@ -494,10 +559,6 @@
 <div class="topbar">
   <div class="topbar-left">
     <span class="topbar-title">PI Capacity Planner</span>
-    <div class="view-toggle" role="tablist" aria-label="Planner view">
-      <button class="btn-sm active" id="capacityViewBtn" onclick="setView('capacity')" role="tab" aria-selected="true">Capacity</button>
-      <button class="btn-sm" id="boardViewBtn" onclick="setView('board')" role="tab" aria-selected="false">PI Board</button>
-    </div>
   </div>
   <div class="topbar-actions">
     <button class="btn-sm" id="undoBtn" onclick="undoLastAction()" disabled title="Undo last action">
@@ -564,6 +625,11 @@
       <svg class="collapse-chevron open" id="sidebarChevron" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 4l4 4 4-4"/></svg>
     </button>
     <div class="sidebar-inner" id="sidebarInner">
+    <div class="view-toggle sidebar-view-toggle" role="tablist" aria-label="Planner view">
+      <button class="btn-sm active" id="capacityViewBtn" onclick="setView('capacity')" role="tab" aria-selected="true">Capacity</button>
+      <button class="btn-sm" id="boardViewBtn" onclick="setView('board')" role="tab" aria-selected="false">PI Board</button>
+      <button class="btn-sm" id="sprintViewBtn" onclick="setView('sprint')" role="tab" aria-selected="false">Sprint Detail</button>
+    </div>
     <div class="board-only">
       <div class="section-title">PI Planning setup</div>
       <div class="field"><label class="field-label">PI name</label><input type="text" id="boardName" value="PI 2026 Q3" oninput="onBoardNameInput()"></div>
@@ -646,6 +712,10 @@
       </div>
       <div class="section-title" style="display:flex;align-items:center;gap:6px;">Board backlog <span class="count-badge" id="boardBacklogCount">0</span></div>
       <div class="board-backlog-list" id="boardBacklogList"></div>
+    </div>
+    <div class="sprint-only">
+      <div class="section-title">Sprint stories</div>
+      <div class="sprint-story-groups" id="sprintStoryGroups"></div>
     </div>
     </div>
   </aside>
@@ -881,6 +951,77 @@ function compactTypeLabel(f){
   return'US';
 }
 function getPalette(f){const pid=f.paletteId!=null?f.paletteId:(SIZES(f.type,f.size)?.paletteId||1);return PALETTES.find(p=>p.id===pid)||PALETTES[0];}
+function ensureFeatureUserStoryIds(feature){
+  if(!feature||typeof feature!=='object')return;
+  if(!Array.isArray(feature.userStories))return;
+  const used=new Set();
+  let counter=Number.isInteger(feature.userStoryIdCounter)?feature.userStoryIdCounter:0;
+  feature.userStories.forEach(story=>{
+    if(!story||typeof story!=='object')return;
+    let id=typeof story.id==='string'?story.id:'';
+    if(!id||used.has(id)){
+      do{id=`fs-${feature.id}-${++counter}`;}while(used.has(id));
+      story.id=id;
+    }
+    used.add(id);
+    const match=id.match(new RegExp(`^fs-${feature.id}-(\\d+)$`));
+    if(match)counter=Math.max(counter,Number(match[1]));
+  });
+  feature.userStoryIdCounter=counter;
+}
+function createFeatureUserStoryId(feature){
+  feature.userStoryIdCounter=(Number(feature.userStoryIdCounter)||0)+1;
+  return`fs-${feature.id}-${feature.userStoryIdCounter}`;
+}
+function removeSprintPlacementsForFeature(team,featureId){
+  Object.keys(team.sprintPlacements||{}).forEach(key=>{
+    if(key===`story:${featureId}`||key.startsWith(`feature-story:${featureId}:`))delete team.sprintPlacements[key];
+  });
+}
+function ensureSprintDividers(team){
+  if(!team||typeof team!=='object')return;
+  const maxSprint=Math.max(1,parseInt(team.sprintCount)||1);
+  const used=new Set();
+  let counter=Number.isInteger(team.sprintDividerIdCounter)?team.sprintDividerIdCounter:0;
+  const dividers=Array.isArray(team.sprintDividers)?team.sprintDividers:[];
+  team.sprintDividers=dividers.filter(divider=>
+    divider&&typeof divider==='object'&&Number.isInteger(divider.sprintIndex)&&divider.sprintIndex>=0&&divider.sprintIndex<maxSprint
+  ).map(divider=>{
+    let id=typeof divider.id==='string'?divider.id:'';
+    if(!id||used.has(id))id=`sd-${++counter}`;
+    while(used.has(id))id=`sd-${++counter}`;
+    used.add(id);
+    const match=id.match(/^sd-(\d+)$/);
+    if(match)counter=Math.max(counter,Number(match[1]));
+    return{id,sprintIndex:divider.sprintIndex,afterKey:typeof divider.afterKey==='string'?divider.afterKey:null,label:typeof divider.label==='string'?divider.label:''};
+  });
+  team.sprintDividerIdCounter=counter;
+}
+let sprintDividerEditId=null;
+function getSprintWorkItems(team){
+  const items=[];
+  (team?.features||[]).forEach(feature=>{
+    if(!feature||typeof feature!=='object')return;
+    if((feature.type||'feature')==='story'){
+      const points=SIZES('story',feature.size)?.pts||0;
+      items.push({key:`story:${feature.id}`,name:feature.name,points,palette:getPalette(feature),featureName:'',featureId:null});
+      return;
+    }
+    (Array.isArray(feature.userStories)?feature.userStories:[]).forEach(story=>{
+      if(!story||typeof story.name!=='string'||!story.name.trim())return;
+      const points=Number(story.size);
+      items.push({
+        key:`feature-story:${feature.id}:${story.id}`,
+        name:story.name.trim(),
+        points:Number.isFinite(points)&&points>0?points:0,
+        palette:getPalette(feature),
+        featureName:feature.name,
+        featureId:feature.id,
+      });
+    });
+  });
+  return items;
+}
 function nextQuarterParts(date=new Date()){
   const currentQuarter=Math.floor(date.getMonth()/3)+1;
   let quarter=currentQuarter+1,year=date.getFullYear();
@@ -892,7 +1033,7 @@ function defaultPIName(){
   return`PI ${year} Q${quarter}`;
 }
 
-let tabs=[],activeTabId=null,tabIdSeq=0,dragId=null,dragFrom=null,currentView='capacity',boardDragKey=null,boardDragFrom=null,depDrag=null,boardRowDragTeamId=null,tabDragTeamId=null,suppressNextTabClick=false,sidebarCollapsed=false,rightPanelCollapsed=true,tileResizeDrag=null;
+let tabs=[],activeTabId=null,tabIdSeq=0,dragId=null,dragFrom=null,currentView='capacity',sprintDragKey=null,boardDragKey=null,boardDragFrom=null,depDrag=null,boardRowDragTeamId=null,tabDragTeamId=null,suppressNextTabClick=false,sidebarCollapsed=false,rightPanelCollapsed=true,tileResizeDrag=null;
 let supabaseClient=null,authSession=null,authMode='login',remoteBoards=[],remoteBoardsLoading=false,currentRemoteBoardId=null,currentRemoteBoardName='',currentRemoteBoardPermission='owner',remoteSaveTimer=null,isSavingRemoteBoard=false,remoteSaveStatus='saved',remoteBoardChannel=null,remoteBoardChannelId=null,pendingAnonymousImportSnapshot=null,signedInModePromise=null,signedInUserModeReadyFor=null,anonymousImportEligible=false,pendingImportNameResolve=null,pendingDeleteRemoteBoardId=null,pendingRenameRemoteBoardId=null,pendingRenameRemoteBoardValue=null,pendingRenameRemoteBoardError='',boardShareBoardId=null,boardShareEntries=[],boardShareLoading=false,boardShareSaving=false,readOnlyWarningShown=false;
 const COLLABORATION_COLORS=['#2f6fdd','#d05b45','#2d8b62','#8b5cc7','#c47a19','#187f94','#b34f83','#65712f'];
 const realtimeClientId=globalThis.crypto?.randomUUID?.()||`client-${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -1024,12 +1165,14 @@ function collaborationColor(seed){
   let hash=0;for(const ch of String(seed||''))hash=((hash<<5)-hash+ch.charCodeAt(0))|0;
   return COLLABORATION_COLORS[(hash>>>0)%COLLABORATION_COLORS.length];
 }
-function collaborationLocation(){return currentView==='board'?'board':`capacity:${activeTabId||''}`;}
+function collaborationLocation(){return currentView==='board'?'board':`${currentView==='sprint'?'sprint':'capacity'}:${activeTabId||''}`;}
 function collaborationLocationLabel(location){
   if(location==='board')return'PI Board';
-  const teamId=Number(String(location||'').split(':')[1]);
+  const [view,rawTeamId]=String(location||'').split(':');
+  const teamId=Number(rawTeamId);
   const team=tabs.find(item=>item.id===teamId);
-  return team?.name?`Capacity · ${team.name}`:'Capacity';
+  const viewLabel=view==='sprint'?'Sprint Detail':'Capacity';
+  return team?.name?`${viewLabel} · ${team.name}`:viewLabel;
 }
 function localPresencePayload(){
   const email=normalizeUserEmail(authSession?.user?.email);
@@ -2185,7 +2328,7 @@ function applyStateSnapshot(snapshot){
   tabs=s.tabs;
   const incomingActiveTabId=s.activeTabId;
   tabIdSeq=s.tabIdSeq||tabs.length;
-  if(s.currentView==='board'||s.currentView==='capacity')currentView=s.currentView;
+  if(['board','capacity','sprint'].includes(s.currentView))currentView=s.currentView;
   if(Object.prototype.hasOwnProperty.call(s,'sidebarCollapsed'))sidebarCollapsed=!!s.sidebarCollapsed;
   if(Object.prototype.hasOwnProperty.call(s,'rightPanelCollapsed'))rightPanelCollapsed=!!s.rightPanelCollapsed;
   boardState=normalizeBoardState(s.boardState);
@@ -2234,6 +2377,14 @@ function normalizeTeamDefaults(t){
   if(!t||typeof t!=='object')return;
   delete t.quarterName;
   if(!t.capacity){t.capacity=240;t.sprintDevs=4;t.sprintCount=6;t.sprintWeeks=2;t.sprintPtsPerDev=10;t.holidays=0;}
+  (t.features||[]).forEach(feature=>ensureFeatureUserStoryIds(feature));
+  const validKeys=new Set(getSprintWorkItems(t).map(item=>item.key));
+  const placements=t.sprintPlacements&&typeof t.sprintPlacements==='object'?t.sprintPlacements:{};
+  const sprintCount=Math.max(1,parseInt(t.sprintCount)||1);
+  t.sprintPlacements=Object.fromEntries(Object.entries(placements).filter(([key,index])=>
+    validKeys.has(key)&&Number.isInteger(index)&&index>=0&&index<sprintCount
+  ));
+  ensureSprintDividers(t);
 }
 function normalizeAllTeams(){tabs.forEach(normalizeTeamDefaults);}
 function loadState(){
@@ -2241,7 +2392,7 @@ function loadState(){
     let s=JSON.parse(localStorage.getItem(STORAGE_KEY));
     if(s&&s.version===6&&Array.isArray(s.tabs)&&s.tabs.length){
       tabs=s.tabs;activeTabId=s.activeTabId;tabIdSeq=s.tabIdSeq||s.tabs.length;
-      currentView=s.currentView==='board'?'board':'capacity';
+      currentView=['board','capacity','sprint'].includes(s.currentView)?s.currentView:'capacity';
       sidebarCollapsed=!!s.sidebarCollapsed;
       rightPanelCollapsed=!!s.rightPanelCollapsed;
       boardState=normalizeBoardState(s.boardState);
@@ -2281,6 +2432,12 @@ function applySprintCapacity(){
         holidays=parseFloat(document.getElementById('holidayDays').value)||0;
   if(!d||!sp||!p){alert('Fill in Developers, Sprints and Pts/dev/sprint.');return;}
   const t=tab();if(!t)return;
+  const outsideSprints=Object.values(t.sprintPlacements||{}).some(index=>index>=sp);
+  if(sp<(Number(t.sprintCount)||0)&&outsideSprints&&!confirm('Reducing the sprint count will remove stories assigned to sprints beyond the new count. Continue?')){
+    document.getElementById('sprintCount').value=t.sprintCount;
+    return;
+  }
+  if(sp<(Number(t.sprintCount)||0))Object.entries(t.sprintPlacements||{}).forEach(([key,index])=>{if(index>=sp)delete t.sprintPlacements[key];});
   t.sprintDevs=d;t.sprintCount=sp;t.sprintWeeks=w;t.sprintPtsPerDev=p;t.holidays=holidays;
   t.capacity=teamCapacityPts(t);evictOutOfBounds();saveState();renderWorkspace();
 }
@@ -2583,19 +2740,24 @@ function cleanupBoardState(){
 }
 function syncViewUI(){
   const isBoard=currentView==='board';
+  const isSprint=currentView==='sprint';
   document.body.classList.toggle('board-view',isBoard);
-  document.getElementById('appBody')?.classList.toggle('board-mode',isBoard);
-  const capBtn=document.getElementById('capacityViewBtn'),boardBtn=document.getElementById('boardViewBtn');
-  if(capBtn){capBtn.classList.toggle('active',!isBoard);capBtn.setAttribute('aria-selected',String(!isBoard));}
+  document.body.classList.toggle('sprint-view',isSprint);
+  const app=document.getElementById('appBody');
+  app?.classList.toggle('board-mode',isBoard);
+  app?.classList.toggle('sprint-mode',isSprint);
+  const capBtn=document.getElementById('capacityViewBtn'),boardBtn=document.getElementById('boardViewBtn'),sprintBtn=document.getElementById('sprintViewBtn');
+  if(capBtn){capBtn.classList.toggle('active',!isBoard&&!isSprint);capBtn.setAttribute('aria-selected',String(!isBoard&&!isSprint));}
   if(boardBtn){boardBtn.classList.toggle('active',isBoard);boardBtn.setAttribute('aria-selected',String(isBoard));}
+  if(sprintBtn){sprintBtn.classList.toggle('active',isSprint);sprintBtn.setAttribute('aria-selected',String(isSprint));}
   const title=document.querySelector('.topbar-title');
-  if(title)title.textContent=isBoard?'PI Planning Board':'PI Capacity Planner';
+  if(title)title.textContent=isBoard?'PI Planning Board':isSprint?'Sprint Detail':'PI Capacity Planner';
   loadBoardInputs();
   syncSidebarUI();
   syncRightPanelUI();
 }
 function setView(view){
-  currentView=view==='board'?'board':'capacity';
+  currentView=['board','sprint'].includes(view)?view:'capacity';
   syncViewUI();
   saveState();
   loadTabIntoSidebar();
@@ -3053,6 +3215,245 @@ function renderPIBoardWorkspace(){
   renderBoardBacklog();
   requestAnimationFrame(renderBoardDependencies);
 }
+function sprintPointsLabel(points){
+  return`${Number(points.toPrecision(12)).toString()} ${points===1?'pt':'pts'}`;
+}
+function sprintItemPointsLabel(item){return item.points?sprintPointsLabel(item.points):'No points';}
+function renderSprintStoryGroups(){
+  const container=document.getElementById('sprintStoryGroups'),t=tab();
+  if(!container)return;
+  if(!t){container.innerHTML='<div class="empty-state">No team selected</div>';return;}
+  const items=getSprintWorkItems(t),placements=t.sprintPlacements||{};
+  const collapsedSections=t.sprintStorySections||{};
+  const renderCard=item=>{
+    const assigned=Number.isInteger(placements[item.key])?`Planned · S${placements[item.key]+1}`:'';
+    const card=document.createElement('div');
+    card.className='sprint-source-card';card.draggable=true;card.dataset.itemKey=item.key;
+    card.style.cssText=`background:${item.palette.bg};color:${item.palette.color};border-color:${item.palette.border};`;
+    card.innerHTML=`<span class="sprint-source-dot" style="background:${item.palette.color}"></span><span class="sprint-source-name">${esc(item.name)}</span><span class="sprint-source-meta">${sprintItemPointsLabel(item)}</span>${assigned?`<span class="sprint-source-assignment">${assigned}</span>`:''}`;
+    card.addEventListener('dragstart',startSprintStoryDrag);
+    card.addEventListener('dragend',resetSprintStoryDrag);
+    return card;
+  };
+  const renderGroup=(key,title,groupItems)=>{
+    const group=document.createElement('section');
+    const collapsed=!!collapsedSections[key];
+    group.className=`sprint-story-group${collapsed?' collapsed':''}`;
+    const header=document.createElement('button');
+    header.className='sprint-story-group-header';
+    header.type='button';
+    header.setAttribute('aria-expanded',String(!collapsed));
+    header.innerHTML=`<span class="sprint-story-group-title">${esc(title)}</span><span class="sprint-story-group-count">(${groupItems.length})</span><svg class="sprint-story-group-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 4l4 4 4-4"/></svg>`;
+    header.addEventListener('click',()=>toggleSprintStoryGroup(key));
+    const list=document.createElement('div');
+    list.className='sprint-source-list';
+    groupItems.forEach(item=>list.appendChild(renderCard(item)));
+    group.append(header,list);
+    container.appendChild(group);
+  };
+  container.innerHTML='';
+  container.ondragover=onSprintStoriesDragOver;
+  container.ondragleave=onSprintStoriesDragLeave;
+  container.ondrop=onSprintStoriesDrop;
+  const featureGroups=new Map();
+  items.filter(item=>item.key.startsWith('feature-story:')).forEach(item=>{
+    if(!featureGroups.has(item.featureId))featureGroups.set(item.featureId,{name:item.featureName,items:[]});
+    featureGroups.get(item.featureId).items.push(item);
+  });
+  featureGroups.forEach(({name:featureName,items:featureItems},featureId)=>renderGroup(`feature-${featureId}`,featureName,featureItems));
+  const directStories=items.filter(item=>item.key.startsWith('story:'));
+  if(directStories.length)renderGroup('user-stories','User stories',directStories);
+  if(!items.length)container.innerHTML='<div class="empty-state">Add user stories to see them here.</div>';
+}
+function toggleSprintStoryGroup(key){
+  const t=tab();if(!t)return;
+  t.sprintStorySections=t.sprintStorySections||{};
+  t.sprintStorySections[key]=!t.sprintStorySections[key];
+  saveState();
+  renderSprintStoryGroups();
+}
+function startSprintStoryDrag(e){
+  const key=e.currentTarget.dataset.itemKey;
+  if(!key){e.preventDefault();return;}
+  sprintDragKey=key;
+  e.dataTransfer.effectAllowed='move';
+  e.dataTransfer.setData('text/plain',key);
+  setTimeout(()=>e.currentTarget.classList.add('is-dragging'),0);
+}
+function resetSprintStoryDrag(e){
+  e?.currentTarget?.classList.remove('is-dragging');
+  sprintDragKey=null;
+  document.querySelectorAll('.sprint-panel.drag-over,.sprint-story-groups.drag-over').forEach(el=>el.classList.remove('drag-over'));
+}
+function onSprintPanelDragOver(e){
+  if(!sprintDragKey)return;
+  e.preventDefault();
+  e.currentTarget.classList.add('drag-over');
+  e.dataTransfer.dropEffect='move';
+}
+function onSprintPanelDragLeave(e){
+  if(!e.currentTarget.contains(e.relatedTarget))e.currentTarget.classList.remove('drag-over');
+}
+function onSprintPanelDrop(e){
+  e.preventDefault();
+  const t=tab(),key=sprintDragKey,index=Number(e.currentTarget.dataset.sprint);
+  e.currentTarget.classList.remove('drag-over');
+  if(!t||!key||!getSprintWorkItems(t).some(item=>item.key===key)||!Number.isInteger(index)){resetSprintStoryDrag();return;}
+  t.sprintPlacements=t.sprintPlacements||{};
+  t.sprintPlacements[key]=index;
+  resetSprintStoryDrag();
+  saveState();
+  renderWorkspace();
+}
+function onSprintStoriesDragOver(e){
+  if(!sprintDragKey)return;
+  e.preventDefault();
+  e.currentTarget.classList.add('drag-over');
+  e.dataTransfer.dropEffect='move';
+}
+function onSprintStoriesDragLeave(e){
+  if(!e.currentTarget.contains(e.relatedTarget))e.currentTarget.classList.remove('drag-over');
+}
+function onSprintStoriesDrop(e){
+  e.preventDefault();
+  const t=tab(),key=sprintDragKey;
+  e.currentTarget.classList.remove('drag-over');
+  if(!t||!key)return;
+  delete t.sprintPlacements?.[key];
+  resetSprintStoryDrag();
+  saveState();
+  renderWorkspace();
+}
+function sprintDividerMarkup(divider){
+  const label=divider.label||'';
+  const labelElement=sprintDividerEditId===divider.id
+    ?`<input class="sprint-divider-input" type="text" value="${esc(label)}" data-original-label="${esc(label)}" placeholder="Section name" aria-label="Divider name" data-divider-id="${esc(divider.id)}">`
+    :`<button class="sprint-divider-label" type="button" data-divider-id="${esc(divider.id)}" title="Click to name this divider">${esc(label||'Name divider')}</button>`;
+  return`<div class="sprint-divider" data-divider-id="${esc(divider.id)}"><span class="sprint-divider-line"></span>${labelElement}<span class="sprint-divider-line"></span><button class="sprint-divider-remove" type="button" data-divider-id="${esc(divider.id)}" aria-label="Remove divider" title="Remove divider">×</button></div>`;
+}
+function sprintDividerAddButton(sprintIndex,afterKey){
+  return`<button class="sprint-add-divider" type="button" data-sprint="${sprintIndex}" data-after-key="${esc(afterKey||'')}" aria-label="Add divider">+ divider</button>`;
+}
+function addSprintDivider(sprintIndex,afterKey){
+  const t=tab();
+  if(!t||!Number.isInteger(sprintIndex))return;
+  ensureSprintDividers(t);
+  t.sprintDividerIdCounter++;
+  const id=`sd-${t.sprintDividerIdCounter}`;
+  t.sprintDividers.push({id,sprintIndex,afterKey:afterKey||null,label:''});
+  sprintDividerEditId=id;
+  saveState();
+  renderWorkspace();
+  requestAnimationFrame(()=>document.querySelector(`.sprint-divider-input[data-divider-id="${id}"]`)?.focus());
+}
+function editSprintDivider(id){
+  sprintDividerEditId=id;
+  renderWorkspace();
+  requestAnimationFrame(()=>{
+    const input=document.querySelector(`.sprint-divider-input[data-divider-id="${id}"]`);
+    input?.focus();input?.select();
+  });
+}
+function saveSprintDividerLabel(id,label){
+  const t=tab(),divider=t?.sprintDividers?.find(item=>item.id===id);
+  if(!divider)return;
+  divider.label=label.trim();
+  sprintDividerEditId=null;
+  saveState();
+  renderWorkspace();
+}
+function handleSprintDividerKeydown(e){
+  if(e.key==='Enter'){
+    e.preventDefault();
+    saveSprintDividerLabel(e.currentTarget.dataset.dividerId,e.currentTarget.value);
+  }
+  if(e.key==='Escape'){
+    e.preventDefault();
+    e.currentTarget.dataset.cancelled='true';
+    const t=tab(),divider=t?.sprintDividers?.find(item=>item.id===e.currentTarget.dataset.dividerId);
+    if(divider)divider.label=e.currentTarget.dataset.originalLabel||'';
+    sprintDividerEditId=null;
+    renderWorkspace();
+  }
+}
+function removeSprintDivider(id){
+  const t=tab();if(!t)return;
+  t.sprintDividers=(t.sprintDividers||[]).filter(divider=>divider.id!==id);
+  if(sprintDividerEditId===id)sprintDividerEditId=null;
+  saveState();
+  renderWorkspace();
+}
+function renderSprintDetailWorkspace(){
+  const ws=document.getElementById('workspace'),t=tab();
+  renderSprintStoryGroups();
+  if(!t){
+    ws.innerHTML='<div class="ws-placeholder"><p>Create a team tab to plan its sprints.</p></div>';
+    return;
+  }
+  ensureSprintDividers(t);
+  const items=getSprintWorkItems(t),placements=t.sprintPlacements||{};
+  const sprintCount=Math.max(1,parseInt(t.sprintCount)||1);
+  const totalCapacity=Math.max(0,Number(teamCapacityPts(t))||0);
+  const capacityPerSprint=totalCapacity/sprintCount;
+  const sprintPanels=Array.from({length:sprintCount},(_,index)=>{
+    const sprintItems=items.filter(item=>placements[item.key]===index);
+    const dividers=t.sprintDividers.filter(divider=>divider.sprintIndex===index);
+    const renderedDividerIds=new Set();
+    const renderDividersAfter=afterKey=>dividers.filter(divider=>divider.afterKey===afterKey).map(divider=>{
+      renderedDividerIds.add(divider.id);
+      return sprintDividerMarkup(divider);
+    }).join('');
+    const points=sprintItems.reduce((sum,item)=>sum+item.points,0);
+    const over=points>capacityPerSprint;
+    const progress=capacityPerSprint?Math.min(100,Math.round(points/capacityPerSprint*100)):0;
+    let cards='';
+    sprintItems.forEach(item=>{
+      cards+=`<div class="sprint-story-slot"><div class="sprint-story-card" draggable="true" data-item-key="${esc(item.key)}" style="background:${item.palette.bg};color:${item.palette.color};border-color:${item.palette.border}"><div class="sprint-story-card-name">${esc(item.name)}</div><div class="sprint-story-card-footer"><div class="sprint-story-card-meta">${sprintItemPointsLabel(item)}</div>${item.featureName?`<div class="sprint-story-card-feature" title="Feature: ${esc(item.featureName)}">Feature: ${esc(item.featureName)}</div>`:''}</div></div>`;
+      cards+=renderDividersAfter(item.key);
+      cards+=sprintDividerAddButton(index,item.key);
+      cards+='</div>';
+    });
+    const unplacedDividers=dividers.filter(divider=>!renderedDividerIds.has(divider.id));
+    if(unplacedDividers.length)cards+=unplacedDividers.map(sprintDividerMarkup).join('');
+    if(!sprintItems.length){
+      if(!dividers.length)cards='<div class="sprint-empty">Drag user stories here</div>';
+      cards=`<div class="sprint-story-slot">${cards}${sprintDividerAddButton(index,'')}</div>`;
+    }
+    return`<section class="sprint-panel" data-sprint="${index}">
+      <div class="sprint-panel-header"><div class="sprint-panel-title">Sprint ${index+1}</div><div class="sprint-panel-capacity">${sprintPointsLabel(capacityPerSprint)} capacity</div></div>
+      <div class="sprint-panel-load${over?' over':''}">${sprintPointsLabel(points)} planned${over?' · over capacity':''}</div>
+      <div class="sprint-load-track" aria-hidden="true"><div class="sprint-load-fill${over?' over':''}" style="width:${progress}%"></div></div>
+      <div class="sprint-story-grid">${cards}</div>
+    </section>`;
+  }).join('');
+  ws.innerHTML=`<div class="sprint-detail-layout">
+    <div class="ws-header"><div><div class="ws-title">${esc(t.name||'Team')} · Sprint Detail</div><div class="sprint-detail-summary">${sprintCount} ${sprintCount===1?'sprint':'sprints'} · ${sprintPointsLabel(totalCapacity)} total capacity${t.sprintWeeks?` · ${t.sprintWeeks} weeks per sprint`:''}</div></div></div>
+    <div class="sprint-panels">${sprintPanels}</div>
+  </div>`;
+  ws.querySelectorAll('.sprint-panel').forEach(panel=>{
+    panel.addEventListener('dragover',onSprintPanelDragOver);
+    panel.addEventListener('dragleave',onSprintPanelDragLeave);
+    panel.addEventListener('drop',onSprintPanelDrop);
+  });
+  ws.querySelectorAll('.sprint-story-card').forEach(card=>{
+    card.addEventListener('dragstart',startSprintStoryDrag);
+    card.addEventListener('dragend',resetSprintStoryDrag);
+  });
+  ws.querySelectorAll('.sprint-add-divider').forEach(button=>{
+    button.addEventListener('click',()=>addSprintDivider(Number(button.dataset.sprint),button.dataset.afterKey||null));
+  });
+  ws.querySelectorAll('.sprint-divider-label').forEach(button=>{
+    button.addEventListener('click',()=>editSprintDivider(button.dataset.dividerId));
+  });
+  ws.querySelectorAll('.sprint-divider-input').forEach(input=>{
+    input.addEventListener('keydown',handleSprintDividerKeydown);
+    input.addEventListener('blur',()=>{if(input.dataset.cancelled!=='true')saveSprintDividerLabel(input.dataset.dividerId,input.value);});
+    if(input.dataset.dividerId===sprintDividerEditId)requestAnimationFrame(()=>input.focus());
+  });
+  ws.querySelectorAll('.sprint-divider-remove').forEach(button=>{
+    button.addEventListener('click',()=>removeSprintDivider(button.dataset.dividerId));
+  });
+}
 function clearBoardDependencies(){
   if(!boardState.dependencies.length)return;
   if(!confirm('Clear all dependency ropes from the PI board?'))return;
@@ -3077,6 +3478,7 @@ function remapBoardStateForImportedTabs(incomingState,idMap){
 function renderWorkspace(){
   requestAnimationFrame(positionAllRemoteCursors);
   if(currentView==='board'){renderPIBoardWorkspace();return;}
+  if(currentView==='sprint'){renderSprintDetailWorkspace();return;}
   const ws=document.getElementById('workspace'),t=tab();
   if(!t||!t.capacity){
     ws.innerHTML=`<div class="ws-placeholder"><p style="font-size:13px;">Fill in sprint capacity on the left<br>and click <strong>Set capacity</strong> to start.</p></div>`;
@@ -3486,6 +3888,7 @@ function resizeWorkItem(id,type,size){
   const f=t.features.find(x=>x.id===+id);if(!f)return;
   const oldType=f.type||'feature',oldSize=f.size;
   if(oldType===type&&oldSize===size)return;
+  if(oldType==='story'&&type!=='story')delete t.sprintPlacements?.[`story:${id}`];
   f.type=type;f.size=size;
   const s=SIZES(type,size);
   const wasPlaced=!!t.placed[id];
@@ -3510,7 +3913,7 @@ function resizeWorkItem(id,type,size){
   updateParked();
   updateRightPanel();
   renderBoardBacklog();
-  if(currentView==='board')renderWorkspace();
+  if(currentView!=='capacity')renderWorkspace();
 }
 
 function tileRemove(id){
@@ -3521,7 +3924,7 @@ function tileRemove(id){
 function setFeatureColour(id,pid){
   const t=tab();if(!t)return;
   const f=t.features.find(f=>f.id===id);if(!f)return;
-  f.paletteId=pid;saveState();renderTiles();renderBacklog();updateParked();updateRightPanel();if(currentView==='board')renderWorkspace();
+  f.paletteId=pid;saveState();renderTiles();renderBacklog();updateParked();updateRightPanel();if(currentView!=='capacity')renderWorkspace();
 }
 
 function updateStats(){
@@ -3588,7 +3991,7 @@ function openDescriptionEditor(id){
   editingDescriptionId=+id;
   editingUserStories=Array.isArray(f.userStories)?f.userStories.filter(story=>story&&typeof story.name==='string').map(story=>{
     const size=Number(story.size);
-    return{name:story.name,...(story.size!=null&&story.size!==''&&Number.isFinite(size)&&size>0?{size}:{})};
+    return{id:story.id,name:story.name,...(story.size!=null&&story.size!==''&&Number.isFinite(size)&&size>0?{size}:{})};
   }):[];
   const modal=document.getElementById('descriptionEditorModal');
   const nameLabel=document.getElementById('descriptionEditorName');
@@ -3632,7 +4035,7 @@ function closeDescriptionEditor(){
   if((nameInput?.value.trim()||sizeInput?.value.trim())&&!confirm('This new user story has not been added yet. Close without adding it?'))return;
   flushDescriptionEditorSave();
   renderBacklog();renderTiles();updateParked();updateRightPanel();renderBoardBacklog();
-  if(currentView==='board')renderWorkspace();
+  if(currentView!=='capacity')renderWorkspace();
   editingDescriptionId=null;
   editingUserStories=[];
   editingUserStoryIndex=null;
@@ -3652,7 +4055,12 @@ function syncDescriptionEditorToFeature(){
   f.description=document.getElementById('descriptionEditor')?.value||'';
   if((f.type||'feature')==='feature'){
     const stories=editingUserStoryIndex==null?editingUserStories:editingUserStories.map((story,index)=>index===editingUserStoryIndex&&editingUserStoryDraft?editingUserStoryDraft:story);
-    f.userStories=stories.map(story=>({name:story.name,...(story.size==null?{}:{size:story.size})}));
+    const updatedStories=stories.map(story=>({id:story.id,name:story.name,...(story.size==null?{}:{size:story.size})}));
+    const retainedIds=new Set(updatedStories.map(story=>story.id));
+    (f.userStories||[]).forEach(story=>{
+      if(story?.id&&!retainedIds.has(story.id))delete tab().sprintPlacements?.[`feature-story:${f.id}:${story.id}`];
+    });
+    f.userStories=updatedStories;
   }
 }
 function scheduleDescriptionEditorSave(){
@@ -3710,7 +4118,7 @@ function commitDescriptionUserStoryEdit(){
     if(error)error.textContent='Story points must be positive, or left blank.';
     return;
   }
-  editingUserStories[editingUserStoryIndex]={name:draft.name.trim(),...(draft.size==null?{}:{size:draft.size})};
+  editingUserStories[editingUserStoryIndex]={id:editingUserStories[editingUserStoryIndex].id,name:draft.name.trim(),...(draft.size==null?{}:{size:draft.size})};
   editingUserStoryIndex=null;editingUserStoryDraft=null;
   if(error)error.textContent='';
   renderDescriptionUserStories();
@@ -3777,7 +4185,9 @@ function addDescriptionUserStory(){
     if(error)error.textContent='Enter a story name and, if provided, a positive story-point size.';
     return;
   }
-  editingUserStories.push({name,...(size==null?{}:{size})});
+  const feature=tab()?.features.find(item=>item.id===editingDescriptionId);
+  if(!feature)return;
+  editingUserStories.push({id:createFeatureUserStoryId(feature),name,...(size==null?{}:{size})});
   nameInput.value='';sizeInput.value='';
   if(error)error.textContent='';
   renderDescriptionUserStories();
@@ -3847,9 +4257,10 @@ function addFeature(){
 }
 function removeFeature(id){
   const t=tab();if(!t)return;
+  removeSprintPlacementsForFeature(t,id);
   t.features=t.features.filter(f=>f.id!==id);delete t.placed[id];t.parked=t.parked.filter(i=>i!==id);
   cleanupBoardState();saveState();renderBacklog();if(t.capacity){updateStats();renderTiles();updateParked();updateRightPanel();}
-  if(currentView==='board')renderWorkspace();
+  if(currentView!=='capacity')renderWorkspace();
 }
 const backlogListEl=document.getElementById('backlogList');
 if(backlogListEl){
